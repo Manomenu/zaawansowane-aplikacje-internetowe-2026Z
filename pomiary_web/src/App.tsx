@@ -1,5 +1,6 @@
 import { useState } from "react";
 
+import { Sensors } from "./sensors/Sensors";
 import { LoginModal } from "./session/LoginModal";
 import { PasswordForm } from "./session/PasswordForm";
 import { useSession } from "./session/useSession";
@@ -52,8 +53,7 @@ export function App() {
                             <p>Series: coming soon.</p>
                         </TabPanel>
                         <TabPanel value="sensors">
-                            {/* FEATURE SPOT sensors/: admin screen, gets session.token and onUnauthorized. */}
-                            <p>Sensors: coming soon.</p>
+                            <Sensors token={session.token} onUnauthorized={onUnauthorized} />
                         </TabPanel>
                         <TabPanel value="account">
                             <PasswordForm token={session.token} onUnauthorized={onUnauthorized} />
