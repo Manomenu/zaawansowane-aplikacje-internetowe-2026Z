@@ -150,22 +150,30 @@ out, the header has "Log in", which opens the login form in a modal.
   labelled with its unit. Recharts (SVG — prints sharply), time on the x-axis.
 - **A series is never told apart by colour alone (T6):** its marker shape comes from
   `series.icon` (`circle`, `square`, `triangle`, `diamond`; anything else → circle), and the
-  legend and the table header show the same marker next to the name.
+  legend and the table header show the same marker (20 px) next to the name. A series is named
+  `<place>: <quantity>` at the source (the generator's `seed`) and shown as `<name> (<unit>)`,
+  the unit left out when empty; the UI never splits names.
 - **The table:** one row per timestamp, one column per visible series (F2), newest first,
   empty cells where a series has no value. A row is a button-like element (keyboard: Tab +
   Enter/Space) — selecting it highlights that timestamp's points on the charts (a larger
   outlined marker and a vertical reference line) and marks the row (`aria-selected`) (F6).
 - **Filters (F5):** from/to (`datetime-local` inputs) with presets (24 h, 7 days, 30 days),
   series checkboxes grouped by unit with an "all of this unit" toggle. Default: the last 7
-  days, every series.
+  days, every series. The page is one column, top to bottom: the filters (expanded by default,
+  time range and presets in one row, series grouped by unit in a wrapping row below, stacked on
+  a phone), then the charts, then the table, each full width. A "Hide filters" / "Show filters"
+  button (`aria-expanded`) collapses them; the choice is not stored. A one-line summary
+  ("Last 7 days · 12 of 12 series") sits next to the button and prints.
 - **Print (F7, T7):** the same view; `@media print` hides everything with the class
   `no-print` (header, tabs, filters, buttons, forms) and lets the table run over pages.
 
 ## Layout and accessibility
 
 - `src/app.css` holds the page grid: CSS Grid with media queries (T2 requires Flexbox/Grid
-  **and** media queries in CSS) — filters beside the charts from 992 px, above them below it;
-  the table scrolls horizontally inside its own box on a phone (360 px), the page never does.
+  **and** media queries in CSS) — the dashboard content always has the full width (the filters
+  float over it); the table is `table-layout: fixed` with wrapping headers and fits 12 series
+  from 1024 px with no scrolling; on a phone (360 px) it scrolls inside its own box, the page
+  never does.
 - Landmarks (`header`, `nav`, `main`, `footer`), one `h1`, every input labelled, visible focus,
   WCAG AA contrast in both colour schemes, `lang="en"`. Lighthouse Accessibility ≥ 90 (A5).
 - Forms submit with Enter (a real `<form>`), validate before sending, disable the button and

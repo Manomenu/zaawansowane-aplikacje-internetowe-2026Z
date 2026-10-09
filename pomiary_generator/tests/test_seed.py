@@ -25,7 +25,7 @@ def test_seed_creates_12_series_12_sensors_and_values(fake: Fake) -> None:
     assert len(state.sensors) == 12
     assert len(state.measurements) == 12 * 24
     assert "Suwałki" in " ".join(str(s["name"]) for s in state.series)
-    assert any(s["name"] == "Soil moisture — Suwałki" for s in state.series)
+    assert any(s["name"] == "Suwałki: Soil moisture" for s in state.series)
     # distinct colour/icon pair per series (T6), icons per quantity
     assert len({(s["color"], s["icon"]) for s in state.series}) == 12
     assert len({s["icon"] for s in state.series}) == 4

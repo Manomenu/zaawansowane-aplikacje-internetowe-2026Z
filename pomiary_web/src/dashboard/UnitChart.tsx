@@ -7,8 +7,8 @@ import { markerShape } from "./markers";
 import { pointKey, type ChartPoint } from "./table";
 
 const CHART_HEIGHT = 280;
-const POINT_RADIUS = 4;
-const SELECTED_RADIUS = 8;
+const POINT_RADIUS = 5;
+const SELECTED_RADIUS = 9;
 
 const axisTime = new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
 const tickStyle = { fill: "var(--mantine-color-text)", fontSize: 12 };

@@ -31,7 +31,7 @@ Fetch = Callable[[str, list[str], int, datetime], Hourly]
 
 
 def series_name(place: str, quantity: str) -> str:
-    return f"{QUANTITY_TITLES[quantity]} — {PLACE_TITLES[place]}"
+    return f"{PLACE_TITLES[place]}: {QUANTITY_TITLES[quantity]}"
 
 
 def sensor_name(place: str, quantity: str, source: str) -> str:
