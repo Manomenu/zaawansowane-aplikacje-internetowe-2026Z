@@ -84,7 +84,18 @@ secrets_in_git() {
     # The whole history (a secret deleted in a later commit is still published), then what is
     # changed but not committed yet. The pre-commit hook (.githooks/) checks each commit too.
     (cd "$ROOT" && gitleaks git . --no-banner --redact --log-level warn &&
-        gitleaks git . --pre-commit --no-banner --redact --log-level warn)
+        gitleaks git . --pre-commit --no-banner --redact --log-level warn &&
+        untracked_files_have_no_secrets)
+}
+
+untracked_files_have_no_secrets() {
+    # `git . --pre-commit` sees only changes to tracked files; a new file would first be caught
+    # by the pre-commit hook, after the gate said PASS. Each new (not ignored) file is scanned.
+    local file found=0
+    while IFS= read -r -d '' file; do
+        gitleaks dir "$file" --no-banner --redact --log-level warn || found=1
+    done < <(git ls-files --others --exclude-standard -z)
+    return "$found"
 }
 
 local_database() {
