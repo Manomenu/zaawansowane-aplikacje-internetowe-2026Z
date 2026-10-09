@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
-# Hard checks of the course requirements that live in files, not in code (docs/wymagania.md):
+# Hard checks of the course requirements that live in files, not in code (docs/requirements.md):
 #   1. the spec files (contract, the teacher's tests, the PDF) are unchanged — T3 forbids
 #      changing the contract, and the tests are what grades the project;
-#   2. every requirement code of the spec has its row in docs/wymagania.md, with a known status;
-#   3. a row marked "zrobione" points at an existing docs/progress/*.md that names the code;
+#   2. every requirement code of the spec has its row in docs/requirements.md, with a known status;
+#   3. a row marked "done" points at an existing docs/progress/*.md that names the code;
 #   4. every progress file has the sections that say what was met, done, why, and how to check.
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-MATRIX="$ROOT/docs/wymagania.md"
+MATRIX="$ROOT/docs/requirements.md"
 FAILED=0
 fail() { echo "  $*" >&2; FAILED=1; }
 
@@ -25,22 +25,22 @@ for n in $(seq 1 4); do CODES+=("X$n"); done
 for code in "${CODES[@]}"; do
     row="$(grep -E "^\| ${code} \|" "$MATRIX" || true)"
     if [ -z "$row" ]; then
-        fail "$code: no row in docs/wymagania.md"
+        fail "$code: no row in docs/requirements.md"
         continue
     fi
     status="$(awk -F'|' '{ gsub(/^ +| +$/, "", $4); print $4 }' <<<"$row")"
     proof="$(awk -F'|' '{ gsub(/^ +| +$/, "", $5); print $5 }' <<<"$row")"
     case "$status" in
-        todo | "w toku") ;;
-        zrobione)
+        todo | "in progress") ;;
+        done)
             # 3. Done means a progress file says how.
             if [ -z "$proof" ] || [ ! -f "$ROOT/$proof" ]; then
-                fail "$code: \"zrobione\" without an existing progress file (got \"$proof\")"
+                fail "$code: \"done\" without an existing progress file (got \"$proof\")"
             elif ! grep -qw "$code" "$ROOT/$proof"; then
                 fail "$code: $proof does not mention $code"
             fi
             ;;
-        *) fail "$code: unknown status \"$status\" (todo | w toku | zrobione)" ;;
+        *) fail "$code: unknown status \"$status\" (todo | in progress | done)" ;;
     esac
     if [ -n "$proof" ] && [ ! -f "$ROOT/$proof" ]; then
         fail "$code: proof $proof does not exist"
@@ -48,7 +48,7 @@ for code in "${CODES[@]}"; do
 done
 
 # 4. Progress files have their sections.
-SECTIONS=("## Co spełniono" "## Co zrobiono" "## Dlaczego tak" "## Jak sprawdzić")
+SECTIONS=("## What was met" "## What was done" "## Why this way" "## How to verify")
 shopt -s nullglob
 files=("$ROOT"/docs/progress/F*.md)
 [ ${#files[@]} -gt 0 ] || fail "docs/progress/ has no F*.md files"
