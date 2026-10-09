@@ -16,8 +16,8 @@ synthetic curve, and sends the results through the API like any sensor.
   date). The application runs on the author's own Kubernetes cluster behind a Cloudflare
   Tunnel (HTTPS), not on a free plan, so it is not put to sleep after inactivity and there is
   no cold start to report.
-- API documentation (Swagger UI): `/api/docs` on the same host — **TODO: confirm the path on
-  the deployment**; the contract is `docs/spec/zai-api-26z.yaml`.
+- API documentation (Swagger UI): `/api/docs` on the same host (checked behind nginx, the way the
+  deployment serves it); the contract is `docs/spec/zai-api-26z.yaml`.
 - Repository: https://github.com/Manomenu/zaawansowane-aplikacje-internetowe-2026Z
   (branch `master`; CI status:
   https://github.com/Manomenu/zaawansowane-aplikacje-internetowe-2026Z/actions/workflows/ci.yml).
