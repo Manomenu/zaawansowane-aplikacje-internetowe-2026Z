@@ -60,6 +60,14 @@ name = "Server layers: features above the plumbing they use"
 type = "layers"
 layers = [
     "pomiary_server.app",
+    "pomiary_server.auth",
+    "pomiary_server.problems",
     "pomiary_server.db",
     "pomiary_server.settings",
 ]
+
+[[tool.importlinter.contracts]]
+name = "Inside auth: HTTP > SQL > models"
+type = "layers"
+containers = ["pomiary_server.auth"]
+layers = ["api", "store", "model"]

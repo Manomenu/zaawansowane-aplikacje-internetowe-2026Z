@@ -28,5 +28,17 @@ class Settings(BaseSettings):
     # their own database.
     database_url: str = "postgresql://pomiary:pomiary@localhost:5453/pomiary"
 
+    # What clients see in front of the routes (the edge adds it, see app.py) — used to build
+    # the Location header of a created resource.
+    public_api_prefix: str = "/api"
+
+    # How long an administrator's login stays valid.
+    token_ttl_seconds: int = 3600
+
+    # The first administrator, created at start-up when both are set and no admin exists yet.
+    # No defaults: a password in the code would be a password in the repo.
+    admin_username: str | None = None
+    admin_password: str | None = None
+
 
 settings = Settings()

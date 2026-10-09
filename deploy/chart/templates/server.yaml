@@ -31,10 +31,16 @@ spec:
             # Port from values, not from .env.base — one source of truth for the probe and the process.
             - name: PORT
               value: {{ .Values.server.port | quote }}
-          {{- with .Values.server.databaseSecret }}
+          {{- if or .Values.server.databaseSecret .Values.server.adminSecret }}
           envFrom:
+            {{- with .Values.server.databaseSecret }}
             - secretRef:
                 name: {{ . }}
+            {{- end }}
+            {{- with .Values.server.adminSecret }}
+            - secretRef:
+                name: {{ . }}
+            {{- end }}
           {{- end }}
           # /health touches nothing outside the process, so it is suitable as a probe.
           readinessProbe:
