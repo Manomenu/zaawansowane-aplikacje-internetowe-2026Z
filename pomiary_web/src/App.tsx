@@ -4,6 +4,7 @@ import { Dashboard } from "./dashboard/Dashboard";
 import { Sensors } from "./sensors/Sensors";
 import { LoginModal } from "./session/LoginModal";
 import { PasswordForm } from "./session/PasswordForm";
+import { SeriesAdmin } from "./series/SeriesAdmin";
 import { useSession } from "./session/useSession";
 import { Notice } from "./shell/Notice";
 import { Shell, TabPanel, type TabSpec } from "./shell/Shell";
@@ -49,8 +50,7 @@ export function App() {
                 {session !== null && (
                     <>
                         <TabPanel value="series">
-                            {/* FEATURE SPOT series/: admin screen, gets session.token and onUnauthorized. */}
-                            <p>Series: coming soon.</p>
+                            <SeriesAdmin token={session.token} onUnauthorized={onUnauthorized} />
                         </TabPanel>
                         <TabPanel value="sensors">
                             <Sensors token={session.token} onUnauthorized={onUnauthorized} />
