@@ -25,7 +25,7 @@ requirement; "manually" means the proof is the recording or the checklist.
 | F8 | Administrator account: log in, log out, change password | in progress | docs/progress/F1-schema-and-auth.md | pytest: `tests/auth/` (the API side; the UI is still to do) |
 | F9 | UX: Enter key, validation before sending, loading states, server errors | todo | | |
 | F10 | Responsive from 360 px | todo | | |
-| F11 | Sample data: at least 3 series with at least 15 points each, loaded by the generator | in progress | docs/progress/F2-data-generator.md | generator `seed`: pytest against a fake API |
+| F11 | Sample data: at least 3 series with at least 15 points each, loaded by the generator | in progress | docs/progress/F5-teachers-tests-in-the-gate.md | the gate seeds a fresh database with `seed` and the teacher's F11 test passes on it; the deployed app is seeded at deployment |
 | F12 | Sensors: registration, one-time key, list, unregistration | in progress | docs/progress/F4-sensors-and-measurements.md | server: pytest `tests/sensors/`; UI: todo |
 | F13 | Generator: address, key, count/interval, generation mode, past and current data | in progress | docs/progress/F2-data-generator.md | pytest pomiary_generator in the gate |
 
@@ -40,7 +40,7 @@ requirement; "manually" means the proof is the recording or the checklist.
 | T5 | Security: bcrypt/Argon2id, parameterized queries, session/token, server-side authorization, sensor keys stored as SHA-256 | in progress | docs/progress/F4-sensors-and-measurements.md | pytest `tests/auth/`, `tests/series/`, `tests/sensors/`, `tests/measurements/`; B3 write-up: todo |
 | T6 | Accessibility WCAG 2.2 AA; a series is not distinguished by color alone | todo | | |
 | T7 | Printing through `@media print` of the same view | todo | | |
-| T8 | The teacher's tests (`zai-tests.mjs`) pass | todo | | |
+| T8 | The teacher's tests (`zai-tests.mjs`) pass | in progress | docs/progress/F5-teachers-tests-in-the-gate.md | gate step "teacher's tests": all pass on localhost except the 3 HTTPS/page cases; on the deployed app after T10 |
 | T9 | Repository with a readable history throughout the project | in progress | docs/progress/F0-initialization.md | gitleaks in the gate |
 | T10 | Public deployment (HTTPS) | todo | | |
 | T11 | Generator in the repo, through the API, key not in the code, documented | done | docs/progress/F2-data-generator.md | pytest pomiary_generator in the gate; key only from `--api-key` / `POMIARY_API_KEY` |
@@ -49,9 +49,9 @@ requirement; "manually" means the proof is the recording or the checklist.
 
 | Code | What the tests check | Status | Proof | Checked automatically |
 | --- | --- | --- | --- | --- |
-| A1 | E1: contract conformance, sensors, filtering, F11 | in progress | docs/progress/F4-sensors-and-measurements.md | `contract-tests.sh`: all but the F11 sample-data test pass locally |
-| A2 | E2: contract conformance again | todo | | |
-| A3 | Validation and authorization (422, 400/422, 401, no editing of results) | in progress | docs/progress/F4-sensors-and-measurements.md | `contract-tests.sh`: 15/15 pass locally; graded after deployment |
+| A1 | E1: contract conformance, sensors, filtering, F11 | in progress | docs/progress/F5-teachers-tests-in-the-gate.md | gate step "teacher's tests": 23/23 contract tests pass locally (6/6 points) |
+| A2 | E2: contract conformance again | in progress | docs/progress/F5-teachers-tests-in-the-gate.md | the same gate step, on every change |
+| A3 | Validation and authorization (422, 400/422, 401, no editing of results) | in progress | docs/progress/F4-sensors-and-measurements.md | gate step "teacher's tests": 14/14 pass locally; graded after deployment |
 | A4 | HTTPS, headers with CSP, cookie flags, no secrets in responses | todo | | |
 | A5 | Lighthouse Accessibility ≥ 90 | todo | | |
 
