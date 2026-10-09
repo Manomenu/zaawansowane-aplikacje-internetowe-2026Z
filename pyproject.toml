@@ -62,6 +62,8 @@ name = "Server layers: features above the plumbing they use"
 type = "layers"
 layers = [
     "pomiary_server.app",
+    "pomiary_server.measurements",
+    "pomiary_server.sensors",
     "pomiary_server.series",
     "pomiary_server.auth",
     "pomiary_server.problems",
@@ -79,4 +81,16 @@ layers = ["api", "store", "model"]
 name = "Inside series: HTTP > SQL > models"
 type = "layers"
 containers = ["pomiary_server.series"]
+layers = ["api", "store", "model"]
+
+[[tool.importlinter.contracts]]
+name = "Inside sensors: HTTP > SQL > models"
+type = "layers"
+containers = ["pomiary_server.sensors"]
+layers = ["api", "store", "model"]
+
+[[tool.importlinter.contracts]]
+name = "Inside measurements: HTTP > SQL > models"
+type = "layers"
+containers = ["pomiary_server.measurements"]
 layers = ["api", "store", "model"]
