@@ -18,6 +18,9 @@ services:
     environment:
       # After env_file on purpose: a host address from .env must not leak into the container.
       DATABASE_URL: postgresql://pomiary:pomiary@postgres:5432/pomiary
+      # Local stack only; the cluster reads these from a Secret.
+      ADMIN_USERNAME: admin
+      ADMIN_PASSWORD: local-only-password
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:6220/health')"]
       interval: 10s

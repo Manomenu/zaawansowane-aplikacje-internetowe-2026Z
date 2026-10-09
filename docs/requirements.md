@@ -22,7 +22,7 @@ requirement; "manually" means the proof is the recording or the checklist.
 | F5 | Filtering: time range and visible series | todo | | |
 | F6 | Clicking a table row highlights the point on the chart | todo | | |
 | F7 | Printing the chart with the table, without controls | todo | | |
-| F8 | Administrator account: log in, log out, change password | todo | | |
+| F8 | Administrator account: log in, log out, change password | in progress | docs/progress/F1-schema-and-auth.md | pytest: `tests/auth/` (the API side; the UI is still to do) |
 | F9 | UX: Enter key, validation before sending, loading states, server errors | todo | | |
 | F10 | Responsive from 360 px | todo | | |
 | F11 | Sample data: at least 3 series with at least 15 points each, loaded by the generator | todo | | |
@@ -35,9 +35,9 @@ requirement; "manually" means the proof is the recording or the checklist.
 | --- | --- | --- | --- | --- |
 | T1 | Backend: Python (FastAPI) | done | docs/progress/F0-initialization.md | pytest in the gate |
 | T2 | Frontend SPA (React), Flexbox/Grid + media queries | in progress | docs/progress/F0-initialization.md | tsc, eslint, vitest in the gate |
-| T3 | REST API conforming to `zai-api-26z.yaml`, contract unchanged | in progress | docs/progress/F0-initialization.md | checksums of `docs/spec/SHA256SUMS` in the gate |
-| T4 | Relational database, keys, constraints, time indexes, SQL migrations | in progress | docs/progress/F0-initialization.md | pytest against a real PostgreSQL |
-| T5 | Security: bcrypt/Argon2id, parameterized queries, session/token, server-side authorization, sensor keys stored as SHA-256 | todo | | |
+| T3 | REST API conforming to `zai-api-26z.yaml`, contract unchanged | in progress | docs/progress/F1-schema-and-auth.md | checksums of `docs/spec/SHA256SUMS` in the gate; pytest: `tests/auth/`, `tests/test_problems.py` |
+| T4 | Relational database, keys, constraints, time indexes, SQL migrations | in progress | docs/progress/F1-schema-and-auth.md | pytest against a real PostgreSQL (migration applied by every test run) |
+| T5 | Security: bcrypt/Argon2id, parameterized queries, session/token, server-side authorization, sensor keys stored as SHA-256 | in progress | docs/progress/F1-schema-and-auth.md | pytest: `tests/auth/` |
 | T6 | Accessibility WCAG 2.2 AA; a series is not distinguished by color alone | todo | | |
 | T7 | Printing through `@media print` of the same view | todo | | |
 | T8 | The teacher's tests (`zai-tests.mjs`) pass | todo | | |
