@@ -4,10 +4,11 @@ A rejected measurement is logged at WARNING (the "error log" of requirement F4) 
 """
 
 import logging
+from collections.abc import AsyncGenerator
 from datetime import UTC, datetime, timedelta
 from typing import LiteralString
 
-from psycopg import Connection
+from psycopg import AsyncConnection, Connection
 
 from pomiary_server.measurements.model import Measurement, MeasurementQuery
 from pomiary_server.problems import FieldError, Unprocessable
@@ -17,6 +18,9 @@ log = logging.getLogger("uvicorn.error")
 
 # A sensor's clock may run a little ahead; further ahead is a mistake.
 MAX_AHEAD = timedelta(minutes=5)
+
+# The PostgreSQL channel on which every stored measurement is announced (NOTIFY / LISTEN).
+CHANNEL = "measurements"
 
 COLUMNS = "id, series_id, sensor_id, value, measured_at"
 
@@ -54,9 +58,13 @@ def add_measurement(conn: Connection, sensor: Sensor, value: float, timestamp: d
         (sensor.series_id, sensor.id, value, timestamp or now),
     ).fetchone()
     conn.execute("UPDATE sensors SET last_measurement_at = %s WHERE id = %s", (now, sensor.id))
-    conn.commit()
     assert row is not None  # noqa: S101 — RETURNING always gives the row
-    return to_measurement(row)
+    measurement = to_measurement(row)
+    # Delivered by PostgreSQL when the transaction commits, so a rolled-back insert is never announced.
+    # The payload (the measurement as the API sends it, ~150 bytes) is far below the 8000-byte limit.
+    conn.execute("SELECT pg_notify(%s, %s)", (CHANNEL, measurement.model_dump_json(by_alias=True)))
+    conn.commit()
+    return measurement
 
 
 def find_measurement(conn: Connection, measurement_id: int) -> Measurement | None:
@@ -86,3 +94,22 @@ def list_measurements(conn: Connection, query: MeasurementQuery) -> list[Measure
         params,
     ).fetchall()
     return [to_measurement(row) for row in rows]
+
+
+async def listen(conninfo: str, series: list[int] | None, heartbeat: float) -> AsyncGenerator[Measurement | None]:
+    """The measurements stored from now on (those of `series`, or all of them), as they commit.
+
+    Yields None first, once the connection is listening, and again after every `heartbeat`
+    seconds of quiet — the caller turns those into a comment that keeps proxies from closing the
+    stream. One dedicated connection per listener, outside the pool: it is held for as long as
+    the client stays, which is fine for a handful of viewers and is what `max_streams` bounds.
+    Cancelling the iteration (the client left) closes the connection."""
+    async with await AsyncConnection.connect(conninfo, autocommit=True) as conn:
+        await conn.execute(f"LISTEN {CHANNEL}")
+        yield None
+        while True:
+            async for notification in conn.notifies(timeout=heartbeat):
+                measurement = Measurement.model_validate_json(notification.payload)
+                if series is None or measurement.series_id in series:
+                    yield measurement
+            yield None

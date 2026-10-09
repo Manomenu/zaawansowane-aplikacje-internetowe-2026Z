@@ -163,6 +163,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/measurements/stream": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Stream Measurements
+         * @description Server-Sent Events: an event `measurement` (the Measurement as JSON) for every measurement
+         *     stored after the connection was opened, optionally only of `series`.
+         */
+        get: operations["stream_measurements_measurements_stream_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/measurements/{measurement_id}": {
         parameters: {
             query?: never;
@@ -769,6 +790,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Measurement"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    stream_measurements_measurements_stream_get: {
+        parameters: {
+            query?: {
+                series?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/event-stream": unknown;
                 };
             };
             /** @description Validation Error */

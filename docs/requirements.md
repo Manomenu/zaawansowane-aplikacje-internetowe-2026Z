@@ -69,7 +69,7 @@ requirement; "manually" means the proof is the recording or the checklist.
 
 | Code | Extension | Status | Proof | Checked automatically |
 | --- | --- | --- | --- | --- |
-| X1 | Live chart (SSE / WebSocket) | todo | | |
+| X1 | Live chart (SSE / WebSocket) | in progress | docs/progress/F7-live-stream-server.md | server side: tests in the gate (`tests/measurements/test_stream.py`) |
 | X2 | Generator with real data (Open-Meteo) | in progress | docs/progress/F2-data-generator.md | recorded-response test in the gate; `pytest -m live` against the real service |
 | X3 | Own tests in CI with a green status | in progress | docs/progress/F0-initialization.md | `.github/workflows/ci.yml` runs the gate |
 | X4 | Time-series database (TimescaleDB) | todo | | |
