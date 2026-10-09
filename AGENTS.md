@@ -222,7 +222,7 @@ not by reviewers; an import against it fails with the import chain.
 | | Server | Web |
 | --- | --- | --- |
 | Where | `[tool.importlinter]` in `pyproject.toml` | `boundaries/*` in `pomiary_web/eslint.config.js` |
-| Today | `app` → `db` → `settings` | `main`/`App` → features → `api` |
+| Today | `app` → `db` → `settings` | `main`/`App` → features → `shell`, `api` |
 | A new feature | **must** get a layer in the first contract — `tests/test_contracts.py` fails otherwise | is a folder `src/<feature>/`, independent of other features by default |
 | Inside a feature | a package declares its own order (e.g. `api` → `store` → `model`) as a contract with `containers` | free |
 | Feature uses feature | only downwards, by its position in the layer list | only through an explicit policy in `eslint.config.js`, with a comment saying why |
@@ -287,9 +287,10 @@ A change to one feature should touch one place on each side.
 
 ### 5.1 The web app (React) — practices
 
-The frontend is React 19 with Mantine and Vite, TypeScript strict. `src/health/` is the
-template's one feature and shows the pattern end to end: `api.ts` → `status.ts` (+ test) →
-`ServerStatus.tsx` (+ e2e test).
+The frontend is React 19 with Mantine and Vite, TypeScript strict. `src/session/` shows
+the pattern end to end: `api.ts` → `validation.ts` (+ test) → `LoginForm.tsx` (+ e2e test).
+`src/shell/` is not a feature: the page's frame and the parts every screen shares (`Loading`,
+`ErrorAlert`), which every feature may import.
 
 - **One feature, one folder**, holding its screen, hooks, logic and `api.ts`. `App.tsx` only
   puts features together; `main.tsx` only sets up providers and the theme.
@@ -443,7 +444,7 @@ Two vocabularies, chosen word by word:
   | Script | Use it to |
   | --- | --- |
   | `scripts/.internal/check.sh` | verify a change — the whole gate (section 3) |
-  | `scripts/.internal/e2e.sh [playwright args]` | browser tests (`pomiary_web/src/**/*.e2e.ts`) against a real server and an empty `pomiary_e2e` database, on ports 6221/3221. Run it after changing anything a user clicks |
+  | `scripts/.internal/e2e.sh [playwright args]` | browser tests (`pomiary_web/src/**/*.e2e.ts`) against a real server and an empty `pomiary_e2e` database, on ports 6221/3221 (`E2E_DATABASE_NAME`, `E2E_SERVER_PORT`, `E2E_WEB_PORT` move a run elsewhere, so parallel runs do not collide). Run it after changing anything a user clicks |
   | `scripts/.internal/contract-tests.sh` | the teacher's tests (`docs/spec/zai-tests.mjs`) against a fresh server on :6222 and a `pomiary_contract` database seeded by the generator. The gate runs it; its `KNOWN_FAILING` lists the localhost-only failures with reasons and must match the outcome exactly |
   | `scripts/.internal/db.sh up\|down\|status\|psql` | the local PostgreSQL on `localhost:5453` (podman container `pomiary-postgres`). `check.sh` runs `up` itself; tests create their own `pomiary_test` database |
   | `scripts/.internal/api-types.sh [--check]` | regenerate `pomiary_web/src/api/openapi.d.ts` after changing a model the API exposes. Never edit that file by hand |

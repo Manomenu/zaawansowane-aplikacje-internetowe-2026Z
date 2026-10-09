@@ -1,0 +1,102 @@
+/* The page grid and the print rules. Layout inside a feature uses Mantine's props; this file
+   holds only what Mantine has no prop for. Classes are named after the part of the page. */
+
+/* Visible keyboard focus everywhere (WCAG 2.4.7), in both colour schemes. */
+:focus-visible {
+    outline: 3px solid var(--mantine-color-indigo-filled);
+    outline-offset: 2px;
+}
+
+/* The page: header, nav, main, footer in one column on a phone. `.page-tabs` is Mantine's Tabs
+   root, which only provides the tabs' context: it takes no box of its own, so nav and main
+   are grid items of `.page`. */
+.page {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto 1fr auto;
+    grid-template-areas:
+        "header"
+        "nav"
+        "main"
+        "footer";
+    min-height: 100vh;
+    gap: var(--mantine-spacing-md);
+    padding: var(--mantine-spacing-sm);
+}
+
+.page-tabs {
+    display: contents;
+}
+
+.page-header {
+    grid-area: header;
+}
+
+.page-nav {
+    grid-area: nav;
+    /* Four tabs may not fit at 360 px: the tab list scrolls inside, never the page. */
+    overflow-x: auto;
+}
+
+.page-main {
+    grid-area: main;
+    min-width: 0;
+}
+
+.page-footer {
+    grid-area: footer;
+}
+
+.page-notice {
+    margin-top: var(--mantine-spacing-sm);
+}
+
+.narrow-form {
+    max-width: 28rem;
+}
+
+/* The dashboard's own grid: the filters above the content on a phone, beside it on a wide
+   screen. Used by dashboard/ for its two children (filters, content). */
+.dashboard-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--mantine-spacing-md);
+}
+
+@media (min-width: 768px) {
+    .page {
+        padding: var(--mantine-spacing-md);
+    }
+}
+
+@media (min-width: 992px) {
+    .page {
+        width: 100%;
+        max-width: 80rem;
+        margin-inline: auto;
+        padding: var(--mantine-spacing-xl);
+    }
+
+    .dashboard-layout {
+        grid-template-columns: 18rem minmax(0, 1fr);
+        align-items: start;
+    }
+}
+
+@media print {
+    .no-print {
+        display: none !important;
+    }
+
+    html,
+    body {
+        background: #fff !important;
+        color: #000 !important;
+    }
+
+    .page {
+        display: block;
+        max-width: none;
+        padding: 0;
+    }
+}
