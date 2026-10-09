@@ -61,9 +61,9 @@ requirement; "manually" means the proof is the recording or the checklist.
 | --- | --- | --- | --- | --- |
 | B1 | F1–F13 in the recording | todo | | |
 | B2 | Mobile view at ~360 px and the print preview | todo | | |
-| B3 | Two T5 items in the recording and in the documentation | todo | | |
-| B4 | ERD diagram and migrations in the archive | todo | | |
-| B5 | Complete PDF documentation | todo | | |
+| B3 | Two T5 items in the recording and in the documentation | in progress | docs/progress/F12-documentation.md | manually: described in `docs/documentation.md` section 5; the recording is still to do |
+| B4 | ERD diagram and migrations in the archive | in progress | docs/progress/F12-documentation.md | manually: `docs/erd.md`, `docs/erd.svg` and `migrations/001_schema.sql` are in the repo; the ZIP is built at submission |
+| B5 | Complete PDF documentation | in progress | docs/progress/F12-documentation.md | manually: the source is `docs/documentation.md`; the PDF and the deployment facts come at submission |
 
 ## Extensions (bonus points)
 
@@ -71,5 +71,5 @@ requirement; "manually" means the proof is the recording or the checklist.
 | --- | --- | --- | --- | --- |
 | X1 | Live chart (SSE / WebSocket) | done | docs/progress/F8-dashboard.md | server: pytest `tests/measurements/test_stream.py` (docs/progress/F7-live-stream-server.md); client: vitest `dashboard/live.test.ts`; together: e2e `dashboard.e2e.ts` "…appears without reloading (live stream)"; shown in the video (E2) |
 | X2 | Generator with real data (Open-Meteo) | in progress | docs/progress/F2-data-generator.md | recorded-response test in the gate; `pytest -m live` against the real service |
-| X3 | Own tests in CI with a green status | in progress | docs/progress/F0-initialization.md | `.github/workflows/ci.yml` runs the gate |
+| X3 | Own tests in CI with a green status | done | docs/progress/F12-documentation.md | `.github/workflows/ci.yml` on every push: the gate (incl. the teacher's tests on a local server), the browser tests with axe, the image builds — green on `master` |
 | X4 | Time-series database (TimescaleDB) | todo | | |
