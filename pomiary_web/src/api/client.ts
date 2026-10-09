@@ -4,7 +4,7 @@
  * like the routes on the server; their types come from the generated `openapi.d.ts`.
  */
 
-const BASE = import.meta.env.VITE_API_BASE ?? "/api";
+export const BASE = import.meta.env.VITE_API_BASE ?? "/api";
 
 /** Status of an `ApiError` for a request that never got an answer (offline, server down). */
 export const NETWORK_ERROR_STATUS = 0;

@@ -1,0 +1,61 @@
+/* The dashboard's own rules: what Mantine has no prop for. */
+
+.unit-chart {
+    margin: 0;
+}
+
+.chart-box {
+    width: 100%;
+    min-width: 0;
+}
+
+.chart-legend {
+    list-style: none;
+    margin: var(--mantine-spacing-xs) 0 0;
+    padding: 0;
+}
+
+/* The table scrolls inside its own box, so a phone's page never scrolls sideways. */
+.table-scroll {
+    overflow: auto;
+    max-height: 32rem;
+}
+
+.table-scroll thead {
+    position: sticky;
+    top: 0;
+    background: var(--mantine-color-body);
+    z-index: 1;
+}
+
+.data-row {
+    cursor: pointer;
+}
+
+.data-row[aria-selected="true"] {
+    background: var(--mantine-primary-color-light);
+    font-weight: 700;
+    box-shadow: inset 4px 0 0 var(--mantine-color-text);
+}
+
+@media print {
+    .unit-chart {
+        break-inside: avoid;
+        margin-bottom: 1rem;
+    }
+
+    /* The table runs over pages with its header repeated; rows are not cut in half. */
+    .table-scroll {
+        overflow: visible;
+        max-height: none;
+    }
+
+    .table-scroll thead {
+        position: static;
+        display: table-header-group;
+    }
+
+    .data-row {
+        break-inside: avoid;
+    }
+}
