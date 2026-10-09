@@ -173,3 +173,11 @@ def test_the_swagger_page_opens_in_a_browser_without_a_csp() -> None:
     assert response.status_code == 200
     assert "content-security-policy" not in response.headers
     assert response.headers["x-content-type-options"] == "nosniff"
+
+
+def test_the_swagger_page_asks_for_the_schema_under_the_public_prefix() -> None:
+    # Behind nginx and the Vite proxy only /api/... reaches the server; /openapi.json would be
+    # the web app's index.html.
+    page = TestClient(real_app).get("/docs", headers={"Accept": "text/html"}).text
+
+    assert "url: '/api/openapi.json'" in page

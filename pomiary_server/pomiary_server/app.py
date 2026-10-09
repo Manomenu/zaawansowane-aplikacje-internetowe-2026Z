@@ -4,6 +4,8 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.openapi.docs import get_swagger_ui_html
+from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 
 from pomiary_server import db, problems
@@ -38,7 +40,17 @@ async def lifespan(_app: FastAPI) -> AsyncGenerator[None]:
     db.pool.close()
 
 
-app = FastAPI(title="pomiary", version="0.1.0", lifespan=lifespan)
+# FastAPI's own /docs page asks for /openapi.json, which behind nginx (and the Vite proxy) is the
+# web app's index.html: only /api/... reaches the server. So /docs is declared below, pointing
+# Swagger UI at the schema under the public prefix.
+# `servers` makes "Try it out" call /api/... too.
+app = FastAPI(
+    title="pomiary",
+    version="0.1.0",
+    lifespan=lifespan,
+    docs_url=None,
+    servers=[{"url": settings.public_api_prefix}],
+)
 
 problems.install(app)
 
@@ -50,6 +62,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.get("/docs", include_in_schema=False)
+def docs() -> HTMLResponse:
+    return get_swagger_ui_html(openapi_url=f"{settings.public_api_prefix}/openapi.json", title="pomiary — API")
 
 
 class Health(BaseModel):
