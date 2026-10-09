@@ -23,10 +23,10 @@ requirement; "manually" means the proof is the recording or the checklist.
 | F6 | Clicking a table row highlights the point on the chart | todo | | |
 | F7 | Printing the chart with the table, without controls | todo | | |
 | F8 | Administrator account: log in, log out, change password | done | docs/progress/F6-web-foundation.md | pytest `tests/auth/` (API); browser: `src/session/session.e2e.ts` (log in, log out, password change, expired token) |
-| F9 | UX: Enter key, validation before sending, loading states, server errors | in progress | docs/progress/F6-web-foundation.md | vitest `session/validation.test.ts`, `api/client.test.ts`; e2e `session.e2e.ts`; the series and sensors forms: todo |
+| F9 | UX: Enter key, validation before sending, loading states, server errors | in progress | docs/progress/F10-sensors-admin.md | vitest `session/validation.test.ts`, `api/client.test.ts`; e2e `session.e2e.ts`; sensors form: vitest `sensors/validation.test.ts`, e2e `sensors/sensors.e2e.ts`; F6 foundation: `docs/progress/F6-web-foundation.md`; the series form: todo |
 | F10 | Responsive from 360 px | in progress | docs/progress/F6-web-foundation.md | e2e `shell/Shell.e2e.ts`: no sideways scroll at 360 px (the frame; the dashboard is still to do) |
 | F11 | Sample data: at least 3 series with at least 15 points each, loaded by the generator | in progress | docs/progress/F5-teachers-tests-in-the-gate.md | the gate seeds a fresh database with `seed` and the teacher's F11 test passes on it; the deployed app is seeded at deployment |
-| F12 | Sensors: registration, one-time key, list, unregistration | in progress | docs/progress/F4-sensors-and-measurements.md | server: pytest `tests/sensors/`; UI: todo |
+| F12 | Sensors: registration, one-time key, list, unregistration | done | docs/progress/F10-sensors-admin.md | server: pytest `tests/sensors/`; UI: e2e `sensors/sensors.e2e.ts` |
 | F13 | Generator: address, key, count/interval, generation mode, past and current data | in progress | docs/progress/F2-data-generator.md | pytest pomiary_generator in the gate |
 
 ## Technical requirements
@@ -37,7 +37,7 @@ requirement; "manually" means the proof is the recording or the checklist.
 | T2 | Frontend SPA (React), Flexbox/Grid + media queries | in progress | docs/progress/F6-web-foundation.md | tsc, eslint, vitest in the gate; Grid and `@media` rules in `src/app.css` |
 | T3 | REST API conforming to `zai-api-26z.yaml`, contract unchanged | in progress | docs/progress/F4-sensors-and-measurements.md | checksums of `docs/spec/SHA256SUMS` in the gate; pytest for every endpoint; teacher's tests via `contract-tests.sh` |
 | T4 | Relational database, keys, constraints, time indexes, SQL migrations | in progress | docs/progress/F1-schema-and-auth.md | pytest against a real PostgreSQL (migration applied by every test run) |
-| T5 | Security: bcrypt/Argon2id, parameterized queries, session/token, server-side authorization, sensor keys stored as SHA-256 | in progress | docs/progress/F4-sensors-and-measurements.md | pytest `tests/auth/`, `tests/series/`, `tests/sensors/`, `tests/measurements/`; B3 write-up: todo |
+| T5 | Security: bcrypt/Argon2id, parameterized queries, session/token, server-side authorization, sensor keys stored as SHA-256 | in progress | docs/progress/F4-sensors-and-measurements.md | UI (key shown once): e2e `sensors/sensors.e2e.ts`; pytest `tests/auth/`, `tests/series/`, `tests/sensors/`, `tests/measurements/`; B3 write-up: todo |
 | T6 | Accessibility WCAG 2.2 AA; a series is not distinguished by color alone | in progress | docs/progress/F6-web-foundation.md | e2e `shell/Shell.e2e.ts` (landmarks); the charts and the table: todo |
 | T7 | Printing through `@media print` of the same view | in progress | docs/progress/F6-web-foundation.md | e2e `shell/Shell.e2e.ts` (print hides header, tabs, footer); the printed dashboard: todo |
 | T8 | The teacher's tests (`zai-tests.mjs`) pass | in progress | docs/progress/F5-teachers-tests-in-the-gate.md | gate step "teacher's tests": all pass on localhost except the 3 HTTPS/page cases; on the deployed app after T10 |

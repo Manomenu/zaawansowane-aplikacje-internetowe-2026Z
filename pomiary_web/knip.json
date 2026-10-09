@@ -1,8 +1,6 @@
 {
     "$schema": "./node_modules/knip/schema.json",
-    // Loading and ErrorAlert are the shared parts of every screen; dashboard/, series/ and
-    // sensors/ import them as they arrive. Remove this entry once they do.
-    "ignore": ["src/api/openapi.d.ts", "src/shell/Loading.tsx", "src/shell/ErrorAlert.tsx"],
+    "ignore": ["src/api/openapi.d.ts"],
     "ignoreDependencies": ["openapi-typescript"],
     "playwright": { "config": ["e2e/playwright.config.ts"] }
 }
