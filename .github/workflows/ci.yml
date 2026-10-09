@@ -31,7 +31,9 @@ jobs:
     # on the same port, so the tests need no CI-specific settings.
     services:
       postgres:
-        image: docker.io/library/postgres:17.11
+        # Docker Hub's official image through Google's mirror: GitHub's shared runners hit Docker
+        # Hub's anonymous pull limit often enough to fail a run before a single test ran.
+        image: mirror.gcr.io/library/postgres:17.11
         env:
           POSTGRES_USER: pomiary
           POSTGRES_PASSWORD: pomiary
@@ -87,7 +89,9 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: docker.io/library/postgres:17.11
+        # Docker Hub's official image through Google's mirror: GitHub's shared runners hit Docker
+        # Hub's anonymous pull limit often enough to fail a run before a single test ran.
+        image: mirror.gcr.io/library/postgres:17.11
         env:
           POSTGRES_USER: pomiary
           POSTGRES_PASSWORD: pomiary
