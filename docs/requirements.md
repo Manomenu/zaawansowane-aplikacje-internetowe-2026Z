@@ -16,9 +16,9 @@ requirement; "manually" means the proof is the recording or the checklist.
 | Code | Requirement | Status | Proof | Checked automatically |
 | --- | --- | --- | --- | --- |
 | F1 | A result = a number + a timestamp + a series; only from sensors through the API | todo | | |
-| F2 | Series: name, min/max, color/icon; a column in the table, a curve on the chart | todo | | |
-| F3 | Roles: reader and administrator; nobody edits results in the UI | todo | | |
-| F4 | Range validation on the server, in the generator and in the forms; a log of rejections | in progress | docs/progress/F2-data-generator.md | generator: pytest (readable 422 message) |
+| F2 | Series: name, min/max, color/icon; a column in the table, a curve on the chart | in progress | docs/progress/F3-series.md | pytest: `tests/series/` (the server side; table and chart are still to do) |
+| F3 | Roles: reader and administrator; nobody edits results in the UI | in progress | docs/progress/F3-series.md | pytest: `tests/series/` (series changes need an administrator; the UI is still to do) |
+| F4 | Range validation on the server, in the generator and in the forms; a log of rejections | in progress | docs/progress/F2-data-generator.md | generator: pytest (readable 422 message); server: pytest `tests/series/` (min < max, 409; see docs/progress/F3-series.md) |
 | F5 | Filtering: time range and visible series | todo | | |
 | F6 | Clicking a table row highlights the point on the chart | todo | | |
 | F7 | Printing the chart with the table, without controls | todo | | |
@@ -35,9 +35,9 @@ requirement; "manually" means the proof is the recording or the checklist.
 | --- | --- | --- | --- | --- |
 | T1 | Backend: Python (FastAPI) | done | docs/progress/F0-initialization.md | pytest in the gate |
 | T2 | Frontend SPA (React), Flexbox/Grid + media queries | in progress | docs/progress/F0-initialization.md | tsc, eslint, vitest in the gate |
-| T3 | REST API conforming to `zai-api-26z.yaml`, contract unchanged | in progress | docs/progress/F1-schema-and-auth.md | checksums of `docs/spec/SHA256SUMS` in the gate; pytest: `tests/auth/`, `tests/test_problems.py` |
+| T3 | REST API conforming to `zai-api-26z.yaml`, contract unchanged | in progress | docs/progress/F1-schema-and-auth.md | checksums of `docs/spec/SHA256SUMS` in the gate; pytest: `tests/auth/`, `tests/series/`, `tests/test_problems.py`; series: docs/progress/F3-series.md |
 | T4 | Relational database, keys, constraints, time indexes, SQL migrations | in progress | docs/progress/F1-schema-and-auth.md | pytest against a real PostgreSQL (migration applied by every test run) |
-| T5 | Security: bcrypt/Argon2id, parameterized queries, session/token, server-side authorization, sensor keys stored as SHA-256 | in progress | docs/progress/F1-schema-and-auth.md | pytest: `tests/auth/` |
+| T5 | Security: bcrypt/Argon2id, parameterized queries, session/token, server-side authorization, sensor keys stored as SHA-256 | in progress | docs/progress/F1-schema-and-auth.md | pytest: `tests/auth/`, `tests/series/` |
 | T6 | Accessibility WCAG 2.2 AA; a series is not distinguished by color alone | todo | | |
 | T7 | Printing through `@media print` of the same view | todo | | |
 | T8 | The teacher's tests (`zai-tests.mjs`) pass | todo | | |
