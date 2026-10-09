@@ -27,7 +27,7 @@ export default defineConfig(
     },
     // Import contracts: which folder of src/ may import which (AGENTS.md, "Import contracts").
     // Every folder of src/ is a feature, and features are independent by default: a feature
-    // may import only itself and api/. When one feature really composes another, that edge is
+    // may import only itself, api/ and shell/. When one feature really composes another, that edge is
     // added below as its own policy, with a comment saying why — the web counterpart of a
     // layer in pyproject.toml.
     {
@@ -38,8 +38,9 @@ export default defineConfig(
         settings: {
             "import/resolver": { node: { extensions: [".ts", ".tsx"] } },
             "boundaries/elements": [
-                // Order matters: the first matching pattern wins, so api/ is not a feature.
+                // Order matters: the first matching pattern wins, so api/ and shell/ are not features.
                 { type: "api", pattern: "src/api" },
+                { type: "shell", pattern: "src/shell" },
                 { type: "feature", pattern: "src/*", capture: ["name"] },
             ],
             // The entry points at the root of src/ (main.tsx, App.tsx) put the page together.
@@ -57,10 +58,17 @@ export default defineConfig(
                         // The entry points compose everything.
                         {
                             from: { file: { categories: "entry" } },
-                            allow: { to: [{ file: { categories: "entry" } }, { element: { types: { anyOf: ["feature", "api"] } } }] },
+                            allow: {
+                                to: [{ file: { categories: "entry" } }, { element: { types: { anyOf: ["feature", "api", "shell"] } } }],
+                            },
                         },
                         // A feature uses the shared HTTP plumbing…
                         { from: { element: { type: "feature" } }, allow: { to: { element: { type: "api" } } } },
+                        // …and the shell: Loading, ErrorAlert and the like are the one thing every screen
+                        // shares, so a feature may import shell/ (it is not a feature: it knows no
+                        // feature and imports none). Shared screens' parts go there only when a second
+                        // feature needs them, as with any shared code (AGENTS.md section 5).
+                        { from: { element: { type: "feature" } }, allow: { to: { element: { type: "shell" } } } },
                         // …and its own files, never another feature's (unless an edge is added here).
                         {
                             from: { element: { type: "feature" } },

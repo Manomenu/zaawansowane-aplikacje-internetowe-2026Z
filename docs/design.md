@@ -116,3 +116,64 @@ The gate runs the teacher's `zai-tests.mjs` against a local server
 (`scripts/.internal/contract-tests.sh`). Tests that cannot pass locally (HTTPS, the
 http→https redirect) or not yet are listed there with a reason; the step fails when a listed
 test starts passing (so the list only shrinks) and when any other test fails.
+
+# Design — the web app
+
+One page (SPA, React 19 + Mantine + Vite), no router: a header and tabs. Everything a
+requirement needs is in one of these features (`pomiary_web/src/<feature>/`), independent of
+each other (the eslint boundaries), composed only in `App.tsx`.
+
+| Feature | What | Requirements |
+| --- | --- | --- |
+| `shell/` | header (title, "Log in" / user + "Log out"), the tabs, the layout grid, the loading and error components every feature uses, the footer with the Open-Meteo attribution | F9, F10, T2, T6 |
+| `session/` | the login form, logout, the password change form; the token kept in `sessionStorage` (read defensively), passed down as a prop | F8, T5.3 |
+| `dashboard/` | public: the filters (time range with presets, series checkboxes grouped by unit), one chart per unit, the table, row → point highlight, print | F2, F5, F6, F7, F10, T6, T7 |
+| `series/` | admin: list, create, edit (name, range, colour, icon, unit), delete with confirmation; client-side validation before sending | F2, F3, F4, F9 |
+| `sensors/` | admin: list (name, series, created, last measurement), register (name + series) with the key shown once in a dialog with a copy button, unregister with confirmation | F12, F9 |
+
+Tabs: **Data** (everyone); **Series**, **Sensors**, **Account** only when logged in. Logged
+out, the header has "Log in", which opens the login form in a modal.
+
+## Shared plumbing (`api/`)
+
+- `request<T>(path, {method, body, token, signal})` — JSON in and out; `token` adds
+  `Authorization: Bearer`.
+- A failed response becomes an `ApiError` with `status`, `detail` and `fieldErrors`
+  (`{[field]: message}` from the Problem `errors`). Forms put `fieldErrors` under their
+  fields; anything else is shown in an alert. A network failure is an `ApiError` with
+  status 0 and a message saying the server cannot be reached (F9).
+- A 401 on an admin call means the session is over: the app drops the token and says so.
+
+## The dashboard
+
+- **One chart per unit** among the visible series (mm, °C, %…): no second y-axis, every axis
+  labelled with its unit. Recharts (SVG — prints sharply), time on the x-axis.
+- **A series is never told apart by colour alone (T6):** its marker shape comes from
+  `series.icon` (`circle`, `square`, `triangle`, `diamond`; anything else → circle), and the
+  legend and the table header show the same marker next to the name.
+- **The table:** one row per timestamp, one column per visible series (F2), newest first,
+  empty cells where a series has no value. A row is a button-like element (keyboard: Tab +
+  Enter/Space) — selecting it highlights that timestamp's points on the charts (a larger
+  outlined marker and a vertical reference line) and marks the row (`aria-selected`) (F6).
+- **Filters (F5):** from/to (`datetime-local` inputs) with presets (24 h, 7 days, 30 days),
+  series checkboxes grouped by unit with an "all of this unit" toggle. Default: the last 7
+  days, every series.
+- **Print (F7, T7):** the same view; `@media print` hides everything with the class
+  `no-print` (header, tabs, filters, buttons, forms) and lets the table run over pages.
+
+## Layout and accessibility
+
+- `src/app.css` holds the page grid: CSS Grid with media queries (T2 requires Flexbox/Grid
+  **and** media queries in CSS) — filters beside the charts from 992 px, above them below it;
+  the table scrolls horizontally inside its own box on a phone (360 px), the page never does.
+- Landmarks (`header`, `nav`, `main`, `footer`), one `h1`, every input labelled, visible focus,
+  WCAG AA contrast in both colour schemes, `lang="en"`. Lighthouse Accessibility ≥ 90 (A5).
+- Forms submit with Enter (a real `<form>`), validate before sending, disable the button and
+  show a loader while sending (F9).
+
+## nginx (the page's headers, A4)
+
+`Content-Security-Policy: default-src 'self'; img-src 'self' data:; style-src 'self'
+'unsafe-inline'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'` (Mantine sets
+inline `style` attributes), plus `X-Content-Type-Options: nosniff`, `Referrer-Policy:
+no-referrer`, on every response of the web container.

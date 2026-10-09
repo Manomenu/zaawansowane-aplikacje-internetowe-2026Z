@@ -36,5 +36,6 @@ ENV API_UPSTREAM="http://server:6220"
 
 COPY --from=builder /app/dist /usr/share/nginx/html
 COPY pomiary_web/nginx.conf.template /etc/nginx/templates/default.conf.template
+COPY pomiary_web/security-headers.conf /etc/nginx/snippets/security-headers.conf
 
 EXPOSE 8080

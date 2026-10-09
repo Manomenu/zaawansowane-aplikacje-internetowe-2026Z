@@ -5,10 +5,14 @@ server {
     root /usr/share/nginx/html;
     index index.html;
 
+    # The security headers for every response, error pages included (security-headers.conf).
+    include /etc/nginx/snippets/security-headers.conf;
+
     # Liveness for the container itself. Deliberately independent of the API: the page
     # is still servable when the server behind it is down.
     location = /healthz {
         access_log off;
+        include /etc/nginx/snippets/security-headers.conf;
         add_header content-type text/plain always;
         return 200 "ok\n";
     }
@@ -31,10 +35,16 @@ server {
         proxy_set_header Host $host;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
+        # The page's headers (inherited from the server block) replace the server's own copies,
+        # so each header is sent once.
+        proxy_hide_header Content-Security-Policy;
+        proxy_hide_header X-Content-Type-Options;
+        proxy_hide_header Referrer-Policy;
     }
 
     # Vite emits content-hashed filenames, so these can never go stale.
     location /assets/ {
+        include /etc/nginx/snippets/security-headers.conf;
         add_header cache-control "public, max-age=31536000, immutable";
     }
 
@@ -42,6 +52,7 @@ server {
     # previous release's asset names after a deploy.
     location / {
         try_files $uri $uri/ /index.html;
+        include /etc/nginx/snippets/security-headers.conf;
         add_header cache-control "no-cache";
     }
 }
