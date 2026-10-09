@@ -1,0 +1,26 @@
+{
+    "venvPath": ".",
+    "venv": ".venv",
+    "pythonVersion": "3.12",
+    "typeCheckingMode": "strict",
+    "include": ["pomiary_server", "scripts/.internal"],
+    "executionEnvironments": [
+        { "root": "pomiary_server" },
+        { "root": "scripts/.internal", "extraPaths": ["pomiary_server"] }
+    ],
+    "exclude": [
+        ".git",
+        ".artifacts",
+        "**/.venv",
+        "**/node_modules",
+        "**/__pycache__",
+        "**/.pytest_cache",
+        "**/.ruff_cache",
+        "pomiary_web"
+    ],
+    "reportMissingTypeStubs": "error",
+    "reportUnnecessaryTypeIgnoreComment": "error",
+    "reportImplicitOverride": "error",
+    "reportPropertyTypeMismatch": "error",
+    "reportUninitializedInstanceVariable": "error"
+}
