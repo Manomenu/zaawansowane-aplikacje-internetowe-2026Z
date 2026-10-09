@@ -1,5 +1,6 @@
 import { useState } from "react";
 
+import { Dashboard } from "./dashboard/Dashboard";
 import { Sensors } from "./sensors/Sensors";
 import { LoginModal } from "./session/LoginModal";
 import { PasswordForm } from "./session/PasswordForm";
@@ -43,8 +44,7 @@ export function App() {
                 notice={<Notice message={notice ?? ""} onClose={dismissNotice} />}
             >
                 <TabPanel value="data">
-                    {/* FEATURE SPOT dashboard/: public screen, no token. Replace the placeholder. */}
-                    <p>Data: coming soon.</p>
+                    <Dashboard />
                 </TabPanel>
                 {session !== null && (
                     <>
