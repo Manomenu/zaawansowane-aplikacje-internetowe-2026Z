@@ -3,7 +3,9 @@
 #
 #   podman build -f pomiary_web/Dockerfile -t operat-web .
 
-FROM docker.io/library/node:24-alpine AS builder
+# Docker Hub's official images, pulled through Google's mirror of it: CI's runners hit Docker
+# Hub's anonymous rate limit (.github/workflows/ci.yml says the same).
+FROM mirror.gcr.io/library/node:24-alpine AS builder
 
 ENV COREPACK_ENABLE_DOWNLOAD_PROMPT=0
 
@@ -20,7 +22,7 @@ COPY pomiary_web/ ./
 RUN pnpm build
 
 
-FROM docker.io/nginxinc/nginx-unprivileged:1.29-alpine
+FROM mirror.gcr.io/nginxinc/nginx-unprivileged:1.29-alpine
 
 # At container start the image's entrypoint runs envsubst over /etc/nginx/templates/ and
 # writes the result to /etc/nginx/conf.d/ — which is how ${API_UPSTREAM} becomes a real
