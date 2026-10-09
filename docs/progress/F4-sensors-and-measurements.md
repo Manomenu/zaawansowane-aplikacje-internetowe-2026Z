@@ -12,7 +12,7 @@ Date: 2026-10-09. Project stage: before E1 (E1 deadline: 2026-11-07).
 | T3 | **Every endpoint of the contract exists.** The teacher's tests pass locally apart from the ones listed below. |
 | T5 | **Items 4 and 5 met; with F1, all five are met on the server.** Every modifying route checks the admin token (`CurrentAdmin`) or the sensor key on the server, and authentication is checked before the body. Sensor keys are `secrets.token_urlsafe(32)` (43 characters), stored only as SHA-256, and returned only by the registration. |
 | A1 | **Locally: every contract test passes except the sample data (F11).** That test needs a seeded database, which comes with the next step. |
-| A3 | **Locally: all 15 validation and authorization tests pass (4 of 4 points).** |
+| A3 | **Locally: all 14 validation and authorization tests pass (4 of 4 points).** |
 
 The teacher's tests (`./scripts/.internal/contract-tests.sh`, a fresh database) fail only in four places:
 - the sample-data test (the database is empty);

@@ -81,6 +81,11 @@ logs service="":
 e2e *args:
     @./scripts/.internal/e2e.sh {{ args }}
 
+# The teacher's tests (docs/spec/zai-tests.mjs) against a fresh local server, seeded by the generator
+[group('maintenance')]
+contract-tests:
+    @./scripts/.internal/contract-tests.sh
+
 # Lint, types, tests, import contracts, dead code, the chart and compose — the same gate CI runs
 [group('maintenance')]
 check:

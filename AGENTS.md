@@ -133,6 +133,7 @@ report and exits non-zero on any failure.
 | Step | Guards |
 | --- | --- |
 | requirements | `docs/spec/` unchanged, every requirement code in `docs/requirements.md`, every `done` backed by a progress file, every progress file complete (`scripts/.internal/requirements.sh`) |
+| teacher's tests | `docs/spec/zai-tests.mjs` against a local server seeded by the generator; only the localhost-only failures in `contract-tests.sh` are allowed (A1–A4) |
 | ruff, ruff format | Python lint (wide rule set, `ruff.toml`) and formatting |
 | pyright strict | Python types. No `# type: ignore` / `# noqa` without a comment saying why |
 | import-linter | the server's import contracts (section 4) |
@@ -443,6 +444,7 @@ Two vocabularies, chosen word by word:
   | --- | --- |
   | `scripts/.internal/check.sh` | verify a change — the whole gate (section 3) |
   | `scripts/.internal/e2e.sh [playwright args]` | browser tests (`pomiary_web/src/**/*.e2e.ts`) against a real server and an empty `pomiary_e2e` database, on ports 6221/3221. Run it after changing anything a user clicks |
+  | `scripts/.internal/contract-tests.sh` | the teacher's tests (`docs/spec/zai-tests.mjs`) against a fresh server on :6222 and a `pomiary_contract` database seeded by the generator. The gate runs it; its `KNOWN_FAILING` lists the localhost-only failures with reasons and must match the outcome exactly |
   | `scripts/.internal/db.sh up\|down\|status\|psql` | the local PostgreSQL on `localhost:5453` (podman container `pomiary-postgres`). `check.sh` runs `up` itself; tests create their own `pomiary_test` database |
   | `scripts/.internal/api-types.sh [--check]` | regenerate `pomiary_web/src/api/openapi.d.ts` after changing a model the API exposes. Never edit that file by hand |
   | `scripts/.internal/secrets.sh backup\|restore` | **not for agents** — the owner's copy of the `.env` files in Bitwarden (`just secrets`, section 7); it asks for the master password |

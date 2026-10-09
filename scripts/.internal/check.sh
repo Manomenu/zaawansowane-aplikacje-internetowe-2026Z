@@ -118,6 +118,10 @@ for project in "${PYTHON_PROJECTS[@]}"; do
     # Includes tests/test_contracts.py: every server module has a layer in pyproject.toml.
     run_step "pytest $project (incl. every module in the contracts)" pytest_project "$project"
 done
+# The teacher's own tests (docs/spec/zai-tests.mjs) against a local server and a seeded database:
+# what grades A1–A4, on every change (scripts/.internal/contract-tests.sh lists what cannot pass
+# on localhost, and fails when that list is wrong in either direction).
+run_step "teacher's tests (zai-tests.mjs on a local server)" "$ROOT/scripts/.internal/contract-tests.sh"
 # Two TypeScript projects: the app (browser) and the code that runs in Node (vite config, e2e
 # tests). This checks the types of both; it does not run the e2e tests (that is `just e2e`).
 web_typecheck() { web tsc --noEmit -p tsconfig.app.json && web tsc --noEmit -p tsconfig.node.json; }

@@ -1,16 +1,18 @@
 #!/usr/bin/env bash
 # The teacher's test script (docs/spec/zai-tests.mjs) against a local server — the same tests
 # that grade the project (A1–A4), run by the gate on every change instead of once after the
-# deadline. Humans run `just contract-tests`; check.sh runs this script.
+# deadline. Humans run `just contract-tests`; check.sh runs this script. The database is seeded
+# by the generator first, as the deployed one will be (F11).
 #
-# A fresh database (pomiary_contract) and a server of its own on :6221, so nothing you develop
-# with is touched. The script only exits 0 when the outcome is exactly the expected one:
+# A fresh database (pomiary_contract) and a server of its own on :6222 (e2e.sh uses :6221), so
+# nothing you develop with is touched. The script only exits 0 when the outcome is exactly the
+# expected one:
 #   - every test not listed in KNOWN_FAILING passes;
 #   - every listed test fails — when one starts passing, take it off the list. The list only
 #     shrinks, and each entry says why it cannot pass here (yet).
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-PORT=6221
+PORT=6222
 DB=pomiary_contract
 URL="http://localhost:$PORT"
 ADMIN_USER=contract-admin
@@ -75,6 +77,16 @@ done
 curl -fs "$URL/api/health" >/dev/null || {
     echo "server did not start — .artifacts/contract-server.log:" >&2
     tail -20 "$ROOT/.artifacts/contract-server.log" >&2
+    exit 1
+}
+
+# The sample data (F11) the way the real app gets it: the generator through the API. Synthetic,
+# so the gate never depends on Open-Meteo; one day of hourly values is 24 per series (≥ 15).
+(cd "$ROOT/pomiary_generator" && unset VIRTUAL_ENV &&
+    uv run python -m pomiary_generator seed --api "$URL" --user "$ADMIN_USER" --password "$ADMIN_PASSWORD" \
+        --days 1 --source synthetic) >"$ROOT/.artifacts/contract-seed.log" 2>&1 || {
+    echo "seeding failed — .artifacts/contract-seed.log:" >&2
+    tail -20 "$ROOT/.artifacts/contract-seed.log" >&2
     exit 1
 }
 
