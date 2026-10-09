@@ -164,6 +164,12 @@ real secrets, database and routing. It stays small and fast: status codes and a 
 the body, no logging in, no writes. Today it checks that nginx answers (`/healthz`) and that
 the page reaches the server, which only starts with its database (`/api/health`).
 
+**Accessibility** is checked twice. The gate's check is axe (`@axe-core/playwright`, WCAG 2.0 to
+2.2 A and AA) inside the browser tests, `pomiary_web/src/shell/accessibility.e2e.ts`: zero
+violations on every screen and dialog, in both colour schemes. Lighthouse (`just lighthouse [url]`)
+is the A5 measure, not a gate step because it needs the built stack: run it before a submission and
+after a deployment, against the public URL. A new screen or dialog is added to the axe test.
+
 A step that cannot run (a tool missing on a fresh machine) reports **SKIP**, never PASS.
 Never weaken a step to make a change pass — fix the change.
 
@@ -448,6 +454,7 @@ Two vocabularies, chosen word by word:
   | `scripts/.internal/contract-tests.sh` | the teacher's tests (`docs/spec/zai-tests.mjs`) against a fresh server on :6222 and a `pomiary_contract` database seeded by the generator. The gate runs it; its `KNOWN_FAILING` lists the localhost-only failures with reasons and must match the outcome exactly |
   | `scripts/.internal/db.sh up\|down\|status\|psql` | the local PostgreSQL on `localhost:5453` (podman container `pomiary-postgres`). `check.sh` runs `up` itself; tests create their own `pomiary_test` database |
   | `scripts/.internal/api-types.sh [--check]` | regenerate `pomiary_web/src/api/openapi.d.ts` after changing a model the API exposes. Never edit that file by hand |
+  | `scripts/.internal/lighthouse.sh [url]` | Lighthouse accessibility score of a running app (default `http://localhost:8092`), light and dark, with every failed audit; reports in `.artifacts/lighthouse/`; exits non-zero below 90 (A5). Not in the gate: needs `just up` or the deployed URL |
   | `scripts/.internal/secrets.sh backup\|restore` | **not for agents** — the owner's copy of the `.env` files in Bitwarden (`just secrets`, section 7); it asks for the master password |
   | `scripts/.internal/infra-status.sh` | what of the compose stack is up and on which ports (needs `jq`) |
 

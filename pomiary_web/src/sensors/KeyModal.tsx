@@ -35,7 +35,8 @@ export function KeyModal({ created, series, onClose }: Props) {
         >
             {created !== null && (
                 <Stack>
-                    <Alert color="yellow" title="Copy the key now">
+                    {/* The yellow title colour is 2.7:1 on the light yellow; the plain text colour passes in both schemes. */}
+                    <Alert color="yellow" title="Copy the key now" styles={{ title: { color: "var(--mantine-color-text)" } }}>
                         This key is shown only once. The server keeps only a hash of it, so it can never be shown again. If you lose it,
                         unregister the sensor and register a new one.
                     </Alert>
@@ -53,7 +54,7 @@ export function KeyModal({ created, series, onClose }: Props) {
                         />
                         <CopyButton value={created.apiKey}>
                             {({ copied, copy }) => (
-                                <Button onClick={copy} color={copied ? "teal" : "blue"} aria-label="Copy the key">
+                                <Button onClick={copy} color={copied ? "teal.9" : "indigo"} aria-label="Copy the key">
                                     {copied ? "Copied" : "Copy"}
                                 </Button>
                             )}
