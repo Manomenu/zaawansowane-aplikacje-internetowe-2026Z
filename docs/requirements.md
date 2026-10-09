@@ -27,17 +27,17 @@ requirement; "manually" means the proof is the recording or the checklist.
 | F10 | Responsive from 360 px | done | docs/progress/F11-accessibility.md | e2e at 360 px, no sideways scroll: `shell/Shell.e2e.ts` (frame), `dashboard/dashboard.e2e.ts` (Data), `sensors/sensors.e2e.ts` and `shell/accessibility.e2e.ts` (Series, Sensors); axe also runs on the Data tab at 360 px |
 | F11 | Sample data: at least 3 series with at least 15 points each, loaded by the generator | in progress | docs/progress/F5-teachers-tests-in-the-gate.md | the gate seeds a fresh database with `seed` and the teacher's F11 test passes on it; the deployed app is seeded at deployment |
 | F12 | Sensors: registration, one-time key, list, unregistration | done | docs/progress/F10-sensors-admin.md | server: pytest `tests/sensors/`; UI: e2e `sensors/sensors.e2e.ts` |
-| F13 | Generator: address, key, count/interval, generation mode, past and current data | in progress | docs/progress/F2-data-generator.md | pytest pomiary_generator in the gate |
+| F13 | Generator: address, key, count/interval, generation mode, past and current data | done | docs/progress/F14-requirements-review.md | pytest pomiary_generator in the gate |
 
 ## Technical requirements
 
 | Code | Requirement | Status | Proof | Checked automatically |
 | --- | --- | --- | --- | --- |
 | T1 | Backend: Python (FastAPI) | done | docs/progress/F0-initialization.md | pytest in the gate |
-| T2 | Frontend SPA (React), Flexbox/Grid + media queries | in progress | docs/progress/F6-web-foundation.md | tsc, eslint, vitest in the gate; Grid and `@media` rules in `src/app.css` |
-| T3 | REST API conforming to `zai-api-26z.yaml`, contract unchanged | in progress | docs/progress/F4-sensors-and-measurements.md | checksums of `docs/spec/SHA256SUMS` in the gate; pytest for every endpoint; teacher's tests via `contract-tests.sh` |
-| T4 | Relational database, keys, constraints, time indexes, SQL migrations | in progress | docs/progress/F1-schema-and-auth.md | pytest against a real PostgreSQL (migration applied by every test run) |
-| T5 | Security: bcrypt/Argon2id, parameterized queries, session/token, server-side authorization, sensor keys stored as SHA-256 | in progress | docs/progress/F4-sensors-and-measurements.md | UI (key shown once): e2e `sensors/sensors.e2e.ts`; pytest `tests/auth/`, `tests/series/`, `tests/sensors/`, `tests/measurements/`; B3 write-up: todo |
+| T2 | Frontend SPA (React), Flexbox/Grid + media queries | done | docs/progress/F14-requirements-review.md | tsc, eslint, vitest in the gate; Grid and `@media` rules in `src/app.css` |
+| T3 | REST API conforming to `zai-api-26z.yaml`, contract unchanged | done | docs/progress/F14-requirements-review.md | checksums of `docs/spec/SHA256SUMS` in the gate; pytest for every endpoint; teacher's tests via `contract-tests.sh` |
+| T4 | Relational database, keys, constraints, time indexes, SQL migrations | done | docs/progress/F14-requirements-review.md | pytest against a real PostgreSQL (migration applied by every test run) |
+| T5 | Security: bcrypt/Argon2id, parameterized queries, session/token, server-side authorization, sensor keys stored as SHA-256 | done | docs/progress/F14-requirements-review.md | UI (key shown once): e2e `sensors/sensors.e2e.ts`; pytest `tests/auth/`, `tests/series/`, `tests/sensors/`, `tests/measurements/`; B3 write-up: todo |
 | T6 | Accessibility WCAG 2.2 AA; a series is not distinguished by color alone | done | docs/progress/F11-accessibility.md | axe (WCAG 2.0 to 2.2 A and AA) with zero violations on every screen and dialog in both colour schemes (`shell/accessibility.e2e.ts`); marker shapes, legend and table headers tell series apart; landmarks (`shell/Shell.e2e.ts`); keyboard and focus: Enter in forms, focus into and back from dialogs, `:focus-visible` outline |
 | T7 | Printing through `@media print` of the same view | done | docs/progress/F8-dashboard.md | e2e `shell/Shell.e2e.ts` (header, tabs, footer) and `dashboard/dashboard.e2e.ts` (controls hidden, charts and table kept) |
 | T8 | The teacher's tests (`zai-tests.mjs`) pass | in progress | docs/progress/F5-teachers-tests-in-the-gate.md | gate step "teacher's tests": all pass on localhost except the 3 HTTPS/page cases; on the deployed app after T10 |
@@ -70,6 +70,6 @@ requirement; "manually" means the proof is the recording or the checklist.
 | Code | Extension | Status | Proof | Checked automatically |
 | --- | --- | --- | --- | --- |
 | X1 | Live chart (SSE / WebSocket) | done | docs/progress/F8-dashboard.md | server: pytest `tests/measurements/test_stream.py` (docs/progress/F7-live-stream-server.md); client: vitest `dashboard/live.test.ts`; together: e2e `dashboard.e2e.ts` "…appears without reloading (live stream)"; shown in the video (E2) |
-| X2 | Generator with real data (Open-Meteo) | in progress | docs/progress/F2-data-generator.md | recorded-response test in the gate; `pytest -m live` against the real service |
+| X2 | Generator with real data (Open-Meteo) | done | docs/progress/F14-requirements-review.md | recorded-response test in the gate; `pytest -m live` against the real service |
 | X3 | Own tests in CI with a green status | done | docs/progress/F12-documentation.md | `.github/workflows/ci.yml` on every push: the gate (incl. the teacher's tests on a local server), the browser tests with axe, the image builds — green on `master` |
 | X4 | Time-series database (TimescaleDB) | todo | | |
