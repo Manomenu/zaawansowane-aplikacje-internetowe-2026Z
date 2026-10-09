@@ -3,7 +3,9 @@
 #
 #   podman build -f pomiary_server/Dockerfile -t pomiary-server .
 
-FROM docker.io/library/python:3.14-slim AS builder
+# Docker Hub's official images, pulled through Google's mirror of it: CI's runners hit Docker
+# Hub's anonymous rate limit (.github/workflows/ci.yml says the same).
+FROM mirror.gcr.io/library/python:3.14-slim AS builder
 
 COPY --from=ghcr.io/astral-sh/uv:0.12.5 /uv /usr/local/bin/uv
 
@@ -27,7 +29,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-dev --no-editable --package pomiary-server
 
 
-FROM docker.io/library/python:3.14-slim
+FROM mirror.gcr.io/library/python:3.14-slim
 
 RUN useradd --system --create-home --uid 10001 app
 
