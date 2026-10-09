@@ -91,6 +91,11 @@ contract-tests:
 check:
     @./scripts/.internal/check.sh
 
+# Lighthouse accessibility score (A5) of a running app, light and dark — the stack (`just up`) or the deployed URL
+[group('maintenance')]
+lighthouse url="http://localhost:8092":
+    @./scripts/.internal/lighthouse.sh {{ url }}
+
 # Apply autofixes and formatting: ruff for Python, eslint and prettier for the web app
 [group('maintenance')]
 fmt:

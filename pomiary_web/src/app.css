@@ -1,6 +1,15 @@
 /* The page grid and the print rules. Layout inside a feature uses Mantine's props; this file
    holds only what Mantine has no prop for. Classes are named after the part of the page. */
 
+/* "dimmed" text is under WCAG AA (4.5:1) by default: gray 6 is 3.3:1 on white, dark 2 is 4:1 on
+   the dark background. Gray 7 and dark 1 are 7:1 and more. */
+:root[data-mantine-color-scheme="light"] {
+    --mantine-color-dimmed: var(--mantine-color-gray-7);
+}
+:root[data-mantine-color-scheme="dark"] {
+    --mantine-color-dimmed: var(--mantine-color-dark-1);
+}
+
 /* Visible keyboard focus everywhere (WCAG 2.4.7), in both colour schemes. */
 :focus-visible {
     outline: 3px solid var(--mantine-color-indigo-filled);

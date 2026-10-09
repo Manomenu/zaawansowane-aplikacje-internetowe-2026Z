@@ -133,6 +133,8 @@ export function SeriesForm({
                 <ColorInput
                     label="Colour"
                     format="hex"
+                    // The eyedropper is an icon button; without a name a screen reader says only "button".
+                    eyeDropperButtonProps={{ "aria-label": "Pick a colour from the screen" }}
                     value={draft.color}
                     onChange={(value) => {
                         change({ color: value });
