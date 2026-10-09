@@ -96,6 +96,11 @@ check:
 lighthouse url="http://localhost:8092":
     @./scripts/.internal/lighthouse.sh {{ url }}
 
+# The E2 submission package: documentation.pdf (at most 8 pages) and the source ZIP, in .artifacts/submission/
+[group('maintenance')]
+package:
+    @./scripts/.internal/package.sh
+
 # Apply autofixes and formatting: ruff for Python, eslint and prettier for the web app
 [group('maintenance')]
 fmt:

@@ -59,11 +59,11 @@ requirement; "manually" means the proof is the recording or the checklist.
 
 | Code | What must be visible | Status | Proof | Checked automatically |
 | --- | --- | --- | --- | --- |
-| B1 | F1–F13 in the recording | todo | | |
-| B2 | Mobile view at ~360 px and the print preview | todo | | |
+| B1 | F1–F13 in the recording | in progress | docs/progress/F15-submission-package.md | manually: scripted in `docs/recording.md` and `docs/checklist.md`; the recording is still to do |
+| B2 | Mobile view at ~360 px and the print preview | in progress | docs/progress/F15-submission-package.md | manually: scripted in `docs/recording.md` (4:50 mobile, 5:10 print); e2e at 360 px and print media in the gate; the recording is still to do |
 | B3 | Two T5 items in the recording and in the documentation | in progress | docs/progress/F12-documentation.md | manually: described in `docs/documentation.md` section 5; the recording is still to do |
-| B4 | ERD diagram and migrations in the archive | in progress | docs/progress/F12-documentation.md | manually: `docs/erd.md`, `docs/erd.svg` and `migrations/001_schema.sql` are in the repo; the ZIP is built at submission |
-| B5 | Complete PDF documentation | in progress | docs/progress/F12-documentation.md | manually: the source is `docs/documentation.md`; the PDF and the deployment facts come at submission |
+| B4 | ERD diagram and migrations in the archive | done | docs/progress/F15-submission-package.md | `just package` fails unless the ZIP holds `docs/erd.svg` and the migrations (`scripts/.internal/package.sh`) |
+| B5 | Complete PDF documentation | in progress | docs/progress/F15-submission-package.md | `just package` builds `documentation.pdf` (5 pages, fails above 8); the deployment facts and the administrator login (TODO in `docs/documentation.md`) come at submission |
 
 ## Extensions (bonus points)
 

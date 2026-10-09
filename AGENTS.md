@@ -455,6 +455,7 @@ Two vocabularies, chosen word by word:
   | `scripts/.internal/db.sh up\|down\|status\|psql` | the local PostgreSQL on `localhost:5453` (podman container `pomiary-postgres`). `check.sh` runs `up` itself; tests create their own `pomiary_test` database |
   | `scripts/.internal/api-types.sh [--check]` | regenerate `pomiary_web/src/api/openapi.d.ts` after changing a model the API exposes. Never edit that file by hand |
   | `scripts/.internal/lighthouse.sh [url]` | Lighthouse accessibility score of a running app (default `http://localhost:8092`), light and dark, with every failed audit; reports in `.artifacts/lighthouse/`; exits non-zero below 90 (A5). Not in the gate: needs `just up` or the deployed URL |
+  | `scripts/.internal/package.sh` | build the E2 submission into `.artifacts/submission/`: `documentation.pdf` from `docs/documentation.md` (fails above 8 pages) and `pomiary-zai-26z.zip` of the repository files plus the PDF (fails on a secret file or `node_modules`). `just package` |
   | `scripts/.internal/secrets.sh backup\|restore` | **not for agents** — the owner's copy of the `.env` files in Bitwarden (`just secrets`, section 7); it asks for the master password |
   | `scripts/.internal/infra-status.sh` | what of the compose stack is up and on which ports (needs `jq`) |
 
