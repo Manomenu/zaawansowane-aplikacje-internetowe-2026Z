@@ -109,6 +109,77 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/sensors": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Sensors */
+        get: operations["list_sensors_sensors_get"];
+        put?: never;
+        /** Create Sensor */
+        post: operations["create_sensor_sensors_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/sensors/{sensor_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Sensor */
+        get: operations["get_sensor_sensors__sensor_id__get"];
+        put?: never;
+        post?: never;
+        /** Delete Sensor */
+        delete: operations["delete_sensor_sensors__sensor_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/measurements": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Measurements */
+        get: operations["list_measurements_measurements_get"];
+        put?: never;
+        /** Create Measurement */
+        post: operations["create_measurement_measurements_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/measurements/{measurement_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Measurement */
+        get: operations["get_measurement_measurements__measurement_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -143,12 +214,85 @@ export interface components {
             /** Expiresin */
             expiresIn: number;
         };
+        /** Measurement */
+        Measurement: {
+            /** Id */
+            id: number;
+            /** Seriesid */
+            seriesId: number;
+            /** Sensorid */
+            sensorId: number | null;
+            /** Value */
+            value: number;
+            /**
+             * Timestamp
+             * Format: date-time
+             */
+            timestamp: string;
+        };
+        /**
+         * MeasurementInput
+         * @description The series is not in the body: it comes from the sensor's key.
+         */
+        MeasurementInput: {
+            /** Value */
+            value: number;
+            /** Timestamp */
+            timestamp?: string | null;
+        };
         /** PasswordChange */
         PasswordChange: {
             /** Currentpassword */
             currentPassword: string;
             /** Newpassword */
             newPassword: string;
+        };
+        /**
+         * Sensor
+         * @description Never carries the key or its hash.
+         */
+        Sensor: {
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
+            /** Seriesid */
+            seriesId: number;
+            /**
+             * Createdat
+             * Format: date-time
+             */
+            createdAt: string;
+            /** Lastmeasurementat */
+            lastMeasurementAt: string | null;
+        };
+        /**
+         * SensorCreated
+         * @description The answer to the registration: the only place the key is ever sent.
+         */
+        SensorCreated: {
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
+            /** Seriesid */
+            seriesId: number;
+            /**
+             * Createdat
+             * Format: date-time
+             */
+            createdAt: string;
+            /** Lastmeasurementat */
+            lastMeasurementAt: string | null;
+            /** Apikey */
+            apiKey: string;
+        };
+        /** SensorInput */
+        SensorInput: {
+            /** Name */
+            name: string;
+            /** Seriesid */
+            seriesId: number;
         };
         /** Series */
         Series: {
@@ -445,6 +589,218 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_sensors_sensors_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Sensor"][];
+                };
+            };
+        };
+    };
+    create_sensor_sensors_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SensorInput"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SensorCreated"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_sensor_sensors__sensor_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                sensor_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Sensor"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_sensor_sensors__sensor_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                sensor_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_measurements_measurements_get: {
+        parameters: {
+            query?: {
+                series?: string | null;
+                from?: string | null;
+                to?: string | null;
+                sort?: "timestamp" | "-timestamp";
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Measurement"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_measurement_measurements_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MeasurementInput"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Measurement"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_measurement_measurements__measurement_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                measurement_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Measurement"];
+                };
             };
             /** @description Validation Error */
             422: {

@@ -15,10 +15,10 @@ requirement; "manually" means the proof is the recording or the checklist.
 
 | Code | Requirement | Status | Proof | Checked automatically |
 | --- | --- | --- | --- | --- |
-| F1 | A result = a number + a timestamp + a series; only from sensors through the API | todo | | |
+| F1 | A result = a number + a timestamp + a series; only from sensors through the API | done | docs/progress/F4-sensors-and-measurements.md | pytest `tests/measurements/`; teacher's tests via `contract-tests.sh` |
 | F2 | Series: name, min/max, color/icon; a column in the table, a curve on the chart | in progress | docs/progress/F3-series.md | pytest: `tests/series/` (the server side; table and chart are still to do) |
 | F3 | Roles: reader and administrator; nobody edits results in the UI | in progress | docs/progress/F3-series.md | pytest: `tests/series/` (series changes need an administrator; the UI is still to do) |
-| F4 | Range validation on the server, in the generator and in the forms; a log of rejections | in progress | docs/progress/F2-data-generator.md | generator: pytest (readable 422 message); server: pytest `tests/series/` (min < max, 409; see docs/progress/F3-series.md) |
+| F4 | Range validation on the server, in the generator and in the forms; a log of rejections | in progress | docs/progress/F4-sensors-and-measurements.md | server: pytest `tests/measurements/` (422 + WARNING), `tests/series/` (min < max, 409); generator: pytest (readable 422 message); forms: todo |
 | F5 | Filtering: time range and visible series | todo | | |
 | F6 | Clicking a table row highlights the point on the chart | todo | | |
 | F7 | Printing the chart with the table, without controls | todo | | |
@@ -26,7 +26,7 @@ requirement; "manually" means the proof is the recording or the checklist.
 | F9 | UX: Enter key, validation before sending, loading states, server errors | todo | | |
 | F10 | Responsive from 360 px | todo | | |
 | F11 | Sample data: at least 3 series with at least 15 points each, loaded by the generator | in progress | docs/progress/F2-data-generator.md | generator `seed`: pytest against a fake API |
-| F12 | Sensors: registration, one-time key, list, unregistration | todo | | |
+| F12 | Sensors: registration, one-time key, list, unregistration | in progress | docs/progress/F4-sensors-and-measurements.md | server: pytest `tests/sensors/`; UI: todo |
 | F13 | Generator: address, key, count/interval, generation mode, past and current data | in progress | docs/progress/F2-data-generator.md | pytest pomiary_generator in the gate |
 
 ## Technical requirements
@@ -35,9 +35,9 @@ requirement; "manually" means the proof is the recording or the checklist.
 | --- | --- | --- | --- | --- |
 | T1 | Backend: Python (FastAPI) | done | docs/progress/F0-initialization.md | pytest in the gate |
 | T2 | Frontend SPA (React), Flexbox/Grid + media queries | in progress | docs/progress/F0-initialization.md | tsc, eslint, vitest in the gate |
-| T3 | REST API conforming to `zai-api-26z.yaml`, contract unchanged | in progress | docs/progress/F1-schema-and-auth.md | checksums of `docs/spec/SHA256SUMS` in the gate; pytest: `tests/auth/`, `tests/series/`, `tests/test_problems.py`; series: docs/progress/F3-series.md |
+| T3 | REST API conforming to `zai-api-26z.yaml`, contract unchanged | in progress | docs/progress/F4-sensors-and-measurements.md | checksums of `docs/spec/SHA256SUMS` in the gate; pytest for every endpoint; teacher's tests via `contract-tests.sh` |
 | T4 | Relational database, keys, constraints, time indexes, SQL migrations | in progress | docs/progress/F1-schema-and-auth.md | pytest against a real PostgreSQL (migration applied by every test run) |
-| T5 | Security: bcrypt/Argon2id, parameterized queries, session/token, server-side authorization, sensor keys stored as SHA-256 | in progress | docs/progress/F1-schema-and-auth.md | pytest: `tests/auth/`, `tests/series/` |
+| T5 | Security: bcrypt/Argon2id, parameterized queries, session/token, server-side authorization, sensor keys stored as SHA-256 | in progress | docs/progress/F4-sensors-and-measurements.md | pytest `tests/auth/`, `tests/series/`, `tests/sensors/`, `tests/measurements/`; B3 write-up: todo |
 | T6 | Accessibility WCAG 2.2 AA; a series is not distinguished by color alone | todo | | |
 | T7 | Printing through `@media print` of the same view | todo | | |
 | T8 | The teacher's tests (`zai-tests.mjs`) pass | todo | | |
@@ -49,9 +49,9 @@ requirement; "manually" means the proof is the recording or the checklist.
 
 | Code | What the tests check | Status | Proof | Checked automatically |
 | --- | --- | --- | --- | --- |
-| A1 | E1: contract conformance, sensors, filtering, F11 | todo | | |
+| A1 | E1: contract conformance, sensors, filtering, F11 | in progress | docs/progress/F4-sensors-and-measurements.md | `contract-tests.sh`: all but the F11 sample-data test pass locally |
 | A2 | E2: contract conformance again | todo | | |
-| A3 | Validation and authorization (422, 400/422, 401, no editing of results) | todo | | |
+| A3 | Validation and authorization (422, 400/422, 401, no editing of results) | in progress | docs/progress/F4-sensors-and-measurements.md | `contract-tests.sh`: 15/15 pass locally; graded after deployment |
 | A4 | HTTPS, headers with CSP, cookie flags, no secrets in responses | todo | | |
 | A5 | Lighthouse Accessibility ≥ 90 | todo | | |
 

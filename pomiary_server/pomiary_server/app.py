@@ -9,6 +9,8 @@ from pydantic import BaseModel
 from pomiary_server import db, problems
 from pomiary_server.auth import api as auth_api
 from pomiary_server.auth import store as auth_store
+from pomiary_server.measurements import api as measurements_api
+from pomiary_server.sensors import api as sensors_api
 from pomiary_server.series import api as series_api
 from pomiary_server.settings import settings
 
@@ -63,3 +65,5 @@ def health() -> Health:
 # Features add their routers here: app.include_router(notes) — and a layer in pyproject.toml.
 app.include_router(auth_api.router)
 app.include_router(series_api.router)
+app.include_router(sensors_api.router)
+app.include_router(measurements_api.router)
