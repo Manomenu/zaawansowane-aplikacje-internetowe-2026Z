@@ -64,14 +64,6 @@
     max-width: 28rem;
 }
 
-/* The dashboard's own grid: the filters above the content on a phone, beside it on a wide
-   screen. Used by dashboard/ for its two children (filters, content). */
-.dashboard-layout {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: var(--mantine-spacing-md);
-}
-
 @media (min-width: 768px) {
     .page {
         padding: var(--mantine-spacing-md);
@@ -84,11 +76,6 @@
         max-width: 80rem;
         margin-inline: auto;
         padding: var(--mantine-spacing-xl);
-    }
-
-    .dashboard-layout {
-        grid-template-columns: 18rem minmax(0, 1fr);
-        align-items: start;
     }
 }
 

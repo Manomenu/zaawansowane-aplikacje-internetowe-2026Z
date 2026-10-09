@@ -1,5 +1,25 @@
 /* The dashboard's own rules: what Mantine has no prop for. */
 
+/* The filters: the time range in one row, the series fieldsets in a wrapping row below it;
+   everything stacks on a narrow screen because the flex items wrap. */
+.filters {
+    display: flex;
+    flex-direction: column;
+    gap: var(--mantine-spacing-md);
+}
+
+.filters-series {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--mantine-spacing-md);
+}
+
+.filters-series > fieldset {
+    flex: 1 1 14rem;
+    min-width: 0;
+    margin: 0;
+}
+
 .unit-chart {
     margin: 0;
 }
@@ -19,6 +39,55 @@
 .table-scroll {
     overflow: auto;
     max-height: 32rem;
+}
+
+/* Every column gets the same share of the box and the headers wrap: at 1024 px and wider the
+   12 seeded series fit without scrolling. On a phone the table keeps a readable width instead
+   and scrolls inside its box. */
+.measurement-table {
+    table-layout: fixed;
+    font-size: 0.75rem;
+}
+
+.measurement-table th,
+.measurement-table td {
+    padding: 0.25rem 0.375rem;
+    /* Wrap between words; a word longer than its column is hyphenated (the page is lang="en")
+       rather than cut at any letter. */
+    overflow-wrap: break-word;
+    hyphens: auto;
+    vertical-align: top;
+}
+
+.measurement-table th:first-child {
+    width: 5.5rem;
+}
+
+.measurement-table .value-cell {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.series-head {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.25rem;
+}
+
+.time-part {
+    display: block;
+}
+
+.marker-icon {
+    flex: none;
+    overflow: visible;
+}
+
+@media (max-width: 767px) {
+    .measurement-table {
+        min-width: calc(5.5rem + var(--series-count) * 5rem);
+    }
 }
 
 .table-scroll thead {

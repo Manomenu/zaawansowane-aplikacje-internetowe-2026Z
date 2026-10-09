@@ -30,9 +30,9 @@ function SeriesLabel({ series }: { series: Series }) {
 /** The dashboard's controls (F5): the time range with presets, and the series by unit. */
 export function Filters({ filters, rangeError, groups, hidden, onPreset, onEdit, onToggleSeries, onToggleUnit }: Props) {
     return (
-        <Stack component="section" aria-label="Filters" className="no-print" gap="md">
+        <section aria-label="Filters" className="no-print filters">
             <Fieldset legend="Time range">
-                <Stack gap="xs">
+                <Group gap="md" align="flex-end" className="filters-range">
                     <Group gap="xs" role="group" aria-label="Presets">
                         {PRESETS.map((preset) => (
                             <Button
@@ -65,39 +65,41 @@ export function Filters({ filters, rangeError, groups, hidden, onPreset, onEdit,
                             onEdit("to", event.currentTarget.value);
                         }}
                     />
-                </Stack>
+                </Group>
             </Fieldset>
             {groups.length === 0 ? (
                 <Text size="sm">There are no series yet.</Text>
             ) : (
-                groups.map((group) => {
-                    const state = unitState(group, hidden);
-                    return (
-                        <Fieldset key={group.unit} legend={`Series in ${group.label}`}>
-                            <Stack gap="xs">
-                                <Checkbox
-                                    label={`All ${group.label}`}
-                                    checked={state === "all"}
-                                    indeterminate={state === "some"}
-                                    onChange={() => {
-                                        onToggleUnit(group);
-                                    }}
-                                />
-                                {group.series.map((series) => (
+                <div className="filters-series">
+                    {groups.map((group) => {
+                        const state = unitState(group, hidden);
+                        return (
+                            <Fieldset key={group.unit} legend={`Series in ${group.label}`}>
+                                <Stack gap="xs">
                                     <Checkbox
-                                        key={series.id}
-                                        label={<SeriesLabel series={series} />}
-                                        checked={!hidden.has(series.id)}
+                                        label={`All ${group.label}`}
+                                        checked={state === "all"}
+                                        indeterminate={state === "some"}
                                         onChange={() => {
-                                            onToggleSeries(series.id);
+                                            onToggleUnit(group);
                                         }}
                                     />
-                                ))}
-                            </Stack>
-                        </Fieldset>
-                    );
-                })
+                                    {group.series.map((series) => (
+                                        <Checkbox
+                                            key={series.id}
+                                            label={<SeriesLabel series={series} />}
+                                            checked={!hidden.has(series.id)}
+                                            onChange={() => {
+                                                onToggleSeries(series.id);
+                                            }}
+                                        />
+                                    ))}
+                                </Stack>
+                            </Fieldset>
+                        );
+                    })}
+                </div>
             )}
-        </Stack>
+        </section>
     );
 }

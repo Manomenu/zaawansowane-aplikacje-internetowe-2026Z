@@ -1,4 +1,4 @@
-import { Group, Table, Text } from "@mantine/core";
+import { Table, Text } from "@mantine/core";
 import type { KeyboardEvent } from "react";
 
 import type { Series } from "./api";
@@ -6,7 +6,9 @@ import { MarkerIcon } from "./Marker";
 import { markerShape } from "./markers";
 import type { TableRow } from "./table";
 
-const timeFormat = new Intl.DateTimeFormat(undefined, { dateStyle: "short", timeStyle: "medium" });
+// Date and time are two lines of one narrow column, so 13 columns fit side by side.
+const dateFormat = new Intl.DateTimeFormat(undefined, { dateStyle: "short" });
+const timeFormat = new Intl.DateTimeFormat(undefined, { timeStyle: "medium" });
 const valueFormat = new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 });
 
 interface Props {
@@ -30,16 +32,16 @@ export function MeasurementTable({ rows, series, selectedMs, onSelect }: Props) 
     if (rows.length === 0) return <Text>No measurements in this range.</Text>;
     return (
         <div className="table-scroll" role="region" aria-label="Measurements table" tabIndex={0}>
-            <Table highlightOnHover>
+            <Table highlightOnHover className="measurement-table" style={{ "--series-count": series.length }}>
                 <Table.Thead>
                     <Table.Tr>
                         <Table.Th scope="col">Time</Table.Th>
                         {series.map((s) => (
-                            <Table.Th key={s.id} scope="col">
-                                <Group gap={6} wrap="nowrap">
+                            <Table.Th key={s.id} scope="col" className="value-cell">
+                                <div className="series-head">
                                     <MarkerIcon shape={markerShape(s.icon)} color={s.color} />
                                     <span>{s.unit ? `${s.name} (${s.unit})` : s.name}</span>
-                                </Group>
+                                </div>
                             </Table.Th>
                         ))}
                     </Table.Tr>
@@ -58,10 +60,17 @@ export function MeasurementTable({ rows, series, selectedMs, onSelect }: Props) 
                                 onKeyDown(event, row.ms);
                             }}
                         >
-                            <Table.Td>{timeFormat.format(row.ms)}</Table.Td>
+                            <Table.Td>
+                                <span className="time-part">{dateFormat.format(row.ms)}</span>{" "}
+                                <span className="time-part">{timeFormat.format(row.ms)}</span>
+                            </Table.Td>
                             {series.map((s) => {
                                 const value = row.values.get(s.id);
-                                return <Table.Td key={s.id}>{value === undefined ? "" : valueFormat.format(value)}</Table.Td>;
+                                return (
+                                    <Table.Td key={s.id} className="value-cell">
+                                        {value === undefined ? "" : valueFormat.format(value)}
+                                    </Table.Td>
+                                );
                             })}
                         </Table.Tr>
                     ))}
