@@ -8,16 +8,18 @@ description = "pomiary"
 requires-python = ">=3.12,<3.15"
 dependencies = [
     "pomiary-server",
+    "pomiary-generator",
 ]
 
 [tool.uv]
 package = false
 
 [tool.uv.workspace]
-members = ["pomiary_server"]
+members = ["pomiary_server", "pomiary_generator"]
 
 [tool.uv.sources]
 pomiary-server = { workspace = true }
+pomiary-generator = { workspace = true }
 
 [dependency-groups]
 dev = [

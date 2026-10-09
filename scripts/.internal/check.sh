@@ -5,7 +5,7 @@
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 
-PYTHON_PROJECTS=(pomiary_server)
+PYTHON_PROJECTS=(pomiary_server pomiary_generator)
 
 declare -a REPORT
 FAILED=0
