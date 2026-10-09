@@ -1,0 +1,10 @@
+# The default rules, plus one exempt file: the teacher's test script carries a deliberately
+# forged token (alg "none") and a sample password for its negative tests. It cannot be edited
+# (T3; docs/spec/SHA256SUMS pins it, the gate's "requirements" step checks), so its contents
+# cannot drift into a real secret unnoticed.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "teacher's test script, checksummed in docs/spec/SHA256SUMS"
+paths = ['''^docs/spec/zai-tests\.mjs$''']
