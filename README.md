@@ -1,14 +1,15 @@
-# pomiary — warunki w lesie
+# pomiary — forest conditions
 
-Projekt na Zaawansowane Aplikacje Internetowe (26Z): aplikacja zbierająca i pokazująca serie
-pomiarów z czujników — tu opad, temperatura i wilgotność gleby przy lasach, jako historia
-pomiarów dla [grzyby-mcp](https://github.com/Manomenu/grzyby-mcp). Czujniki emuluje generator
-danych, który czyta Open-Meteo (Weather data by [Open-Meteo.com](https://open-meteo.com/),
-CC BY 4.0) albo generuje przebieg syntetyczny i wysyła wyniki przez API.
+A project for Advanced Web Applications (ZAI, 26Z): an application that collects and shows
+measurement series from sensors — here precipitation, temperature and soil moisture near
+forests, as a measurement history for [grzyby-mcp](https://github.com/Manomenu/grzyby-mcp).
+The sensors are emulated by a data generator that reads Open-Meteo (Weather data by
+[Open-Meteo.com](https://open-meteo.com/), CC BY 4.0) or generates a synthetic curve, and
+sends the results through the API.
 
-- Adres (po wdrożeniu): https://pomiary-lasy.gugnowski.com
-- Specyfikacja, kontrakt API i testy prowadzącego: [`docs/spec/`](docs/spec/)
-- Stan wymagań: [`docs/wymagania.md`](docs/wymagania.md), postęp: [`docs/progress/`](docs/progress/)
+- Address (after deployment): https://pomiary-lasy.gugnowski.com
+- Specification, API contract and the teacher's tests: [`docs/spec/`](docs/spec/)
+- Requirements status: [`docs/requirements.md`](docs/requirements.md), progress: [`docs/progress/`](docs/progress/)
 
 ## Requirements
 

@@ -1,14 +1,14 @@
 {{/*
-Nazwa bazowa wszystkich obiektów. Wyprowadzona z nazwy wydania, żeby dwa wydania tego
-samego charta w jednym klastrze nie deptały sobie po nazwach.
+Base name of all objects. Derived from the release name so that two releases of the
+same chart in one cluster do not clash on names.
 */}}
 {{- define "app.name" -}}
 {{- .Release.Name | trunc 40 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
-Etykiety wspólne dla wszystkich obiektów. `app.kubernetes.io/*` to nazwy uzgodnione
-w całym ekosystemie — po nich filtruje k9s, kubectl i większość narzędzi.
+Labels shared by all objects. `app.kubernetes.io/*` are names agreed across the whole
+ecosystem — k9s, kubectl and most tools filter by them.
 */}}
 {{- define "app.labels" -}}
 app.kubernetes.io/name: {{ include "app.name" . }}
@@ -17,10 +17,10 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end -}}
 
 {{/*
-Pełna nazwa obrazu. Tag jest wymagany i celowo nie ma wartości domyślnej: brak tagu ma
-zatrzymać wdrożenie z czytelnym błędem, a nie po cichu wziąć „latest".
+Full image name. The tag is required and deliberately has no default: a missing tag should
+stop the deployment with a clear error rather than silently fall back to "latest".
 */}}
 {{- define "app.image" -}}
-{{- $tag := required "image.tag jest wymagany — ustawia go Argo Application w repo platformy" .Values.image.tag -}}
+{{- $tag := required "image.tag is required — it is set by the Argo Application in the platform repo" .Values.image.tag -}}
 {{ .Values.image.registry }}/{{ .component }}:{{ $tag }}
 {{- end -}}

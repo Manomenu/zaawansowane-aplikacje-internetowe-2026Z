@@ -33,7 +33,7 @@ half-done work).
 
 - **When:** after each finished feature, bugfix or refactor — one logical piece per push,
   never a pile of unrelated changes. The gate (`just check`) is green first, and the piece's
-  progress file (section „Course requirements”) is part of the same push.
+  progress file (section "Course requirements") is part of the same push.
 - **How:** `suwgit push /home/maniumek/repos/zaawansowane-aplikacje-internetowe-2026Z`.
 
 **A repo without git** (a fresh copy of the template, a new project folder) is initialised
@@ -48,18 +48,19 @@ teacher's test script are in `docs/spec/` and **are never edited** — the gate 
 with `docs/spec/SHA256SUMS`. The contract may be *extended* (own fields and paths) in the
 server, never changed.
 
-- **`docs/wymagania.md`** has a row for every requirement code (F1–F13, T1–T11, A1–A5, B1–B5,
-  extensions X1–X4) with a status: `todo`, `w toku`, `zrobione`.
+- **`docs/requirements.md`** has a row for every requirement code (F1–F13, T1–T11, A1–A5, B1–B5,
+  extensions X1–X4) with a status: `todo`, `in progress`, `done`.
 - **`docs/progress/F<n>-<slug>.md`** — one file per finished stage of the work (F0, F1, …),
-  without exception, written in Polish, with the sections `## Co spełniono` (which
-  requirement codes, and to what extent), `## Co zrobiono`, `## Dlaczego tak` (decisions
-  and the alternatives left out) and `## Jak sprawdzić` (the commands or steps that prove it).
-- **A row goes to `zrobione` only with its proof:** the progress file that names the code.
+  without exception, written in English, with the sections `## What was met` (which
+  requirement codes, and to what extent), `## What was done`, `## Why this way` (decisions
+  and the alternatives left out) and `## How to verify` (the commands or steps that prove it).
+- **A row goes to `done` only with its proof:** the progress file that names the code.
 - **A requirement that can be checked by a machine is checked by the gate**
   (`scripts/.internal/check.sh`, i.e. `just check`): the matrix itself
-  (`scripts/.internal/wymagania.sh`), and as the server grows, the teacher's tests run
+  (`scripts/.internal/requirements.sh`), and as the server grows, the teacher's tests run
   against a local server. A new requirement-level check goes there, not into a note.
-- Polish in these documents; English stays the language of the code and of this file.
+- Everything in this repository — code, identifiers, docs, progress files — is English; only
+  `docs/spec/` (the teacher's files) is Polish and is never edited.
 
 ## 0. KISS & YAGNI — the first rule
 
@@ -91,7 +92,7 @@ every moving part is a part someone has to keep alive.
 | `justfile`, `.just/` | commands for humans: the main recipes and the `just <module>` families (section 10) |
 | `scripts/.internal/` | everything the gate, CI and `just` run (section 10) |
 | `docs/spec/` | the course's specification, API contract and test script — read-only, checksummed |
-| `docs/wymagania.md`, `docs/progress/` | the requirements matrix and one progress file per finished stage (section „Course requirements”) |
+| `docs/requirements.md`, `docs/progress/` | the requirements matrix and one progress file per finished stage (section "Course requirements") |
 | `.github/workflows/ci.yml` | CI: the gate, the browser tests, then the images |
 | `.artifacts/` | everything generated (e2e reports, renders); outside git and the images |
 | `.editorconfig`, `.gitattributes`, `.python-version` | the shared standards: UTF-8 and LF everywhere, binaries never diffed as text, lockfiles and `openapi.d.ts` marked generated, Python 3.14 locally as in the image and CI. A new binary or generated file type gets its line in `.gitattributes` |
@@ -130,7 +131,7 @@ report and exits non-zero on any failure.
 
 | Step | Guards |
 | --- | --- |
-| requirements | `docs/spec/` unchanged, every requirement code in `docs/wymagania.md`, every `zrobione` backed by a progress file, every progress file complete (`scripts/.internal/wymagania.sh`) |
+| requirements | `docs/spec/` unchanged, every requirement code in `docs/requirements.md`, every `done` backed by a progress file, every progress file complete (`scripts/.internal/requirements.sh`) |
 | ruff, ruff format | Python lint (wide rule set, `ruff.toml`) and formatting |
 | pyright strict | Python types. No `# type: ignore` / `# noqa` without a comment saying why |
 | import-linter | the server's import contracts (section 4) |
@@ -400,6 +401,9 @@ tests (`docs/spec/zai-tests.mjs`) call the public address directly, so:
   own checks.
 
 ## 9. Naming
+
+In this repository domain words are English too (the course project is English throughout). This
+overrides the language rule below; the rest of the section stays as is.
 
 Two vocabularies, chosen word by word:
 

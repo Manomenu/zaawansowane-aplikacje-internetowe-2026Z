@@ -28,7 +28,7 @@ spec:
           ports:
             - containerPort: {{ .Values.server.port }}
           env:
-            # Port z values, a nie z .env.base — jedno źródło prawdy dla sondy i procesu.
+            # Port from values, not from .env.base — one source of truth for the probe and the process.
             - name: PORT
               value: {{ .Values.server.port | quote }}
           {{- with .Values.server.databaseSecret }}
@@ -36,7 +36,7 @@ spec:
             - secretRef:
                 name: {{ . }}
           {{- end }}
-          # /health nie dotyka niczego poza procesem, więc nadaje się na sondę.
+          # /health touches nothing outside the process, so it is suitable as a probe.
           readinessProbe:
             httpGet:
               path: /health
@@ -57,8 +57,8 @@ metadata:
   labels:
     {{- include "app.labels" . | nindent 4 }}
 spec:
-  # ClusterIP: widoczne tylko wewnątrz klastra. Z zewnątrz i tak wchodzi się przez web,
-  # który proxuje /api — tak samo jak w compose.
+  # ClusterIP: visible only inside the cluster. From outside you enter through web anyway,
+  # which proxies /api — the same as in compose.
   type: ClusterIP
   selector:
     app.kubernetes.io/instance: {{ .Release.Name }}

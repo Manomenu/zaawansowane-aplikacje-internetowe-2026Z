@@ -28,10 +28,10 @@ spec:
           ports:
             - containerPort: {{ .Values.web.port }}
           env:
-            # Nazwa usługi, nie adres — dokładnie to, po co istnieje ${API_UPSTREAM}
-            # w nginx.conf.template. W compose wystarcza http://server:6220; tu pełna nazwa,
-            # bo nginx sam ją rozwiązuje co kilka sekund i nie zna domen wyszukiwania
-            # z /etc/resolv.conf, więc krótka nazwa usługi by nie zadziałała.
+            # A service name, not an address — exactly what ${API_UPSTREAM} exists for
+            # in nginx.conf.template. In compose http://server:6220 is enough; here the full name,
+            # because nginx resolves it by itself every few seconds and does not know the search
+            # domains from /etc/resolv.conf, so the short service name would not work.
             - name: API_UPSTREAM
               value: http://{{ include "app.name" . }}-server.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.server.port }}
           readinessProbe:

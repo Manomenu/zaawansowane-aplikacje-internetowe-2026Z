@@ -1,13 +1,13 @@
 {{- /*
-Sprawdzenie po wdrożeniu. Argo uruchamia ten Job po każdej synchronizacji (hook PostSync),
-gdy reszta wydania jest już zdrowa. Kilka zapytań przez Service'y w klastrze — tak jak
-przyjdzie ruch z tunelu — i koniec. Gdy któreś się nie uda, synchronizacja w Argo jest
-nieudana (czerwona w `just argo apps`), a log Joba mówi, co padło.
+Post-deployment check. Argo runs this Job after every sync (PostSync hook), once the rest
+of the release is healthy. A few requests through the Services in the cluster — the way
+traffic arrives from the tunnel — and that is all. When one fails, the Argo sync is
+failed (red in `just argo apps`), and the Job log says what broke.
 
-Pełne testy w przeglądarce biegną w CI, zanim obraz w ogóle powstanie.
+Full browser tests run in CI, before the image is even built.
 */ -}}
 {{- if .Values.smokeTest.enabled }}
-{{- /* Service web wystawia port 80 (templates/web.yaml), więc w adresie nie ma portu. */ -}}
+{{- /* The web Service exposes port 80 (templates/web.yaml), so the address has no port. */ -}}
 {{- $web := printf "http://%s-web" (include "app.name" .) }}
 apiVersion: batch/v1
 kind: Job
@@ -18,10 +18,10 @@ metadata:
     app.kubernetes.io/component: smoke-test
   annotations:
     argocd.argoproj.io/hook: PostSync
-    # Poprzedni Job (i jego log) zostaje do następnego wdrożenia, potem znika.
+    # The previous Job (and its log) stays until the next deployment, then disappears.
     argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
 spec:
-  # Bez ponowień: chwilowe problemy łapie pętla w skrypcie, a powtórka Joba tylko by je ukryła.
+  # No retries: transient problems are caught by the loop in the script, and a Job retry would only hide them.
   backoffLimit: 0
   activeDeadlineSeconds: 180
   template:
@@ -43,7 +43,7 @@ spec:
             - |
               set -u
               failed=0
-              # expect STATUS PATH [TEXT] — kod odpowiedzi (i fragment treści) przez web, jak z tunelu.
+              # expect STATUS PATH [TEXT] — response code (and a body fragment) through web, as from the tunnel.
               expect() {
                 status="$1"; path="$2"; text="${3:-}"
                 for attempt in 1 2 3 4 5 6; do
@@ -58,15 +58,15 @@ spec:
                 head -c 300 /tmp/body; echo
                 failed=1
               }
-              expect 200 /healthz                          # strona (nginx) żyje
-              expect 200 /api/health '"ok"'                # serwer odpowiada (i ma bazę — bez niej nie wstaje)
+              expect 200 /healthz                          # the page (nginx) is alive
+              expect 200 /api/health '"ok"'                # the server answers (and has a database — it does not start without one)
               exit "$failed"
           resources:
             requests: { cpu: 10m, memory: 16Mi }
             limits: { memory: 32Mi }
           securityContext:
-            # Obraz podaje użytkownika nazwą (curl_user), a runAsNonRoot umie sprawdzić tylko
-            # numer — więc numer, wzięty z obrazu.
+            # The image names the user (curl_user), and runAsNonRoot can only check a
+            # number — so the number, taken from the image.
             runAsUser: 100
             runAsNonRoot: true
             allowPrivilegeEscalation: false

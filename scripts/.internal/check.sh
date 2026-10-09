@@ -93,9 +93,9 @@ local_database() {
     "$ROOT/scripts/.internal/db.sh" up >/dev/null
 }
 
-# The course requirements first: a changed contract or an unproven "zrobione" fails the gate
-# no matter how green the code is (docs/wymagania.md, AGENTS.md "Course requirements").
-run_step "requirements (docs/wymagania.md, docs/spec, docs/progress)" "$ROOT/scripts/.internal/wymagania.sh"
+# The course requirements first: a changed contract or an unproven "done" fails the gate
+# no matter how green the code is (docs/requirements.md, AGENTS.md "Course requirements").
+run_step "requirements (docs/requirements.md, docs/spec, docs/progress)" "$ROOT/scripts/.internal/requirements.sh"
 run_step "lint (ruff)" lint
 run_step "format (ruff format --check)" format_check
 run_step "typecheck python (pyright strict)" typecheck_python
