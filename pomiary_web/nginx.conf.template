@@ -17,6 +17,27 @@ server {
         return 200 "ok\n";
     }
 
+    # The live stream (Server-Sent Events) stays open for as long as the page does: no
+    # buffering, or events would wait in nginx; a long read timeout, because the server only
+    # sends a comment every 15 s. Otherwise the same proxy as /api/ below.
+    location = /api/measurements/stream {
+        resolver ${NGINX_LOCAL_RESOLVERS} valid=10s;
+        set $api_upstream ${API_UPSTREAM};
+        rewrite ^/api/(.*)$ /$1 break;
+        proxy_pass $api_upstream;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Connection "";
+        proxy_buffering off;
+        proxy_read_timeout 1h;
+        # As in /api/ below: the page's headers replace the server's copies.
+        proxy_hide_header Content-Security-Policy;
+        proxy_hide_header X-Content-Type-Options;
+        proxy_hide_header Referrer-Policy;
+    }
+
     # The browser only ever sees one origin, exactly as it does behind the vite proxy in
     # development — which is why the API's CORS list never has to learn about deployments.
     #

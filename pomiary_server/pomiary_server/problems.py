@@ -41,6 +41,10 @@ DOCS_PATHS = {"/docs", "/docs/oauth2-redirect", "/redoc"}
 # What a client may ask for in `Accept` and still be answered: we only speak JSON.
 ACCEPTABLE = {"*/*", "application/*", "application/json", "application/problem+json"}
 
+# The one route that answers `text/event-stream` (a browser's EventSource asks for exactly that).
+EVENT_STREAM_PATHS = {"/measurements/stream"}
+EVENT_STREAM = "text/event-stream"
+
 
 class FieldError(BaseModel):
     field: str
@@ -108,14 +112,14 @@ def unexpected_error(request: Request, _exc: Exception) -> Response:
     return response
 
 
-def accepts_json(accept: str) -> bool:
+def accepts_json(accept: str, acceptable: set[str] = ACCEPTABLE) -> bool:
     """False when `Accept` is present and allows none of our media types (q=0 forbids one)."""
     if not accept.strip():
         return True
     for item in accept.split(","):
         media_type, *params = (part.strip().lower() for part in item.split(";"))
         refused = any(param.replace(" ", "") == "q=0" for param in params)
-        if media_type in ACCEPTABLE and not refused:
+        if media_type in acceptable and not refused:
             return True
     return False
 
@@ -126,7 +130,8 @@ def has_body(request: Request) -> bool:
 
 async def check_request(request: Request, call_next: Callable[[Request], Awaitable[Response]]) -> Response:
     docs = request.url.path in DOCS_PATHS
-    if not docs and not accepts_json(request.headers.get("accept", "")):
+    acceptable = ACCEPTABLE | {EVENT_STREAM} if request.url.path in EVENT_STREAM_PATHS else ACCEPTABLE
+    if not docs and not accepts_json(request.headers.get("accept", ""), acceptable):
         response = problem(406, "This API only produces application/json")
     elif (
         request.method in {"POST", "PUT"}

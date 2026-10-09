@@ -1,8 +1,10 @@
 """The measurement routes: reading is public, writing is for sensors only (`X-API-Key`)."""
 
+from collections.abc import AsyncIterator
 from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Path, Query, Response
+from fastapi.responses import StreamingResponse
 from fastapi.security import APIKeyHeader
 from psycopg import Connection
 
@@ -63,6 +65,40 @@ def list_measurements(  # noqa: PLR0913 — the contract's five query parameters
     limit: Annotated[int, Query(ge=1, le=10000)] = 1000,
 ) -> list[Measurement]:
     return store.list_measurements(conn, MeasurementQuery(parse_series(series), start, end, sort, limit))
+
+
+# Quiet this long, and a comment goes out so that proxies do not close an idle connection.
+HEARTBEAT_SECONDS = 15
+
+
+class OpenStreams:
+    """How many live streams are open in this process."""
+
+    count = 0
+
+
+async def events(series: list[int] | None) -> AsyncIterator[str]:
+    OpenStreams.count += 1
+    try:
+        async for measurement in store.listen(settings.database_url, series, HEARTBEAT_SECONDS):
+            if measurement is None:
+                yield ": ping\n\n"
+            else:
+                yield f"event: measurement\ndata: {measurement.model_dump_json(by_alias=True)}\n\n"
+    finally:
+        OpenStreams.count -= 1
+
+
+# Declared before `/{measurement_id}`, which would take "stream" for an id.
+@router.get("/stream", response_class=StreamingResponse, responses={200: {"content": {"text/event-stream": {}}}})
+def stream_measurements(series: str | None = None) -> StreamingResponse:
+    """Server-Sent Events: an event `measurement` (the Measurement as JSON) for every measurement
+    stored after the connection was opened, optionally only of `series`."""
+    ids = parse_series(series)
+    if OpenStreams.count >= settings.max_streams:
+        raise HTTPException(503, "Too many live streams are open; try again later", headers={"Retry-After": "30"})
+    headers = {"Cache-Control": "no-cache", "X-Accel-Buffering": "no"}
+    return StreamingResponse(events(ids), media_type="text/event-stream", headers=headers)
 
 
 @router.get("/{measurement_id}")

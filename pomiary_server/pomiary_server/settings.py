@@ -35,6 +35,10 @@ class Settings(BaseSettings):
     # How long an administrator's login stays valid.
     token_ttl_seconds: int = 3600
 
+    # Live streams (GET /measurements/stream) each hold a database connection; more than this
+    # many at once get 503.
+    max_streams: int = 50
+
     # The first administrator, created at start-up when both are set and no admin exists yet.
     # No defaults: a password in the code would be a password in the repo.
     admin_username: str | None = None
