@@ -18,16 +18,16 @@ requirement; "manually" means the proof is the recording or the checklist.
 | F1 | A result = a number + a timestamp + a series; only from sensors through the API | todo | | |
 | F2 | Series: name, min/max, color/icon; a column in the table, a curve on the chart | todo | | |
 | F3 | Roles: reader and administrator; nobody edits results in the UI | todo | | |
-| F4 | Range validation on the server, in the generator and in the forms; a log of rejections | todo | | |
+| F4 | Range validation on the server, in the generator and in the forms; a log of rejections | in progress | docs/progress/F2-data-generator.md | generator: pytest (readable 422 message) |
 | F5 | Filtering: time range and visible series | todo | | |
 | F6 | Clicking a table row highlights the point on the chart | todo | | |
 | F7 | Printing the chart with the table, without controls | todo | | |
 | F8 | Administrator account: log in, log out, change password | in progress | docs/progress/F1-schema-and-auth.md | pytest: `tests/auth/` (the API side; the UI is still to do) |
 | F9 | UX: Enter key, validation before sending, loading states, server errors | todo | | |
 | F10 | Responsive from 360 px | todo | | |
-| F11 | Sample data: at least 3 series with at least 15 points each, loaded by the generator | todo | | |
+| F11 | Sample data: at least 3 series with at least 15 points each, loaded by the generator | in progress | docs/progress/F2-data-generator.md | generator `seed`: pytest against a fake API |
 | F12 | Sensors: registration, one-time key, list, unregistration | todo | | |
-| F13 | Generator: address, key, count/interval, generation mode, past and current data | todo | | |
+| F13 | Generator: address, key, count/interval, generation mode, past and current data | in progress | docs/progress/F2-data-generator.md | pytest pomiary_generator in the gate |
 
 ## Technical requirements
 
@@ -43,7 +43,7 @@ requirement; "manually" means the proof is the recording or the checklist.
 | T8 | The teacher's tests (`zai-tests.mjs`) pass | todo | | |
 | T9 | Repository with a readable history throughout the project | in progress | docs/progress/F0-initialization.md | gitleaks in the gate |
 | T10 | Public deployment (HTTPS) | todo | | |
-| T11 | Generator in the repo, through the API, key not in the code, documented | todo | | |
+| T11 | Generator in the repo, through the API, key not in the code, documented | done | docs/progress/F2-data-generator.md | pytest pomiary_generator in the gate; key only from `--api-key` / `POMIARY_API_KEY` |
 
 ## Automatic scoring (the teacher's tests)
 
@@ -70,6 +70,6 @@ requirement; "manually" means the proof is the recording or the checklist.
 | Code | Extension | Status | Proof | Checked automatically |
 | --- | --- | --- | --- | --- |
 | X1 | Live chart (SSE / WebSocket) | todo | | |
-| X2 | Generator with real data (Open-Meteo) | todo | | |
+| X2 | Generator with real data (Open-Meteo) | in progress | docs/progress/F2-data-generator.md | recorded-response test in the gate; `pytest -m live` against the real service |
 | X3 | Own tests in CI with a green status | in progress | docs/progress/F0-initialization.md | `.github/workflows/ci.yml` runs the gate |
 | X4 | Time-series database (TimescaleDB) | todo | | |

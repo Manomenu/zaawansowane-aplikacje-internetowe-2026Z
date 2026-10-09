@@ -1,0 +1,22 @@
+[project]
+name = "pomiary-generator"
+version = "0.1.0"
+description = "Sensor emulator: sends measurements to the Pomiary API (standard library only)"
+requires-python = ">=3.12"
+dependencies = []  # standard library only: anyone can run it with a plain Python
+
+[dependency-groups]
+dev = ["pytest>=8"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["pomiary_generator"]
+
+[tool.pytest.ini_options]
+addopts = ["-m", "not live"]
+markers = ["live: calls the real Open-Meteo (an outside service); left out of the gate"]
+testpaths = ["tests"]
+pythonpath = ["."]

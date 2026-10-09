@@ -85,6 +85,7 @@ every moving part is a part someone has to keep alive.
 | --- | --- |
 | `pomiary_server/` | the HTTP API (FastAPI, PostgreSQL through psycopg, plain SQL). Package in `pomiary_server/pomiary_server/`, tests mirror it in `pomiary_server/tests/` |
 | `pomiary_server/pomiary_server/migrations/` | numbered SQL migrations, applied at start-up, checksummed (`db.py`) |
+| `pomiary_generator/` | the data generator (sensor emulator, F13): a stand-alone CLI, standard library only, talking to the API like any sensor. Docs in its README |
 | `pomiary_web/` | the web app (React, Mantine, Vite). Source in `src/`, one folder per feature |
 | `deploy/chart/` | the Helm chart the cluster runs: server, web, ingress and `templates/smoke-test.yaml`, the post-deploy smoke test |
 | `compose.yaml` | the whole stack on a laptop, from the same Dockerfiles — no cluster needed |

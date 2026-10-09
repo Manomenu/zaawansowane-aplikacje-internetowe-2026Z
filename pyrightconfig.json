@@ -3,9 +3,10 @@
     "venv": ".venv",
     "pythonVersion": "3.12",
     "typeCheckingMode": "strict",
-    "include": ["pomiary_server", "scripts/.internal"],
+    "include": ["pomiary_server", "pomiary_generator", "scripts/.internal"],
     "executionEnvironments": [
         { "root": "pomiary_server" },
+        { "root": "pomiary_generator" },
         { "root": "scripts/.internal", "extraPaths": ["pomiary_server"] }
     ],
     "exclude": [

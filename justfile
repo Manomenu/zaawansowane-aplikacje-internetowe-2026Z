@@ -27,6 +27,11 @@ server *args:
 web *args:
     cd pomiary_web && { [ -d node_modules ] || pnpm install; } && pnpm dev {{ args }}
 
+# The data generator (sensor emulator) — `just generator --help`, docs in pomiary_generator/README.md
+[group('run')]
+generator *args:
+    cd pomiary_generator && env -u VIRTUAL_ENV uv run python -m pomiary_generator {{ args }}
+
 # ---------------------------------------------------------------------------------------
 # dev — code generation and other chores while developing
 # ---------------------------------------------------------------------------------------
