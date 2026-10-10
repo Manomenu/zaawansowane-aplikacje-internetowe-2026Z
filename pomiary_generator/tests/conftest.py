@@ -20,6 +20,9 @@ class FakeApi:
         self.series: list[dict[str, object]] = []
         self.sensors: dict[str, int] = {}  # api key -> series id
         self.measurements: list[dict[str, object]] = []
+        self.last_id = 0
+        self.last_key = 0
+        self.fail_delete = False
         self.requests: list[tuple[str, str, dict[str, str], object]] = []
         self.fixed_range: tuple[float, float] | None = None  # overrides the series range
 
@@ -44,11 +47,23 @@ class FakeApi:
         if (method, route) == ("GET", "/api/series"):
             return 200, self.series
         if (method, route) == ("POST", "/api/series"):
-            created: dict[str, object] = {**payload, "id": len(self.series) + 1}
+            self.last_id += 1
+            created: dict[str, object] = {**payload, "id": self.last_id}
             self.series.append(created)
             return 201, created
+        if method == "DELETE" and route.startswith("/api/series/"):
+            if self.fail_delete:
+                return self.problem(500, "Internal Server Error", "boom")
+            doomed = int(route.rsplit("/", 1)[1])
+            if all(s["id"] != doomed for s in self.series):
+                return self.problem(404, "Not Found", "no such series")
+            self.series = [s for s in self.series if s["id"] != doomed]
+            self.sensors = {k: v for k, v in self.sensors.items() if v != doomed}
+            self.measurements = [m for m in self.measurements if m["seriesId"] != doomed]
+            return 204, None
         if (method, route) == ("POST", "/api/sensors"):
-            key = f"key-{len(self.sensors) + 1:040d}"
+            self.last_key += 1
+            key = f"key-{self.last_key:040d}"
             self.sensors[key] = int(str(payload["seriesId"]))
             return 201, {"id": len(self.sensors), "name": payload["name"], "seriesId": payload["seriesId"], "apiKey": key}
         if (method, route) == ("GET", "/api/measurements"):
@@ -89,14 +104,14 @@ def fake() -> Iterator[tuple[FakeApi, str]]:
             raw = self.rfile.read(length) if length else b""
             body = json.loads(raw) if raw else None
             status, answer = state.handle(self.command, self.path, {k.title(): v for k, v in self.headers.items()}, body)
-            data = json.dumps(answer).encode()
+            data = b"" if answer is None else json.dumps(answer).encode()
             self.send_response(status)
             self.send_header("Content-Type", "application/problem+json" if status >= 400 else "application/json")
             self.send_header("Content-Length", str(len(data)))
             self.end_headers()
             self.wfile.write(data)
 
-        do_GET = do_POST = _do  # noqa: N815
+        do_GET = do_POST = do_DELETE = _do  # noqa: N815
 
         @override
         def log_message(self, format: str, *args: object) -> None:

@@ -138,6 +138,6 @@ class Api:
             raise ApiError(msg)
         return key
 
-    def has_measurements(self, token: str, series_id: object) -> bool:
-        body = self._admin("GET", "/api/measurements", token, query=f"?series={series_id}&limit=1")
-        return bool(as_list(body))
+    def delete_series(self, token: str, series_id: object) -> None:
+        """Delete a series together with its sensors and measurements."""
+        self._admin("DELETE", f"/api/series/{series_id}", token)

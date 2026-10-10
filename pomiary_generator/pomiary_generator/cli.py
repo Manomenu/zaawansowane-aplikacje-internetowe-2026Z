@@ -59,7 +59,7 @@ def build_parser() -> argparse.ArgumentParser:
     send.add_argument("--quantity", choices=list(QUANTITIES), help="open-meteo: quantity")
     send.add_argument("--dry-run", action="store_true", help="print what would be sent, no network for the API")
 
-    seed = commands.add_parser("seed", help="create the 12 sample series and sensors and fill them (F11)")
+    seed = commands.add_parser("seed", help="replace the 12 sample series: delete the old ones, create and fill them anew (F11)")
     seed.add_argument("--api", default=os.environ.get("POMIARY_API"), help="API base URL (env POMIARY_API)")
     seed.add_argument("--user", default=os.environ.get("POMIARY_ADMIN_USER"), help="administrator (env POMIARY_ADMIN_USER)")
     seed.add_argument("--password", default=os.environ.get("POMIARY_ADMIN_PASSWORD"), help="password (env POMIARY_ADMIN_PASSWORD)")
