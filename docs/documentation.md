@@ -33,15 +33,19 @@ synthetic curve, and sends the results through the API like any sensor.
 
 ### 3.1 Tool versions
 
+The versions the project was built and tested with (2026-10). Pinned ones are fixed by the repository
+itself; for the others an older release will probably work, but these are the ones checked.
+
 | Tool | Version | Used for |
 | --- | --- | --- |
 | Python | 3.14 (`.python-version`; the image is `python:3.14-slim`) | server |
-| uv | current | Python dependencies (`uv sync`) |
-| Node.js | 24 (the web image builds on `node:24-alpine`) | web app |
+| uv | 0.12.5 | Python dependencies (`uv sync`) |
+| Node.js | 24.20.0 locally; the web image builds on `node:24-alpine` | web app |
 | pnpm | 11.24.0 (`packageManager` in `pomiary_web/package.json`, via corepack) | web dependencies |
 | PostgreSQL | 17.11 (`postgres:17.11` in `compose.yaml` and `just db up`) | database |
 | nginx | 1.29 (`nginx-unprivileged:1.29-alpine`) | serves the web build, proxies `/api` |
-| just, podman + `podman compose` | current | commands, local database and container stack |
+| just | 1.58.0 | commands (`justfile`) |
+| podman + `podman compose` | podman 5.8.4; `podman compose` runs the docker-compose 5.5.0 provider | local database and container stack |
 | Generator | Python 3.12 or newer, standard library only | `pomiary_generator/` |
 
 Stack: FastAPI + psycopg 3 with plain SQL (no ORM) + Argon2 (argon2-cffi); React 19 + Mantine +
