@@ -1,7 +1,7 @@
 import { expect, test, type APIRequestContext, type Page } from "@playwright/test";
 
 import { ADMIN_PASSWORD, ADMIN_USERNAME } from "../../e2e/helpers";
-import { MAX_ROWS } from "./limits";
+import { MAX_ROWS, SERIES_COLUMN_MIN_REM, TIME_COLUMN_REM } from "./limits";
 
 const HOUR_MS = 3_600_000;
 const POINTS = 6;
@@ -115,9 +115,10 @@ test("the page is filters, then charts, then the table; the filters collapse and
     await expect(preset).toBeVisible();
 });
 
+// 12 columns of the minimum width need about 1050 px: from 1280 px they fit.
 for (const size of [
     { width: 1280, height: 900 },
-    { width: 1024, height: 800 },
+    { width: 1920, height: 1080 },
 ]) {
     test(`at ${String(size.width)} px the table with 12 series fits without scrolling`, async ({ page, request }) => {
         const names = await seedTwelve(request);
@@ -192,43 +193,51 @@ async function showOnly(page: Page, names: readonly string[]): Promise<void> {
 }
 
 for (const size of [
-    { width: 1280, height: 900 },
     { width: 1024, height: 800 },
+    { width: 1280, height: 900 },
+    { width: 1920, height: 1080 },
 ]) {
-    test(`at ${String(size.width)} px 13 series fit, 14 scroll inside the table, newest first, time column sticky`, async ({
+    test(`at ${String(size.width)} px as many series as fit at the minimum width show, one more scrolls inside the table`, async ({
         page,
         request,
     }) => {
         const prefix = `Wide${String(Date.now()).slice(-6)}`;
-        const { names, remove } = await seedMany(request, prefix, 14);
+        // More than fit even at 1920 px, created oldest to newest.
+        const { names, remove } = await seedMany(request, prefix, 24);
         try {
-            const oldest = names[0] ?? "";
-            const newest = names[13] ?? "";
+            const newest = names[names.length - 1] ?? "";
             await page.setViewportSize(size);
             await page.goto("/");
             const table = page.getByRole("region", { name: "Measurements table", exact: true });
             await expect(table.getByRole("columnheader", { name: new RegExp(newest) })).toBeVisible();
             await showOnly(page, names);
+            const headers = table.getByRole("columnheader");
+            await expect(headers).toHaveCount(names.length + 1);
             const overflow = () => table.evaluate((el) => el.scrollWidth - el.clientWidth);
 
-            // 13: hide the oldest one.
-            await page.getByRole("checkbox", { name: oldest, exact: true }).uncheck();
-            await expect(table.getByRole("columnheader")).toHaveCount(14);
-            expect(await overflow()).toBeLessThanOrEqual(0);
-
-            if (size.width !== 1024) return;
-
-            // 14: the box scrolls, the page does not.
-            await page.getByRole("checkbox", { name: oldest, exact: true }).check();
-            await expect(table.getByRole("columnheader")).toHaveCount(15);
+            // All 24: the box scrolls, the page does not; every series column keeps the minimum.
             expect(await overflow()).toBeGreaterThan(0);
-            const pageOverflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
-            expect(pageOverflow).toBeLessThanOrEqual(0);
+            expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0);
+            const rem = await page.evaluate(() => parseFloat(getComputedStyle(document.documentElement).fontSize));
+            const narrowest = Math.min(...(await headers.evaluateAll((ths) => ths.slice(1).map((th) => th.getBoundingClientRect().width))));
+            expect(narrowest).toBeGreaterThanOrEqual(SERIES_COLUMN_MIN_REM * rem - 1);
 
             // Newest series first, the oldest last.
-            const headers = table.getByRole("columnheader");
             await expect(headers.nth(1)).toContainText(newest);
-            await expect(headers.nth(14)).toContainText(oldest);
+            await expect(headers.nth(names.length)).toContainText(names[0] ?? "");
+
+            // As many as fit at the minimum width: no scroll; one more: scroll.
+            const boxWidth = await table.evaluate((el) => el.clientWidth);
+            const fit = Math.floor((boxWidth - TIME_COLUMN_REM * rem) / (SERIES_COLUMN_MIN_REM * rem));
+            expect(fit).toBeLessThan(names.length);
+            for (const name of names.slice(0, names.length - fit)) {
+                await page.getByRole("checkbox", { name, exact: true }).uncheck();
+            }
+            await expect(headers).toHaveCount(fit + 1);
+            expect(await overflow()).toBeLessThanOrEqual(0);
+            await page.getByRole("checkbox", { name: names[0] ?? "", exact: true }).check();
+            await expect(headers).toHaveCount(fit + 2);
+            expect(await overflow()).toBeGreaterThan(0);
 
             // The time column stays at the box's left edge while the box scrolls.
             const boxLeft = (await table.boundingBox())?.x ?? 0;
@@ -238,8 +247,7 @@ for (const size of [
             expect(await table.evaluate((el) => el.scrollLeft)).toBeGreaterThan(0);
             const timeLeft = (await headers.first().boundingBox())?.x ?? -1000;
             expect(Math.abs(timeLeft - boxLeft)).toBeLessThanOrEqual(2);
-            await table.locator(".data-row").first().click();
-            await page.screenshot({ path: `../.artifacts/dashboard-14-series-${String(size.width)}.png` });
+            await page.screenshot({ path: `../.artifacts/dashboard-many-series-${String(size.width)}.png` });
         } finally {
             await remove();
         }

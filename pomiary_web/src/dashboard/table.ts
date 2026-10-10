@@ -1,6 +1,6 @@
 // The table's rows and the charts' points, built from the same measurements (F2).
 import type { Measurement } from "./api";
-import { MAX_ROWS } from "./limits";
+import { MAX_ROWS, SERIES_COLUMN_MIN_REM, TIME_COLUMN_REM } from "./limits";
 
 export interface TableRow {
     /** The timestamp in ms: the row's identity. */
@@ -21,16 +21,9 @@ export function buildRows(measurements: readonly Measurement[], seriesIds: Reado
     return [...rows.entries()].map(([ms, values]) => ({ ms, values })).sort((a, b) => b.ms - a.ms);
 }
 
-/** Up to this many series columns fit the table's box at 1024 px and wider; more scroll inside it. */
-export const MAX_FIT_COLUMNS = 13;
-/** Width of the time column, in rem (the same 5.5rem as `dashboard.css`). */
-export const TIME_COLUMN_REM = 5.5;
-/** The narrowest a series column gets: 13 of them plus the time column just fit a 1024 px box. */
-export const MIN_COLUMN_REM = 4;
-
-/** The least width, in rem, the table keeps for `count` series columns; null while they all fit the box. */
-export function tableMinWidthRem(count: number): number | null {
-    return count > MAX_FIT_COLUMNS ? TIME_COLUMN_REM + count * MIN_COLUMN_REM : null;
+/** The least width, in rem, the table keeps for `count` series columns. */
+export function tableMinWidthRem(count: number): number {
+    return TIME_COLUMN_REM + count * SERIES_COLUMN_MIN_REM;
 }
 
 /** The key of a series' value in a chart point. */
