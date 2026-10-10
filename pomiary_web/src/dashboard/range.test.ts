@@ -27,10 +27,10 @@ describe("input values", () => {
 });
 
 describe("presets", () => {
-    it("are ordered shortest first, 7 days is the default", () => {
-        expect(PRESETS.map((p) => p.label)).toEqual(["15 min", "3 h", "24 h", "7 days", "30 days"]);
-        expect(PRESETS.map((p) => p.minutes)).toEqual([15, 180, 1440, 10_080, 43_200]);
-        expect(DEFAULT_PRESET).toBe("7d");
+    it("are ordered shortest first, 90 days is the default", () => {
+        expect(PRESETS.map((p) => p.label)).toEqual(["15 min", "3 h", "24 h", "7 days", "30 days", "90 days"]);
+        expect(PRESETS.map((p) => p.minutes)).toEqual([15, 180, 1440, 10_080, 43_200, 129_600]);
+        expect(DEFAULT_PRESET).toBe("90d");
     });
 
     it.each(PRESETS)("$label ends now and starts $minutes minutes before", ({ value, minutes }) => {
