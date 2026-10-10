@@ -42,7 +42,7 @@ just check           # the quality gate, exactly what CI runs
 just e2e             # browser tests (Playwright) against a real server and an empty database
 just contract-tests  # the teacher's tests (docs/spec/zai-tests.mjs) against a fresh local server
 just lighthouse      # accessibility score (A5) of a running app, light and dark
-just package         # the submission package: documentation.pdf and the source ZIP in .artifacts/submission/
+just package         # both submission packages in .artifacts/submissions/{e1,e2}/ (--stage e1|e2 for one)
 ```
 
 What the gate contains and when each check applies: AGENTS.md, section 3.
