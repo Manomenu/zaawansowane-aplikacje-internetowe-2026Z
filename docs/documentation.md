@@ -252,6 +252,27 @@ The author gave the tasks, reviewed the results, ran the checks and **is respons
 the submitted code, including its correctness and security**. The code quality gate (types,
 linters, unit, contract and browser tests) is run on every change.
 
+### 7.1 Sources of code taken from outside
+
+The course allows documentation, tutorials and libraries, with the sources of borrowed code
+named. What this project did not write itself:
+
+| What | Where it came from | Used for |
+| --- | --- | --- |
+| The repository skeleton: quality gate, CI, Dockerfiles, compose, Helm chart, `db.py` migrations, `api/client.ts` | the author's own public template [Manomenu/solid-app-tpl](https://github.com/Manomenu/solid-app-tpl), copied at the start (`docs/progress/F0-initialization.md`) | the tooling around the app; the domain code was written for this project |
+| Server libraries: FastAPI, Pydantic, pydantic-settings, Uvicorn, psycopg 3 (+ pool), argon2-cffi | PyPI; MIT / BSD / Apache-2.0 (LGPL-3.0 for psycopg) | HTTP API, validation, settings, PostgreSQL access, Argon2id |
+| Web libraries: React, Mantine, Recharts | npm; MIT | the SPA, its components, the charts |
+| Test tools: pytest, Vitest, Playwright, axe-core (`@axe-core/playwright`) | PyPI / npm; MIT / Apache-2.0 / MPL-2.0 (axe-core) | unit, browser and accessibility tests |
+| Swagger UI page at `/api/docs` | FastAPI's `get_swagger_ui_html`, the pattern from FastAPI's documentation "Custom Docs UI Static Assets"; Swagger UI loaded from jsDelivr | the API's interactive documentation |
+| `LISTEN`/`NOTIFY` for the live stream | psycopg 3 documentation, "Asynchronous notifications" | `measurements/store.py` `listen()` |
+| Weather data | [Open-Meteo](https://open-meteo.com/), CC BY 4.0 ("Weather data by Open-Meteo.com") | the generator's real data (X2) |
+| ERD rendering, the PDF of this document | Mermaid CLI; `marked` + Chromium's print to PDF | `docs/erd.svg`, `just package` |
+| The course's API contract and test script | the teacher (`docs/spec/`, unchanged, checksummed) | the contract implemented and the tests run in the gate |
+
+No code was copied from other students' projects or from answers on the internet beyond the
+documentation patterns named above. Dependency versions are pinned in `uv.lock` and
+`pomiary_web/pnpm-lock.yaml`.
+
 ## 8. Technologies and why (T1–T4)
 
 - **T1 Python + FastAPI:** pydantic validation gives the 400/422 distinction and the OpenAPI
