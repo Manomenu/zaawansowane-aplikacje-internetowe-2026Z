@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import type { Series } from "./api";
-import { NO_UNIT_LABEL, groupByUnit, toggleSeries, toggleUnit, unitState, visibleSeries } from "./grouping";
+import { NO_UNIT_LABEL, groupByUnit, newestFirst, toggleSeries, toggleUnit, unitState, visibleSeries } from "./grouping";
 
 const make = (id: number, unit: string | null): Series => ({
     id,
@@ -53,5 +53,13 @@ describe("visibility", () => {
 
     it("turns a half-visible unit fully on", () => {
         expect(toggleUnit(new Set([1]), celsius).size).toBe(0);
+    });
+});
+
+describe("newestFirst", () => {
+    it("orders by id, highest first, without touching the input", () => {
+        const input = [make(2, null), make(10, null), make(1, null)];
+        expect(newestFirst(input).map((s) => s.id)).toEqual([10, 2, 1]);
+        expect(input.map((s) => s.id)).toEqual([2, 10, 1]);
     });
 });

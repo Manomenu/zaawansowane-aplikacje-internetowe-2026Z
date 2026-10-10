@@ -124,6 +124,9 @@ for (const size of [
         await page.setViewportSize(size);
         await page.goto("/");
         const table = page.getByRole("region", { name: "Measurements table", exact: true });
+        // Series of earlier tests would add columns: only these twelve count.
+        await expect(table.getByRole("columnheader", { name: new RegExp(names[0] ?? "") })).toBeVisible();
+        await showOnly(page, names);
         for (const name of names) {
             await expect(table.getByRole("columnheader", { name: new RegExp(name) })).toBeVisible();
         }
@@ -138,6 +141,108 @@ for (const size of [
         expect(marker?.width).toBeGreaterThanOrEqual(16);
         expect(marker?.height).toBeGreaterThanOrEqual(16);
         await page.screenshot({ path: `../.artifacts/dashboard-${String(size.width)}.png`, fullPage: true });
+    });
+}
+
+/**
+ * Creates `count` series named `<prefix> #<n>` (n = 1..count, created in that order), each with a measurement a moment ago.
+ * `remove` deletes them again, so the later tests of the run do not meet dozens of extra series.
+ */
+async function seedMany(
+    request: APIRequestContext,
+    prefix: string,
+    count: number,
+): Promise<{ names: string[]; remove: () => Promise<void> }> {
+    const login = await request.post("/api/auth/login", { data: { username: ADMIN_USERNAME, password: ADMIN_PASSWORD } });
+    const headers = { authorization: `Bearer ${((await login.json()) as { accessToken: string }).accessToken}` };
+    const names: string[] = [];
+    const ids: number[] = [];
+    for (let n = 1; n <= count; n++) {
+        const name = `${prefix} #${String(n)}`;
+        const series = await request.post("/api/series", {
+            headers,
+            data: { name, minValue: 0, maxValue: 100, color: "#2f9e44", icon: "circle", unit: "%" },
+        });
+        const { id } = (await series.json()) as { id: number };
+        ids.push(id);
+        const sensor = await request.post("/api/sensors", { headers, data: { name: `${name} sensor`, seriesId: id } });
+        const { apiKey } = (await sensor.json()) as { apiKey: string };
+        const posted = await request.post("/api/measurements", {
+            headers: { "x-api-key": apiKey },
+            data: { value: n, timestamp: new Date(Date.now() - HOUR_MS).toISOString() },
+        });
+        expect(posted.ok()).toBe(true);
+        names.push(name);
+    }
+    const remove = async () => {
+        for (const id of ids) await request.delete(`/api/series/${String(id)}`, { headers });
+    };
+    return { names, remove };
+}
+
+/** Unchecks every series that is not one of `names`, so series left by other tests do not count. */
+async function showOnly(page: Page, names: readonly string[]): Promise<void> {
+    const boxes = page.getByRole("checkbox");
+    for (let i = 0; i < (await boxes.count()); i++) {
+        const box = boxes.nth(i);
+        const label = await box.evaluate((el) => (el as HTMLInputElement).labels?.[0]?.textContent ?? "");
+        if (label.startsWith("All ") || names.some((name) => label.includes(name))) continue;
+        await box.uncheck();
+    }
+}
+
+for (const size of [
+    { width: 1280, height: 900 },
+    { width: 1024, height: 800 },
+]) {
+    test(`at ${String(size.width)} px 13 series fit, 14 scroll inside the table, newest first, time column sticky`, async ({
+        page,
+        request,
+    }) => {
+        const prefix = `Wide${String(Date.now()).slice(-6)}`;
+        const { names, remove } = await seedMany(request, prefix, 14);
+        try {
+            const oldest = names[0] ?? "";
+            const newest = names[13] ?? "";
+            await page.setViewportSize(size);
+            await page.goto("/");
+            const table = page.getByRole("region", { name: "Measurements table", exact: true });
+            await expect(table.getByRole("columnheader", { name: new RegExp(newest) })).toBeVisible();
+            await showOnly(page, names);
+            const overflow = () => table.evaluate((el) => el.scrollWidth - el.clientWidth);
+
+            // 13: hide the oldest one.
+            await page.getByRole("checkbox", { name: oldest, exact: true }).uncheck();
+            await expect(table.getByRole("columnheader")).toHaveCount(14);
+            expect(await overflow()).toBeLessThanOrEqual(0);
+
+            if (size.width !== 1024) return;
+
+            // 14: the box scrolls, the page does not.
+            await page.getByRole("checkbox", { name: oldest, exact: true }).check();
+            await expect(table.getByRole("columnheader")).toHaveCount(15);
+            expect(await overflow()).toBeGreaterThan(0);
+            const pageOverflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+            expect(pageOverflow).toBeLessThanOrEqual(0);
+
+            // Newest series first, the oldest last.
+            const headers = table.getByRole("columnheader");
+            await expect(headers.nth(1)).toContainText(newest);
+            await expect(headers.nth(14)).toContainText(oldest);
+
+            // The time column stays at the box's left edge while the box scrolls.
+            const boxLeft = (await table.boundingBox())?.x ?? 0;
+            await table.evaluate((el) => {
+                el.scrollLeft = 300;
+            });
+            expect(await table.evaluate((el) => el.scrollLeft)).toBeGreaterThan(0);
+            const timeLeft = (await headers.first().boundingBox())?.x ?? -1000;
+            expect(Math.abs(timeLeft - boxLeft)).toBeLessThanOrEqual(2);
+            await table.locator(".data-row").first().click();
+            await page.screenshot({ path: `../.artifacts/dashboard-14-series-${String(size.width)}.png` });
+        } finally {
+            await remove();
+        }
     });
 }
 

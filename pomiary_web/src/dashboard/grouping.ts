@@ -28,6 +28,11 @@ export function visibleSeries(series: readonly Series[], hidden: ReadonlySet<num
     return series.filter((s) => !hidden.has(s.id));
 }
 
+/** Newest series first (the highest id): the ones just added are the first columns and legend entries. */
+export function newestFirst(series: readonly Series[]): Series[] {
+    return [...series].sort((a, b) => b.id - a.id);
+}
+
 export function toggleSeries(hidden: ReadonlySet<number>, id: number): Set<number> {
     const next = new Set(hidden);
     if (!next.delete(id)) next.add(id);

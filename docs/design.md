@@ -154,7 +154,9 @@ out, the header has "Log in", which opens the login form in a modal.
   `<place>: <quantity>` at the source (the generator's `seed`) and shown as `<name> (<unit>)`,
   the unit left out when empty; the UI never splits names.
 - **The table:** one row per timestamp, one column per visible series (F2), newest first,
-  empty cells where a series has no value. A row is a button-like element (keyboard: Tab +
+  empty cells where a series has no value. Columns (and legends, chart lines) run newest series
+  first (highest `id`); up to 13 fit the box at 1024 px and wider, from 14 each keeps 4 rem and
+  the table scrolls inside its box with the time column sticky. A row is a button-like element (keyboard: Tab +
   Enter/Space) — selecting it highlights that timestamp's points on the charts (a larger
   outlined marker and a vertical reference line) and marks the row (`aria-selected`) (F6).
 - **Filters (F5):** from/to (`datetime-local` inputs) with presets (15 min, 3 h, 24 h, 7 days, 30 days - shortest first, for a 1 s live signal),
@@ -179,8 +181,8 @@ out, the header has "Log in", which opens the login form in a modal.
 
 - `src/app.css` holds the page grid: CSS Grid with media queries (T2 requires Flexbox/Grid
   **and** media queries in CSS) — the dashboard content always has the full width (the filters
-  float over it); the table is `table-layout: fixed` with wrapping headers and fits 12 series
-  from 1024 px with no scrolling; on a phone (360 px) it scrolls inside its own box, the page
+  float over it); the table is `table-layout: fixed` with wrapping headers and fits 13 series
+  from 1024 px with no scrolling (14+ scroll in the box, the time column stays); on a phone (360 px) it scrolls inside its own box, the page
   never does.
 - Landmarks (`header`, `nav`, `main`, `footer`), one `h1`, every input labelled, visible focus,
   WCAG AA contrast in both colour schemes, `lang="en"`. Lighthouse Accessibility ≥ 90 (A5).

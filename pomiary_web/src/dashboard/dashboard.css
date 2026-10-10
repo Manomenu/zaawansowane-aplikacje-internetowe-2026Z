@@ -41,11 +41,13 @@
     max-height: 32rem;
 }
 
-/* Every column gets the same share of the box and the headers wrap: at 1024 px and wider the
-   12 seeded series fit without scrolling. On a phone the table keeps a readable width instead
-   and scrolls inside its box. */
+/* Every column gets the same share of the box and the headers wrap: up to 13 series fit at
+   1024 px and wider without scrolling. From the 14th, --table-min-width (set by the table) keeps
+   each column readable and the table scrolls inside its box. On a phone the table always keeps
+   a readable width and scrolls inside its box. */
 .measurement-table {
     table-layout: fixed;
+    min-width: var(--table-min-width, 0);
     font-size: 0.75rem;
 }
 
@@ -61,6 +63,15 @@
 
 .measurement-table th:first-child {
     width: 5.5rem;
+}
+
+/* The time column stays in view while the box scrolls sideways; the opaque background keeps the
+   values from showing through it. */
+.measurement-table th:first-child,
+.measurement-table td:first-child {
+    position: sticky;
+    left: 0;
+    background-color: var(--mantine-color-body);
 }
 
 .measurement-table .value-cell {
@@ -107,6 +118,12 @@
     box-shadow: inset 4px 0 0 var(--mantine-color-text);
 }
 
+/* The sticky time cell covers the row's own highlight and marker, so it repeats them. */
+.data-row[aria-selected="true"] > td:first-child {
+    background-image: linear-gradient(var(--mantine-primary-color-light), var(--mantine-primary-color-light));
+    box-shadow: inset 4px 0 0 var(--mantine-color-text);
+}
+
 @media print {
     .unit-chart {
         break-inside: avoid;
@@ -122,6 +139,11 @@
     .table-scroll thead {
         position: static;
         display: table-header-group;
+    }
+
+    .measurement-table th:first-child,
+    .measurement-table td:first-child {
+        position: static;
     }
 
     .data-row {
