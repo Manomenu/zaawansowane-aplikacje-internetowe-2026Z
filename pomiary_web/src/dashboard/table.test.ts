@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import type { Measurement } from "./api";
-import { buildRows, chartPoints, pointKey } from "./table";
+import { MAX_ROWS } from "./limits";
+import { buildRows, capRows, chartPoints, limitNotice, pointKey } from "./table";
 
 const m = (id: number, seriesId: number, value: number, timestamp: string): Measurement => ({
     id,
@@ -47,5 +48,34 @@ describe("chartPoints", () => {
             { t: new Date(T1).getTime(), [pointKey(1)]: 5 },
             { t: new Date(T2).getTime(), [pointKey(1)]: 6 },
         ]);
+    });
+});
+
+describe("capRows", () => {
+    const rows = (n: number) => Array.from({ length: n }, (_, i) => ({ ms: n - i, values: new Map<number, number>() }));
+
+    it("leaves a short table alone", () => {
+        const all = rows(MAX_ROWS);
+        expect(capRows(all, "en")).toEqual({ shown: all, note: null });
+    });
+
+    it("keeps the newest rows (the first ones) and says how many of how many", () => {
+        const { shown, note } = capRows(rows(10_800), "en");
+        expect(shown).toHaveLength(MAX_ROWS);
+        expect(shown[0]?.ms).toBe(10_800);
+        expect(note).toBe(`Showing the newest ${String(MAX_ROWS)} of 10,800 rows`);
+    });
+
+    it("formats the numbers for the locale", () => {
+        expect(capRows(rows(10_800), "de").note).toContain("10.800");
+    });
+});
+
+describe("limitNotice", () => {
+    it("is silent below the limit and a status text at it", () => {
+        expect(limitNotice(9_999, 10_000, "en")).toBeNull();
+        expect(limitNotice(10_000, 10_000, "en")).toBe(
+            "Showing the newest 10,000 measurements of this range - narrow the range to see all.",
+        );
     });
 });

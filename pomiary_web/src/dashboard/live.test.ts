@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import type { Measurement } from "./api";
-import { mergeLive, parseMeasurement, streamUrl } from "./live";
+import { mergeLive, slideWindow, parseMeasurement, streamUrl } from "./live";
 
 const make = (id: number, timestamp: string): Measurement => ({ id, seriesId: 1, sensorId: 2, value: 3, timestamp });
 const FROM = new Date("2026-10-01T00:00:00Z").getTime();
@@ -56,5 +56,20 @@ describe("mergeLive", () => {
 describe("streamUrl", () => {
     it("lists the series ids", () => {
         expect(streamUrl([1, 4])).toMatch(/\/measurements\/stream\?series=1,4$/);
+    });
+});
+
+describe("slideWindow", () => {
+    const old = make(1, "2026-10-01T10:00:00Z");
+    const recent = make(2, "2026-10-01T10:14:00Z");
+    const now = new Date("2026-10-01T10:15:00Z").getTime();
+
+    it("drops what is older than the window", () => {
+        expect(slideWindow([recent, old], now, 10 * 60_000)).toEqual([recent]);
+    });
+
+    it("returns the same array when nothing left the window", () => {
+        const all = [recent, old];
+        expect(slideWindow(all, now, 20 * 60_000)).toBe(all);
     });
 });

@@ -5,12 +5,13 @@ import { useState } from "react";
 
 import { ErrorAlert } from "../shell/ErrorAlert";
 import { Loading } from "../shell/Loading";
+import { MEASUREMENTS_LIMIT } from "./api";
 import { Filters } from "./Filters";
 import { groupByUnit, toggleSeries, toggleUnit, visibleSeries, type UnitGroup } from "./grouping";
 import { MeasurementTable } from "./MeasurementTable";
 import { DEFAULT_PRESET, describeRange, editedFilters, presetFilters, validateRange, type Preset } from "./range";
 import { filterSummary } from "./summary";
-import { buildRows, chartPoints } from "./table";
+import { buildRows, capRows, chartPoints, limitNotice } from "./table";
 import { UnitChart } from "./UnitChart";
 import { useDashboardData } from "./useDashboardData";
 
@@ -25,7 +26,16 @@ export function Dashboard() {
     const [filtersOpen, setFiltersOpen] = useState(true);
 
     const check = validateRange(filters);
-    const data = useDashboardData(check.ok ? { fromMs: check.fromMs, toMs: check.toMs, live: filters.live } : null);
+    const data = useDashboardData(
+        check.ok
+            ? {
+                  fromMs: check.fromMs,
+                  toMs: check.toMs,
+                  live: filters.live,
+                  windowMs: filters.preset === null ? null : check.toMs - check.fromMs,
+              }
+            : null,
+    );
 
     const changeRange = (next: typeof filters) => {
         setFilters(next);
@@ -119,8 +129,15 @@ function Content({ measurements, groups, visible, selectedMs, onSelect, rangeLab
     if (measurements.status === "error") return <ErrorAlert error={measurements.error} onRetry={onRetry} />;
 
     const rows = buildRows(measurements.value, new Set(visible.map((s) => s.id)));
+    const { shown, note } = capRows(rows);
+    const notice = limitNotice(measurements.value.length, MEASUREMENTS_LIMIT);
     return (
         <>
+            {notice !== null && (
+                <Text size="sm" role="status">
+                    {notice}
+                </Text>
+            )}
             {groups.map((group) => {
                 const series = visible.filter((s) => (s.unit ?? "") === group.unit);
                 if (series.length === 0) return null;
@@ -138,7 +155,7 @@ function Content({ measurements, groups, visible, selectedMs, onSelect, rangeLab
                     />
                 );
             })}
-            <MeasurementTable rows={rows} series={visible} selectedMs={selectedMs} onSelect={onSelect} />
+            <MeasurementTable rows={shown} note={note} series={visible} selectedMs={selectedMs} onSelect={onSelect} />
         </>
     );
 }

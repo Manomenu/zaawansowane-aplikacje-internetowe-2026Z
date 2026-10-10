@@ -5,8 +5,8 @@ import type { components } from "../api/openapi";
 export type Series = components["schemas"]["Series"];
 export type Measurement = components["schemas"]["Measurement"];
 
-/** The server's largest page of measurements. */
-const MEASUREMENTS_LIMIT = 10_000;
+/** The server's largest page. The newest come first (`sort=-timestamp`), so a range holding more loses its oldest part. */
+export const MEASUREMENTS_LIMIT = 10_000;
 
 export function listSeries(signal: AbortSignal): Promise<Series[]> {
     return request<Series[]>("/series", { signal });

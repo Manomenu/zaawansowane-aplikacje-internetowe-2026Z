@@ -2,6 +2,7 @@ import { Group, Text } from "@mantine/core";
 import { CartesianGrid, Line, LineChart, ReferenceLine, ResponsiveContainer, XAxis, YAxis } from "recharts";
 
 import type { Series } from "./api";
+import { tickFormatter } from "./axis";
 import { MarkerIcon, MarkerShapeElement } from "./Marker";
 import { markerShape } from "./markers";
 import { pointKey, type ChartPoint } from "./table";
@@ -10,7 +11,6 @@ const CHART_HEIGHT = 280;
 const POINT_RADIUS = 5;
 const SELECTED_RADIUS = 9;
 
-const axisTime = new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
 const tickStyle = { fill: "var(--mantine-color-text)", fontSize: 12 };
 
 interface DotProps {
@@ -30,6 +30,9 @@ interface Props {
 
 /** One chart for one unit (F2): a line per series, each with its own marker shape (T6); the selected moment is outlined (F6). */
 export function UnitChart({ unitLabel, series, points, selectedMs, rangeLabel }: Props) {
+    const first = points[0]?.["t"] ?? 0;
+    const last = points[points.length - 1]?.["t"] ?? 0;
+    const formatTick = tickFormatter(last - first);
     const names = series.map((s) => s.name).join(", ");
     const description = `Line chart of ${names} in ${unitLabel}, ${rangeLabel}. The table below has the same values.`;
 
@@ -52,7 +55,7 @@ export function UnitChart({ unitLabel, series, points, selectedMs, rangeLabel }:
                                 type="number"
                                 scale="time"
                                 domain={["dataMin", "dataMax"]}
-                                tickFormatter={(value: number) => axisTime.format(value)}
+                                tickFormatter={formatTick}
                                 tick={tickStyle}
                                 stroke="var(--mantine-color-text)"
                             />

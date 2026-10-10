@@ -157,15 +157,23 @@ out, the header has "Log in", which opens the login form in a modal.
   empty cells where a series has no value. A row is a button-like element (keyboard: Tab +
   Enter/Space) — selecting it highlights that timestamp's points on the charts (a larger
   outlined marker and a vertical reference line) and marks the row (`aria-selected`) (F6).
-- **Filters (F5):** from/to (`datetime-local` inputs) with presets (24 h, 7 days, 30 days),
+- **Filters (F5):** from/to (`datetime-local` inputs) with presets (15 min, 3 h, 24 h, 7 days, 30 days - shortest first, for a 1 s live signal),
   series checkboxes grouped by unit with an "all of this unit" toggle. Default: the last 7
   days, every series. The page is one column, top to bottom: the filters (expanded by default,
   time range and presets in one row, series grouped by unit in a wrapping row below, stacked on
   a phone), then the charts, then the table, each full width. A "Hide filters" / "Show filters"
   button (`aria-expanded`) collapses them; the choice is not stored. A one-line summary
   ("Last 7 days · 12 of 12 series") sits next to the button and prints.
+- **Short ranges and a lot of data:** the dashboard asks for `sort=-timestamp&limit=10000`, so
+  when a range holds more, the newest 10,000 arrive and a `role="status"` notice says so (narrow
+  the range to see all). The table renders at most `MAX_ROWS` = 500 rows (the newest) under the
+  line "Showing the newest 500 of 10,800 rows"; the charts keep every point. A live preset
+  slides: each point from the stream drops what is older than the preset's length before it
+  (a hand-typed live range keeps its start). The x-axis ticks follow the span of the data:
+  h:mm:ss up to 30 min, h:mm up to 6 h, date and h:mm beyond - all locale-aware.
 - **Print (F7, T7):** the same view; `@media print` hides everything with the class
-  `no-print` (header, tabs, filters, buttons, forms) and lets the table run over pages.
+  `no-print` (header, tabs, filters, buttons, forms) and lets the table run over pages; the
+  row-cap line prints with it.
 
 ## Layout and accessibility
 

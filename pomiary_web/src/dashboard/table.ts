@@ -1,5 +1,6 @@
 // The table's rows and the charts' points, built from the same measurements (F2).
 import type { Measurement } from "./api";
+import { MAX_ROWS } from "./limits";
 
 export interface TableRow {
     /** The timestamp in ms: the row's identity. */
@@ -41,4 +42,21 @@ export function chartPoints(rows: readonly TableRow[], seriesIds: readonly numbe
         if (any) points.push(point);
     }
     return points;
+}
+
+/** The rows to render and a line saying so when some were left out (it prints too), or null. */
+export function capRows(rows: readonly TableRow[], locale?: string): { shown: readonly TableRow[]; note: string | null } {
+    if (rows.length <= MAX_ROWS) return { shown: rows, note: null };
+    const format = new Intl.NumberFormat(locale);
+    return {
+        shown: rows.slice(0, MAX_ROWS),
+        note: `Showing the newest ${format.format(MAX_ROWS)} of ${format.format(rows.length)} rows`,
+    };
+}
+
+/** A notice when the request hit the server's limit, so the oldest measurements of the range are missing; else null. */
+export function limitNotice(received: number, limit: number, locale?: string): string | null {
+    if (received < limit) return null;
+    const n = new Intl.NumberFormat(locale).format(limit);
+    return `Showing the newest ${n} measurements of this range - narrow the range to see all.`;
 }

@@ -1,11 +1,13 @@
 // The time range the filters describe (F5): presets, the `datetime-local` text, validation.
 
-export type Preset = "24h" | "7d" | "30d";
+export type Preset = "15m" | "3h" | "24h" | "7d" | "30d";
 
-export const PRESETS: readonly { value: Preset; label: string; hours: number }[] = [
-    { value: "24h", label: "24 h", hours: 24 },
-    { value: "7d", label: "7 days", hours: 7 * 24 },
-    { value: "30d", label: "30 days", hours: 30 * 24 },
+export const PRESETS: readonly { value: Preset; label: string; minutes: number }[] = [
+    { value: "15m", label: "15 min", minutes: 15 },
+    { value: "3h", label: "3 h", minutes: 3 * 60 },
+    { value: "24h", label: "24 h", minutes: 24 * 60 },
+    { value: "7d", label: "7 days", minutes: 7 * 24 * 60 },
+    { value: "30d", label: "30 days", minutes: 30 * 24 * 60 },
 ];
 
 export const DEFAULT_PRESET: Preset = "7d";
@@ -41,9 +43,9 @@ export function parseInputValue(value: string): number | null {
 }
 
 export function presetFilters(preset: Preset, now: Date): Filters {
-    const hours = PRESETS.find((p) => p.value === preset)?.hours ?? 0;
+    const minutes = PRESETS.find((p) => p.value === preset)?.minutes ?? 0;
     return {
-        from: toInputValue(new Date(now.getTime() - hours * 3_600_000)),
+        from: toInputValue(new Date(now.getTime() - minutes * MINUTE_MS)),
         to: toInputValue(now),
         preset,
         live: true,
