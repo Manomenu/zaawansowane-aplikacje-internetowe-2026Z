@@ -1,6 +1,16 @@
 import { describe, expect, it } from "vitest";
 
-import { LIVE_GRACE_MS, PRESETS, editedFilters, parseInputValue, presetFilters, requestRange, toInputValue, validateRange } from "./range";
+import {
+    DEFAULT_PRESET,
+    LIVE_GRACE_MS,
+    PRESETS,
+    editedFilters,
+    parseInputValue,
+    presetFilters,
+    requestRange,
+    toInputValue,
+    validateRange,
+} from "./range";
 
 const NOW = new Date(2026, 9, 9, 14, 30, 45);
 
@@ -17,12 +27,18 @@ describe("input values", () => {
 });
 
 describe("presets", () => {
-    it.each(PRESETS)("$label ends now and starts $hours hours before", ({ value, hours }) => {
+    it("are ordered shortest first, 7 days is the default", () => {
+        expect(PRESETS.map((p) => p.label)).toEqual(["15 min", "3 h", "24 h", "7 days", "30 days"]);
+        expect(PRESETS.map((p) => p.minutes)).toEqual([15, 180, 1440, 10_080, 43_200]);
+        expect(DEFAULT_PRESET).toBe("7d");
+    });
+
+    it.each(PRESETS)("$label ends now and starts $minutes minutes before", ({ value, minutes }) => {
         const filters = presetFilters(value, NOW);
         const check = validateRange(filters);
         expect(filters.preset).toBe(value);
         expect(filters.live).toBe(true);
-        expect(check.ok && check.toMs - check.fromMs).toBe(hours * 3_600_000);
+        expect(check.ok && check.toMs - check.fromMs).toBe(minutes * 60_000);
     });
 });
 

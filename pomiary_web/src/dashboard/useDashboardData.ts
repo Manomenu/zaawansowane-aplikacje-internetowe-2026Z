@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { listMeasurements, listSeries, type Measurement, type Series } from "./api";
-import { mergeLive, openLive } from "./live";
+import { mergeLive, openLive, slideWindow } from "./live";
 import { requestRange } from "./range";
 
 type Remote<T> = { status: "loading" } | { status: "error"; error: Error } | { status: "ready"; value: T };
@@ -21,6 +21,8 @@ export interface RequestedRange {
     toMs: number;
     /** The range runs up to now: ask without an end and follow the live stream. */
     live: boolean;
+    /** A preset's length: a live range with it slides, so points older than it leave. Null: the start stays. */
+    windowMs: number | null;
 }
 
 export interface DashboardData {
@@ -59,6 +61,7 @@ export function useDashboardData(range: RequestedRange | null): DashboardData {
     const fromMs = range?.fromMs ?? null;
     const toMs = range?.toMs ?? null;
     const live = range?.live ?? false;
+    const windowMs = range?.windowMs ?? null;
     const measurementsKey = idsKey === null || fromMs === null || toMs === null ? null : `m:${idsKey}:${fromMs}:${toMs}:${live}:${attempt}`;
 
     useEffect(() => {
@@ -85,7 +88,8 @@ export function useDashboardData(range: RequestedRange | null): DashboardData {
             onMeasurement: (incoming) => {
                 setMeasurementsLoaded((previous) => {
                     if (previous?.key !== measurementsKey || "error" in previous) return previous;
-                    const value = mergeLive(previous.value, incoming, fromMs, null);
+                    const merged = mergeLive(previous.value, incoming, fromMs, null);
+                    const value = windowMs === null ? merged : slideWindow(merged, new Date(incoming.timestamp).getTime(), windowMs);
                     return value === previous.value ? previous : { key: measurementsKey, value };
                 });
             },
@@ -100,7 +104,7 @@ export function useDashboardData(range: RequestedRange | null): DashboardData {
             close();
             setLiveConnected(false);
         };
-    }, [live, measurementsKey, idsKey, fromMs]);
+    }, [live, measurementsKey, idsKey, fromMs, windowMs]);
 
     return {
         series,

@@ -1,6 +1,7 @@
 import { expect, test, type APIRequestContext, type Page } from "@playwright/test";
 
 import { ADMIN_PASSWORD, ADMIN_USERNAME } from "../../e2e/helpers";
+import { MAX_ROWS } from "./limits";
 
 const HOUR_MS = 3_600_000;
 const POINTS = 6;
@@ -239,4 +240,55 @@ test("a measurement a sensor sends appears without reloading (live stream)", asy
     expect((await send(73)).ok()).toBe(true);
 
     await expect(table.getByRole("cell", { name: "73", exact: true })).toBeVisible();
+});
+
+test("the presets run from the shortest to the longest and 15 min shows a range of 15 minutes", async ({ page, request }) => {
+    const names = await seed(request);
+    await openDashboard(page, names);
+    const group = page.getByRole("group", { name: "Presets", exact: true });
+    await expect(group.getByRole("button")).toHaveText(["15 min", "3 h", "24 h", "7 days", "30 days"]);
+    await expect(group.getByRole("button", { name: "7 days", exact: true })).toHaveAttribute("aria-pressed", "true");
+
+    await group.getByRole("button", { name: "15 min", exact: true }).click();
+    await expect(page.getByText(/^Last 15 min · /)).toBeVisible();
+    const from = new Date(await page.getByLabel("From", { exact: true }).inputValue()).getTime();
+    const to = new Date(await page.getByLabel("To", { exact: true }).inputValue()).getTime();
+    expect(to - from).toBe(15 * 60_000);
+    // A short dataset: neither the row cap line nor the limit notice.
+    await expect(page.getByText(/^Showing the newest /)).toHaveCount(0);
+});
+
+test("a table longer than the cap shows the newest rows and says so", async ({ page, request }) => {
+    const login = await request.post("/api/auth/login", { data: { username: ADMIN_USERNAME, password: ADMIN_PASSWORD } });
+    const headers = { authorization: `Bearer ${((await login.json()) as { accessToken: string }).accessToken}` };
+    const name = `Dense ${String(Date.now())}`;
+    const series = await request.post("/api/series", {
+        headers,
+        data: { name, minValue: 0, maxValue: 1000, color: "#2f9e44", icon: "diamond", unit: "%" },
+    });
+    const { id } = (await series.json()) as { id: number };
+    const sensor = await request.post("/api/sensors", { headers, data: { name: `${name} sensor`, seriesId: id } });
+    const { apiKey } = (await sensor.json()) as { apiKey: string };
+
+    // One point a second over the past minutes, as a live demo sends them.
+    const total = MAX_ROWS + 20;
+    const newest = Date.now() - 30_000;
+    const send = (i: number) =>
+        request.post("/api/measurements", {
+            headers: { "x-api-key": apiKey },
+            data: { value: i, timestamp: new Date(newest - (total - 1 - i) * 1000).toISOString() },
+        });
+    for (let start = 0; start < total; start += 40) {
+        const batch = await Promise.all(Array.from({ length: Math.min(40, total - start) }, (_, k) => send(start + k)));
+        for (const response of batch) expect(response.ok()).toBe(true);
+    }
+
+    await page.goto("/");
+    await page.getByRole("button", { name: "15 min", exact: true }).click();
+    const table = page.getByRole("region", { name: "Measurements table", exact: true });
+    await expect(page.getByText(new RegExp(`^Showing the newest ${String(MAX_ROWS)} of [\\d,.\\s\\u00a0]+ rows$`))).toBeVisible();
+    await expect(table.locator("tbody tr")).toHaveCount(MAX_ROWS);
+    // The newest value is in the table, the oldest one is cut off.
+    await expect(table.getByRole("cell", { name: String(total - 1), exact: true })).toBeVisible();
+    await expect(table.getByRole("cell", { name: "0", exact: true })).toHaveCount(0);
 });

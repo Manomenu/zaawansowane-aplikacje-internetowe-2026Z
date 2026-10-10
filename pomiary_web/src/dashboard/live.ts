@@ -39,6 +39,16 @@ export function mergeLive(
     return [incoming, ...existing];
 }
 
+/**
+ * The measurements without those older than `windowMs` before `nowMs`: a preset's live window
+ * slides as points arrive. Returns the same array when nothing left, so React does not re-render.
+ */
+export function slideWindow(existing: readonly Measurement[], nowMs: number, windowMs: number): readonly Measurement[] {
+    const cutoff = nowMs - windowMs;
+    const kept = existing.filter((m) => new Date(m.timestamp).getTime() >= cutoff);
+    return kept.length === existing.length ? existing : kept;
+}
+
 export interface LiveHandlers {
     onMeasurement: (m: Measurement) => void;
     onOpen: () => void;
