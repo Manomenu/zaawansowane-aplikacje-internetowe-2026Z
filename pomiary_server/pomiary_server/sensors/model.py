@@ -5,14 +5,14 @@ from typing import Annotated
 
 from pydantic import Field
 
-from pomiary_server.series.model import Camel
+from pomiary_server.series.model import Camel, Name
 
 # Capped at bigint, so a huge id is a 400 and not a database error.
 Id = Annotated[int, Field(strict=True, ge=1, le=2**63 - 1)]
 
 
 class SensorInput(Camel):
-    name: str = Field(min_length=1, max_length=100)
+    name: Name
     series_id: Id
 
 

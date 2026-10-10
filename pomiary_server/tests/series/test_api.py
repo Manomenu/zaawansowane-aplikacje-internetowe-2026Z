@@ -182,7 +182,7 @@ def test_put_that_keeps_stored_measurements_is_200(client: TestClient, auth: dic
 
 
 def test_measurements_of_another_series_do_not_block_a_change(client: TestClient, auth: dict[str, str], conn: Connection) -> None:
-    mine, other = create(client, auth), create(client, auth)
+    mine, other = create(client, auth, name="mine"), create(client, auth, name="other")
     add_measurements(conn, other["id"], [90])
 
     response = client.put(f"/series/{mine['id']}", json={**NEW, "minValue": 0, "maxValue": 10}, headers=auth)
@@ -191,10 +191,11 @@ def test_measurements_of_another_series_do_not_block_a_change(client: TestClient
 
 
 def test_delete_takes_sensors_and_measurements_along(client: TestClient, auth: dict[str, str], conn: Connection) -> None:
-    series, kept = create(client, auth), create(client, auth)
+    series, kept = create(client, auth, name="series"), create(client, auth, name="kept")
     for owner in (series, kept):
         sensor_id = conn.execute(
-            "INSERT INTO sensors (name, series_id, api_key_hash) VALUES ('s', %s, %s) RETURNING id", (owner["id"], f"hash-{owner['id']}")
+            "INSERT INTO sensors (name, series_id, api_key_hash) VALUES (%s, %s, %s) RETURNING id",
+            (owner["name"], owner["id"], f"hash-{owner['id']}"),
         ).fetchone()
         assert sensor_id is not None
         conn.execute(
@@ -213,3 +214,41 @@ def test_an_id_beyond_bigint_is_a_400_not_a_database_error(client: TestClient) -
     response = client.get("/series/99999999999999999999999")
 
     assert response.status_code == 400
+
+
+def test_a_taken_name_is_a_422_on_the_name_field(client: TestClient, auth: dict[str, str]) -> None:
+    create(client, auth, name="Air temperature")
+
+    for name in ("Air temperature", "air TEMPERATURE", "  Air temperature  "):
+        response = client.post("/series", json={**NEW, "name": name}, headers=auth)
+
+        assert response.status_code == 422
+        assert response.json()["errors"] == [{"field": "name", "message": "A series with this name already exists"}]
+    assert len(client.get("/series").json()) == 1
+
+
+def test_the_name_is_stored_without_surrounding_spaces(client: TestClient, auth: dict[str, str]) -> None:
+    assert create(client, auth, name="  Padded  ")["name"] == "Padded"
+    assert client.post("/series", json={**NEW, "name": "   "}, headers=auth).status_code == 400
+
+
+def test_renaming_to_another_series_name_is_a_422(client: TestClient, auth: dict[str, str]) -> None:
+    create(client, auth, name="first")
+    second = create(client, auth, name="second")
+
+    response = client.put(f"/series/{second['id']}", json={**NEW, "name": "FIRST"}, headers=auth)
+
+    assert response.status_code == 422
+    assert response.json()["errors"] == [{"field": "name", "message": "A series with this name already exists"}]
+    assert client.get(f"/series/{second['id']}").json()["name"] == "second"
+
+
+def test_a_series_may_keep_its_own_name_or_change_its_case(client: TestClient, auth: dict[str, str]) -> None:
+    series = create(client, auth, name="first")
+
+    same = client.put(f"/series/{series['id']}", json={**NEW, "name": "first", "maxValue": 50}, headers=auth)
+    recased = client.put(f"/series/{series['id']}", json={**NEW, "name": "First"}, headers=auth)
+
+    assert same.status_code == 200
+    assert recased.status_code == 200
+    assert recased.json()["name"] == "First"

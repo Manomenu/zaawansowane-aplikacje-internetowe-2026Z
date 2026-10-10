@@ -7,36 +7,42 @@ const valid: SeriesDraft = { name: "Soil moisture", unit: "%", minValue: 0, maxV
 
 describe("validateSeries", () => {
     it("accepts a complete draft", () => {
-        expect(validateSeries(valid)).toEqual({});
+        expect(validateSeries(valid, [])).toEqual({});
     });
 
     it("requires a name and caps its length", () => {
-        expect(validateSeries({ ...valid, name: "   " }).name).toBe("Enter the name.");
-        expect(validateSeries({ ...valid, name: "x".repeat(MAX_NAME_LENGTH) }).name).toBeUndefined();
-        expect(validateSeries({ ...valid, name: "x".repeat(MAX_NAME_LENGTH + 1) }).name).toContain("at most 100");
+        expect(validateSeries({ ...valid, name: "   " }, []).name).toBe("Enter the name.");
+        expect(validateSeries({ ...valid, name: "x".repeat(MAX_NAME_LENGTH) }, []).name).toBeUndefined();
+        expect(validateSeries({ ...valid, name: "x".repeat(MAX_NAME_LENGTH + 1) }, []).name).toContain("at most 100");
+    });
+
+    it("refuses a name another series has, ignoring case and edge spaces", () => {
+        const taken = ["Air temperature"];
+        expect(validateSeries({ ...valid, name: "air TEMPERATURE " }, taken).name).toBe("A series with this name already exists");
+        expect(validateSeries({ ...valid, name: "Air temperature 2" }, taken).name).toBeUndefined();
     });
 
     it("allows an empty unit and caps its length", () => {
-        expect(validateSeries({ ...valid, unit: "" }).unit).toBeUndefined();
-        expect(validateSeries({ ...valid, unit: "u".repeat(MAX_UNIT_LENGTH + 1) }).unit).toContain("at most 20");
+        expect(validateSeries({ ...valid, unit: "" }, []).unit).toBeUndefined();
+        expect(validateSeries({ ...valid, unit: "u".repeat(MAX_UNIT_LENGTH + 1) }, []).unit).toContain("at most 20");
     });
 
     it("needs finite numbers for the range", () => {
-        const errors = validateSeries({ ...valid, minValue: "", maxValue: Number.POSITIVE_INFINITY });
+        const errors = validateSeries({ ...valid, minValue: "", maxValue: Number.POSITIVE_INFINITY }, []);
         expect(errors.minValue).toBe("Enter the minimum as a number.");
         expect(errors.maxValue).toBe("Enter the maximum as a number.");
     });
 
     it("needs the minimum below the maximum, with the message under the maximum", () => {
-        expect(validateSeries({ ...valid, minValue: 5, maxValue: 5 }).maxValue).toBe("The maximum must be greater than the minimum.");
-        expect(validateSeries({ ...valid, minValue: 6, maxValue: 5 }).maxValue).toBeDefined();
-        expect(validateSeries({ ...valid, minValue: -5, maxValue: 5 }).maxValue).toBeUndefined();
+        expect(validateSeries({ ...valid, minValue: 5, maxValue: 5 }, []).maxValue).toBe("The maximum must be greater than the minimum.");
+        expect(validateSeries({ ...valid, minValue: 6, maxValue: 5 }, []).maxValue).toBeDefined();
+        expect(validateSeries({ ...valid, minValue: -5, maxValue: 5 }, []).maxValue).toBeUndefined();
     });
 
     it("needs a #RRGGBB colour", () => {
-        expect(validateSeries({ ...valid, color: "red" }).color).toBeDefined();
-        expect(validateSeries({ ...valid, color: "#12345" }).color).toBeDefined();
-        expect(validateSeries({ ...valid, color: "#AbCdEf" }).color).toBeUndefined();
+        expect(validateSeries({ ...valid, color: "red" }, []).color).toBeDefined();
+        expect(validateSeries({ ...valid, color: "#12345" }, []).color).toBeDefined();
+        expect(validateSeries({ ...valid, color: "#AbCdEf" }, []).color).toBeUndefined();
     });
 });
 

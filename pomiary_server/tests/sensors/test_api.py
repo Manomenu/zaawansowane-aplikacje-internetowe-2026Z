@@ -33,7 +33,7 @@ def test_create_returns_201_with_location_and_a_long_key(client: TestClient, aut
 
 def test_keys_are_different_and_only_their_hash_is_stored(client: TestClient, auth: dict[str, str], conn: Connection) -> None:
     series_id = make_series(client, auth)
-    first, second = register(client, auth, series_id), register(client, auth, series_id)
+    first, second = register(client, auth, series_id, "one"), register(client, auth, series_id, "two")
 
     assert first["apiKey"] != second["apiKey"]
     stored = [row[0] for row in conn.execute("SELECT api_key_hash FROM sensors").fetchall()]
@@ -114,3 +114,23 @@ def test_deleting_the_series_deletes_its_sensors(client: TestClient, auth: dict[
 
     assert client.delete(f"/series/{series_id}", headers=auth).status_code == 204
     assert client.get(f"/sensors/{sensor['id']}", headers=auth).status_code == 404
+
+
+def test_a_taken_name_is_a_422_on_the_name_field(client: TestClient, auth: dict[str, str]) -> None:
+    series_id = make_series(client, auth)
+    register(client, auth, series_id, "Warsaw station")
+
+    for name in ("Warsaw station", "WARSAW Station", " Warsaw station "):
+        response = client.post("/sensors", json={"name": name, "seriesId": series_id}, headers=auth)
+
+        assert response.status_code == 422
+        assert response.json()["errors"] == [{"field": "name", "message": "A sensor with this name already exists"}]
+    assert len(client.get("/sensors", headers=auth).json()) == 1
+
+
+def test_the_same_name_is_free_again_after_the_sensor_is_deleted(client: TestClient, auth: dict[str, str]) -> None:
+    series_id = make_series(client, auth)
+    sensor = register(client, auth, series_id, "Warsaw station")
+    client.delete(f"/sensors/{sensor['id']}", headers=auth)
+
+    register(client, auth, series_id, "Warsaw station")

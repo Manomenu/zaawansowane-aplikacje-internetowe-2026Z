@@ -102,6 +102,7 @@ export function SeriesAdmin({ token, onUnauthorized }: { token: string; onUnauth
                 {editing !== "closed" && (
                     <SeriesForm
                         series={editing === "new" ? null : editing}
+                        allSeries={series ?? []}
                         token={token}
                         onUnauthorized={onUnauthorized}
                         onSaved={() => {

@@ -86,3 +86,33 @@ test("at 360 px the table scrolls in its own box, not the page", async ({ page, 
 
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(360);
 });
+
+test("a name another sensor has is refused in the browser, whatever its case", async ({ page, request }) => {
+    const suffix = Date.now().toString();
+    const seriesName = `E2E dup series ${suffix}`;
+    const sensorName = `E2E dup sensor ${suffix}`;
+    const seriesId = await createSeries(request, seriesName);
+    const login = await request.post("/api/auth/login", { data: { username: ADMIN_USERNAME, password: ADMIN_PASSWORD } });
+    const { accessToken } = (await login.json()) as { accessToken: string };
+    const created = await request.post("/api/sensors", {
+        headers: { authorization: `Bearer ${accessToken}` },
+        data: { name: sensorName, seriesId },
+    });
+    expect(created.status()).toBe(201);
+    await logIn(page);
+    await page.getByRole("tab", { name: "Sensors", exact: true }).click();
+    const sent: string[] = [];
+    page.on("request", (apiRequest) => {
+        if (apiRequest.method() === "POST" && apiRequest.url().includes("/api/sensors")) sent.push(apiRequest.url());
+    });
+
+    await page.getByRole("button", { name: "Register a sensor", exact: true }).click();
+    const form = page.getByRole("dialog", { name: "Register a sensor", exact: true });
+    await form.getByLabel("Sensor name", { exact: true }).fill(sensorName.toUpperCase());
+    await form.getByLabel("Series", { exact: true }).click();
+    await page.getByRole("option", { name: seriesName, exact: true }).click();
+    await form.getByRole("button", { name: "Register", exact: true }).click();
+
+    await expect(form.getByText("A sensor with this name already exists", { exact: true })).toBeVisible();
+    expect(sent).toEqual([]);
+});
