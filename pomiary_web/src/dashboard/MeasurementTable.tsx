@@ -4,9 +4,9 @@ import type { KeyboardEvent } from "react";
 import type { Series } from "./api";
 import { MarkerIcon } from "./Marker";
 import { markerShape } from "./markers";
-import type { TableRow } from "./table";
+import { tableMinWidthRem, type TableRow } from "./table";
 
-// Date and time are two lines of one narrow column, so 13 columns fit side by side.
+// Date and time are two lines of one narrow column, so 13 columns fit side by side (more scroll in the box).
 const dateFormat = new Intl.DateTimeFormat(undefined, { dateStyle: "short" });
 const timeFormat = new Intl.DateTimeFormat(undefined, { timeStyle: "medium" });
 const valueFormat = new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 });
@@ -31,12 +31,15 @@ export function MeasurementTable({ rows, note, series, selectedMs, onSelect }: P
         toggle(ms);
     };
 
+    const minWidth = tableMinWidthRem(series.length);
+    const tableStyle = { "--series-count": series.length, ...(minWidth === null ? {} : { "--table-min-width": `${String(minWidth)}rem` }) };
+
     if (rows.length === 0) return <Text>No measurements in this range.</Text>;
     return (
         <>
             {note !== null && <Text size="sm">{note}</Text>}
             <div className="table-scroll" role="region" aria-label="Measurements table" tabIndex={0}>
-                <Table highlightOnHover className="measurement-table" style={{ "--series-count": series.length }}>
+                <Table highlightOnHover className="measurement-table" style={tableStyle}>
                     <Table.Thead>
                         <Table.Tr>
                             <Table.Th scope="col">Time</Table.Th>

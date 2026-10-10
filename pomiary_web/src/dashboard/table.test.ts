@@ -2,7 +2,17 @@ import { describe, expect, it } from "vitest";
 
 import type { Measurement } from "./api";
 import { MAX_ROWS } from "./limits";
-import { buildRows, capRows, chartPoints, limitNotice, pointKey } from "./table";
+import {
+    MAX_FIT_COLUMNS,
+    MIN_COLUMN_REM,
+    TIME_COLUMN_REM,
+    buildRows,
+    capRows,
+    chartPoints,
+    limitNotice,
+    pointKey,
+    tableMinWidthRem,
+} from "./table";
 
 const m = (id: number, seriesId: number, value: number, timestamp: string): Measurement => ({
     id,
@@ -77,5 +87,18 @@ describe("limitNotice", () => {
         expect(limitNotice(10_000, 10_000, "en")).toBe(
             "Showing the newest 10,000 measurements of this range - narrow the range to see all.",
         );
+    });
+});
+
+describe("tableMinWidthRem", () => {
+    it("leaves up to 13 columns to the box", () => {
+        expect(MAX_FIT_COLUMNS).toBe(13);
+        expect(tableMinWidthRem(0)).toBeNull();
+        expect(tableMinWidthRem(MAX_FIT_COLUMNS)).toBeNull();
+    });
+
+    it("keeps a minimum width per column from the 14th on", () => {
+        expect(tableMinWidthRem(14)).toBe(TIME_COLUMN_REM + 14 * MIN_COLUMN_REM);
+        expect(tableMinWidthRem(20)).toBe(TIME_COLUMN_REM + 20 * MIN_COLUMN_REM);
     });
 });

@@ -7,7 +7,7 @@ import { ErrorAlert } from "../shell/ErrorAlert";
 import { Loading } from "../shell/Loading";
 import { MEASUREMENTS_LIMIT } from "./api";
 import { Filters } from "./Filters";
-import { groupByUnit, toggleSeries, toggleUnit, visibleSeries, type UnitGroup } from "./grouping";
+import { groupByUnit, newestFirst, toggleSeries, toggleUnit, visibleSeries, type UnitGroup } from "./grouping";
 import { MeasurementTable } from "./MeasurementTable";
 import { DEFAULT_PRESET, describeRange, editedFilters, presetFilters, validateRange, type Preset } from "./range";
 import { filterSummary } from "./summary";
@@ -44,7 +44,8 @@ export function Dashboard() {
 
     const seriesList = data.series.status === "ready" ? data.series.value : [];
     const groups = groupByUnit(seriesList);
-    const visible = visibleSeries(seriesList, hidden);
+    // Newest first: the table columns, the legends and the chart lines all follow this order.
+    const visible = newestFirst(visibleSeries(seriesList, hidden));
 
     return (
         <Stack gap="md">
