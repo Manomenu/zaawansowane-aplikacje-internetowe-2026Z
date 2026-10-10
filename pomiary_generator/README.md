@@ -37,7 +37,7 @@ Two modes:
 | `--source synthetic` (default) / `open-meteo` | where the values come from |
 | `--shape constant\|random\|sine\|random-walk` | synthetic: default `random` |
 | `--min A --max B` | synthetic: value range (defaults 0 and 100). Values never leave it |
-| `--period 24h` | synthetic sine: length of one wave |
+| `--period 1m` | synthetic sine: length of one wave (default: `60s` live, so maximum to minimum takes 30 s; `24h` backfill). The phase follows the wall clock, so generators started at different times stay in step |
 | `--noise X` | synthetic: standard deviation of noise added to the shape (still clamped to the range) |
 | `--seed N` | synthetic: same seed, same values |
 | `--place warsaw\|suwalki\|chelm` | open-meteo: place |
@@ -68,8 +68,8 @@ python -m pomiary_generator send --count 48 --step 1h --shape sine --min 20 --ma
 # Backfill up to a given moment, every 15 minutes
 python -m pomiary_generator send --count 100 --step 15m --end 2026-10-01T12:00:00Z --shape random-walk
 
-# Live demo: a new value every 5 seconds, a fast sine wave (period 2 minutes)
-python -m pomiary_generator send --interval 5s --shape sine --period 2m --min 10 --max 30
+# Live demo: a new value every 5 seconds, the sine wave has a 60 s period by default
+python -m pomiary_generator send --interval 5s --shape sine --min 10 --max 30
 
 # Real data, backfill: the last 72 hourly values of soil moisture in Suwałki
 python -m pomiary_generator send --source open-meteo --place suwalki --quantity soil-moisture --count 72
