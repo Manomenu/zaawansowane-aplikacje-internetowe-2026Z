@@ -34,12 +34,15 @@ function draftOf(series: Series | null): SeriesDraft {
  */
 export function SeriesForm({
     series,
+    allSeries,
     token,
     onUnauthorized,
     onSaved,
     onCancel,
 }: {
     series: Series | null;
+    /** Every series loaded, to catch a taken name before sending. */
+    allSeries: readonly Series[];
     token: string;
     onUnauthorized: () => void;
     onSaved: () => void;
@@ -57,7 +60,10 @@ export function SeriesForm({
     async function submit(event: SubmitEvent<HTMLFormElement>) {
         event.preventDefault();
         setFailure(null);
-        const found = validateSeries(draft);
+        const found = validateSeries(
+            draft,
+            allSeries.filter((other) => other.id !== series?.id).map((other) => other.name),
+        );
         setErrors(found);
         if (Object.keys(found).length > 0) return;
 

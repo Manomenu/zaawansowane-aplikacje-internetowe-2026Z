@@ -77,7 +77,7 @@ exception is logged and answered with a bare 500 problem.
 | --- | --- |
 | Body is not valid JSON | 400 |
 | Body or query fails the schema (missing field, wrong type, pattern, length, bad `from`/`to`, bad `series` id list, `limit` out of range) | 400, with `errors` |
-| A business rule (min ≥ max, value outside the series range, timestamp > now + 5 min, sensor for a series that does not exist) | 422, with `errors` |
+| A business rule (min ≥ max, value outside the series range, timestamp > now + 5 min, sensor for a series that does not exist, a series or sensor name that is already taken — ignoring case and edge spaces) | 422, with `errors` (a taken name: `name`) |
 | New series range would exclude stored measurements | 409 |
 | No/invalid/expired token, no/invalid sensor key | 401 (+ `WWW-Authenticate: Bearer` for tokens) |
 | Wrong current password on password change | 403 |

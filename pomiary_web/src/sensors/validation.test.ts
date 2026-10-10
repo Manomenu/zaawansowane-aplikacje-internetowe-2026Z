@@ -4,20 +4,26 @@ import { MAX_NAME_LENGTH, validateRegistration } from "./validation";
 
 describe("validateRegistration", () => {
     it("accepts a name and a series", () => {
-        expect(validateRegistration({ name: "Roof sensor", seriesId: "3" })).toEqual({});
+        expect(validateRegistration({ name: "Roof sensor", seriesId: "3" }, [])).toEqual({});
     });
 
     it("asks for a name, also when it is only spaces", () => {
-        expect(validateRegistration({ name: "   ", seriesId: "3" }).name).toBeDefined();
+        expect(validateRegistration({ name: "   ", seriesId: "3" }, []).name).toBeDefined();
     });
 
     it("accepts the longest name and refuses one character more", () => {
-        expect(validateRegistration({ name: "a".repeat(MAX_NAME_LENGTH), seriesId: "3" })).toEqual({});
-        expect(validateRegistration({ name: "a".repeat(MAX_NAME_LENGTH + 1), seriesId: "3" }).name).toBeDefined();
+        expect(validateRegistration({ name: "a".repeat(MAX_NAME_LENGTH), seriesId: "3" }, [])).toEqual({});
+        expect(validateRegistration({ name: "a".repeat(MAX_NAME_LENGTH + 1), seriesId: "3" }, []).name).toBeDefined();
+    });
+
+    it("refuses a name another sensor has, ignoring case and edge spaces", () => {
+        const errors = validateRegistration({ name: " ROOF sensor", seriesId: "3" }, ["Roof sensor"]);
+        expect(errors.name).toBe("A sensor with this name already exists");
+        expect(validateRegistration({ name: "Roof sensor 2", seriesId: "3" }, ["Roof sensor"])).toEqual({});
     });
 
     it("asks for a series", () => {
-        expect(validateRegistration({ name: "x", seriesId: null }).seriesId).toBeDefined();
-        expect(validateRegistration({ name: "x", seriesId: "" }).seriesId).toBeDefined();
+        expect(validateRegistration({ name: "x", seriesId: null }, []).seriesId).toBeDefined();
+        expect(validateRegistration({ name: "x", seriesId: "" }, []).seriesId).toBeDefined();
     });
 });

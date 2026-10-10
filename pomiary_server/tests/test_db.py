@@ -82,3 +82,21 @@ def test_the_pool_replaces_a_connection_the_database_killed(database_url: str) -
         with pool.connection() as conn:
             assert conn.execute("SELECT 1").fetchone() == (1,)
             assert conn.info.backend_pid != victim
+
+
+def test_migration_002_renames_existing_duplicates_before_the_unique_index(scratch: Connection) -> None:
+    files = sorted(db.MIGRATIONS.glob("*.sql"))
+    first, second = files[0], next(file for file in files if file.name.startswith("002_"))
+    scratch.execute(first.read_bytes())
+    long_name = "x" * 100
+    for name in ("Temp", " temp ", "TEMP", "Other", long_name, long_name):
+        scratch.execute("INSERT INTO series (name, min_value, max_value, color) VALUES (%s, 0, 1, '#000000')", (name,))
+    scratch.execute("INSERT INTO sensors (name, series_id, api_key_hash) SELECT name, id, 'k' || id FROM series")
+
+    scratch.execute(second.read_bytes())
+
+    expected = ["Temp", " temp  (#2)", "TEMP (#3)", "Other", long_name, "x" * 95 + " (#6)"]
+    assert [name for (name,) in scratch.execute("SELECT name FROM series ORDER BY id")] == expected
+    assert [name for (name,) in scratch.execute("SELECT name FROM sensors ORDER BY id")] == expected
+    with pytest.raises(psycopg.errors.UniqueViolation), scratch.transaction():
+        scratch.execute("INSERT INTO series (name, min_value, max_value, color) VALUES ('tEMP', 0, 1, '#000000')")

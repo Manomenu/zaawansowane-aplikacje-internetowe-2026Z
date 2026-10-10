@@ -9,12 +9,13 @@ import secrets
 from datetime import datetime
 
 from psycopg import Connection
-from psycopg.errors import ForeignKeyViolation
+from psycopg.errors import ForeignKeyViolation, UniqueViolation
 
 from pomiary_server.problems import FieldError, Unprocessable
 from pomiary_server.sensors.model import Sensor, SensorCreated, SensorInput
 
 COLUMNS = "id, name, series_id, created_at, last_measurement_at"
+NAME_INDEX = "sensors_name_unique"
 
 
 def key_hash(key: str) -> str:
@@ -42,7 +43,8 @@ def sensor_for_key(conn: Connection, key: str) -> Sensor | None:
 
 
 def create_sensor(conn: Connection, data: SensorInput) -> SensorCreated:
-    """Registers the sensor; Unprocessable when its series does not exist."""
+    """Registers the sensor; Unprocessable when its series does not exist
+    or the name is taken."""
     key = secrets.token_urlsafe(32)
     try:
         row = conn.execute(
@@ -53,6 +55,13 @@ def create_sensor(conn: Connection, data: SensorInput) -> SensorCreated:
         conn.rollback()
         message = "No such series"
         raise Unprocessable(message, [FieldError(field="seriesId", message=message)]) from None
+    except UniqueViolation as error:
+        # The key hash is unique too; only a clash on the name is the client's doing.
+        if error.diag.constraint_name != NAME_INDEX:
+            raise
+        conn.rollback()
+        message = "A sensor with this name already exists"
+        raise Unprocessable(message, [FieldError(field="name", message=message)]) from None
     # Committed here, like the other stores: the key must work as soon as the client has it.
     conn.commit()
     assert row is not None  # noqa: S101 — RETURNING always gives the row

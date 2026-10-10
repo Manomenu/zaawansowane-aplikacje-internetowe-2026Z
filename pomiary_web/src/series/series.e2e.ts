@@ -141,3 +141,23 @@ test("deleting asks first, says what goes with the series, and removes it", asyn
     await expect(page.getByRole("dialog")).toBeHidden();
     await expect(page.getByRole("cell", { name, exact: true })).toHaveCount(0);
 });
+
+test("a name another series has is refused in the browser, whatever its case, nothing is sent", async ({ page, request }) => {
+    const name = uniqueName("Taken");
+    await createSeriesViaApi(request, await adminToken(request), name);
+    await openSeriesTab(page);
+    const sent: string[] = [];
+    page.on("request", (apiRequest) => {
+        if (apiRequest.method() === "POST" && apiRequest.url().includes("/api/series")) sent.push(apiRequest.url());
+    });
+
+    await page.getByRole("button", { name: "New series", exact: true }).click();
+    const dialog = page.getByRole("dialog");
+    await dialog.getByRole("textbox", { name: "Name", exact: true }).fill(`  ${name.toUpperCase()} `);
+    await dialog.getByRole("textbox", { name: "Minimum", exact: true }).fill("0");
+    await dialog.getByRole("textbox", { name: "Maximum", exact: true }).fill("10");
+    await dialog.getByRole("button", { name: "Create series", exact: true }).click();
+
+    await expect(dialog.getByText("A series with this name already exists", { exact: true })).toBeVisible();
+    expect(sent).toEqual([]);
+});

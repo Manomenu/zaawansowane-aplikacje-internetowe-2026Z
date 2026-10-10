@@ -11,6 +11,8 @@ interface Props {
     token: string;
     onUnauthorized: () => void;
     series: readonly Series[];
+    /** The names of the registered sensors, to catch a taken name before sending. */
+    sensorNames: readonly string[];
     /** Gets the answer with the key; the parent shows it once. */
     onRegistered: (created: SensorCreated) => void;
 }
@@ -28,6 +30,7 @@ function RegisterForm({
     token,
     onUnauthorized,
     series,
+    sensorNames,
     onRegistered,
     onCancel,
 }: Omit<Props, "opened" | "onClose"> & { onCancel: () => void }) {
@@ -40,7 +43,7 @@ function RegisterForm({
     async function submit(event: SubmitEvent<HTMLFormElement>) {
         event.preventDefault();
         setFailure(null);
-        const found = validateRegistration({ name, seriesId });
+        const found = validateRegistration({ name, seriesId }, sensorNames);
         setErrors(found);
         if (Object.keys(found).length > 0 || seriesId === null) return;
 

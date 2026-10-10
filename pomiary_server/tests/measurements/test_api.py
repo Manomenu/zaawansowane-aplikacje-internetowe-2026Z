@@ -1,6 +1,7 @@
 import logging
 from datetime import UTC, datetime, timedelta
 from typing import Any
+from uuid import uuid4
 
 import pytest
 from fastapi.testclient import TestClient
@@ -16,8 +17,8 @@ class Setup:
     def __init__(self, client: TestClient, auth: dict[str, str], **over: Any) -> None:
         self.client = client
         self.auth = auth
-        self.series_id: int = client.post("/series", json={**SERIES, **over}, headers=auth).json()["id"]
-        sensor = client.post("/sensors", json={"name": "s", "seriesId": self.series_id}, headers=auth).json()
+        self.series_id: int = client.post("/series", json={**SERIES, "name": uuid4().hex, **over}, headers=auth).json()["id"]
+        sensor = client.post("/sensors", json={"name": uuid4().hex, "seriesId": self.series_id}, headers=auth).json()
         self.sensor_id: int = sensor["id"]
         self.key: str = sensor["apiKey"]
 

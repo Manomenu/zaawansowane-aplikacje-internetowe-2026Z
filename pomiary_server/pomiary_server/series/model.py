@@ -2,11 +2,15 @@
 
 from typing import Annotated
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 from pydantic.alias_generators import to_camel
 
 # Strict: `true` and `"5"` are not numbers (docs/design.md); NaN and infinity cannot be stored.
 Number = Annotated[float, Field(strict=True, allow_inf_nan=False)]
+
+# Surrounding whitespace is cut off before the length check, so "  " is empty and " a " is "a":
+# names are unique ignoring case and edge spaces (migration 002).
+Name = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=100)]
 
 
 class Camel(BaseModel):
@@ -17,7 +21,7 @@ class Camel(BaseModel):
 class SeriesInput(Camel):
     """min_value < max_value is a business rule (422), checked in the API, not here (400)."""
 
-    name: str = Field(min_length=1, max_length=100)
+    name: Name
     min_value: Number
     max_value: Number
     color: str = Field(pattern=r"^#[0-9A-Fa-f]{6}$")

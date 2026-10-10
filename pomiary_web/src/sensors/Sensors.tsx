@@ -120,6 +120,7 @@ export function Sensors({ token, onUnauthorized }: { token: string; onUnauthoriz
                 token={token}
                 onUnauthorized={onUnauthorized}
                 series={loaded.series}
+                sensorNames={loaded.sensors.map((sensor) => sensor.name)}
                 onRegistered={(next) => {
                     setRegistering(false);
                     setCreated(next);

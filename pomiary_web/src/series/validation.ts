@@ -5,6 +5,7 @@ import type { SeriesInput } from "./api";
 
 export const MAX_NAME_LENGTH = 100;
 export const MAX_UNIT_LENGTH = 20;
+const NAME_TAKEN = "A series with this name already exists";
 export const MARKER_SHAPES = ["circle", "square", "triangle", "diamond"] as const;
 export type MarkerShape = (typeof MARKER_SHAPES)[number];
 export const DEFAULT_SHAPE: MarkerShape = "circle";
@@ -32,11 +33,18 @@ export function shapeOf(icon: string | null | undefined): MarkerShape {
     return isMarkerShape(icon) ? icon : DEFAULT_SHAPE;
 }
 
-export function validateSeries(draft: SeriesDraft): SeriesErrors {
+/** The server's notion of "the same name": ignoring case and spaces at the edges. */
+function sameName(a: string, b: string): boolean {
+    return a.trim().toLowerCase() === b.trim().toLowerCase();
+}
+
+/** `otherNames` are the names of the other series (not the one being edited). */
+export function validateSeries(draft: SeriesDraft, otherNames: readonly string[]): SeriesErrors {
     const errors: SeriesErrors = {};
     const name = draft.name.trim();
     if (name === "") errors.name = "Enter the name.";
     else if (name.length > MAX_NAME_LENGTH) errors.name = `The name can have at most ${String(MAX_NAME_LENGTH)} characters.`;
+    else if (otherNames.some((other) => sameName(other, name))) errors.name = NAME_TAKEN;
     if (draft.unit.trim().length > MAX_UNIT_LENGTH) errors.unit = `The unit can have at most ${String(MAX_UNIT_LENGTH)} characters.`;
 
     const { minValue, maxValue } = draft;
