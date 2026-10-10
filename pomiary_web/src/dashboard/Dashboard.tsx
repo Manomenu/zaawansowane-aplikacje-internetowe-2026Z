@@ -84,6 +84,7 @@ export function Dashboard() {
                     filters={filters}
                     rangeError={check.ok ? null : check.message}
                     groups={groups}
+                    seriesLoaded={data.series.status === "ready"}
                     hidden={hidden}
                     onPreset={(preset: Preset) => {
                         changeRange(presetFilters(preset, new Date()));

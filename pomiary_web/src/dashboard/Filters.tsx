@@ -11,6 +11,8 @@ interface Props {
     /** Why the range cannot be used, or null. */
     rangeError: string | null;
     groups: readonly UnitGroup[];
+    /** The series list arrived; until then an empty `groups` means "not known yet", not "none". */
+    seriesLoaded: boolean;
     hidden: ReadonlySet<number>;
     onPreset: (preset: Preset) => void;
     onEdit: (field: "from" | "to", value: string) => void;
@@ -28,7 +30,7 @@ function SeriesLabel({ series }: { series: Series }) {
 }
 
 /** The dashboard's controls (F5): the time range with presets, and the series by unit. */
-export function Filters({ filters, rangeError, groups, hidden, onPreset, onEdit, onToggleSeries, onToggleUnit }: Props) {
+export function Filters({ filters, rangeError, groups, seriesLoaded, hidden, onPreset, onEdit, onToggleSeries, onToggleUnit }: Props) {
     return (
         <section aria-label="Filters" className="no-print filters">
             <Fieldset legend="Time range">
@@ -68,7 +70,8 @@ export function Filters({ filters, rangeError, groups, hidden, onPreset, onEdit,
                 </Group>
             </Fieldset>
             {groups.length === 0 ? (
-                <Text size="sm">There are no series yet.</Text>
+                // Not loaded (still loading, or the server failed — the dashboard says which) is not "none".
+                seriesLoaded && <Text size="sm">There are no series yet.</Text>
             ) : (
                 <div className="filters-series">
                     {groups.map((group) => {

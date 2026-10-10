@@ -46,10 +46,15 @@ function fieldErrorsOf(errors: unknown): Record<string, string> {
     return result;
 }
 
+/** A gateway answering for a server that is down or restarting (nginx, the tunnel): no Problem body. */
+const GATEWAY_STATUSES = new Set([502, 503, 504]);
+const SERVER_DOWN = "The server is not responding right now. Try again in a moment.";
+
 /** The error a failed response carries: the Problem's `detail` and `errors` when it sent them. */
 export async function toError(response: Response): Promise<ApiError> {
     const body = (await response.json().catch(() => null)) as Problem | null;
-    const detail = typeof body?.detail === "string" ? body.detail : `${response.status} ${response.statusText}`;
+    const fallback = GATEWAY_STATUSES.has(response.status) ? SERVER_DOWN : `${String(response.status)} ${response.statusText}`;
+    const detail = typeof body?.detail === "string" ? body.detail : fallback;
     return new ApiError(response.status, detail, fieldErrorsOf(body?.errors));
 }
 
