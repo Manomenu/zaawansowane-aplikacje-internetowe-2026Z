@@ -1,6 +1,6 @@
 // The time range the filters describe (F5): presets, the `datetime-local` text, validation.
 
-export type Preset = "15m" | "3h" | "24h" | "7d" | "30d";
+export type Preset = "15m" | "3h" | "24h" | "7d" | "30d" | "90d";
 
 export const PRESETS: readonly { value: Preset; label: string; minutes: number }[] = [
     { value: "15m", label: "15 min", minutes: 15 },
@@ -8,9 +8,10 @@ export const PRESETS: readonly { value: Preset; label: string; minutes: number }
     { value: "24h", label: "24 h", minutes: 24 * 60 },
     { value: "7d", label: "7 days", minutes: 7 * 24 * 60 },
     { value: "30d", label: "30 days", minutes: 30 * 24 * 60 },
+    { value: "90d", label: "90 days", minutes: 90 * 24 * 60 },
 ];
 
-export const DEFAULT_PRESET: Preset = "7d";
+export const DEFAULT_PRESET: Preset = "90d";
 
 /** A range whose end is at most this far in the past still counts as "up to now". */
 export const LIVE_GRACE_MS = 5 * 60_000;

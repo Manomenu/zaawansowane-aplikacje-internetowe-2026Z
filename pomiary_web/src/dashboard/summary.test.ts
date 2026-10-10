@@ -7,7 +7,7 @@ describe("filterSummary", () => {
     const now = new Date(2026, 9, 9, 12, 0);
 
     it("names the preset and counts the series", () => {
-        expect(filterSummary(presetFilters("7d", now), 12, 12)).toBe("Last 7 days · 12 of 12 series");
+        expect(filterSummary(presetFilters("90d", now), 12, 12)).toBe("Last 90 days · 12 of 12 series");
         expect(filterSummary(presetFilters("24h", now), 3, 12)).toBe("Last 24 h · 3 of 12 series");
     });
 

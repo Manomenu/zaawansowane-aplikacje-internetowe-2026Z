@@ -2,7 +2,7 @@ import { Group, Text } from "@mantine/core";
 import { CartesianGrid, Line, LineChart, ReferenceLine, ResponsiveContainer, XAxis, YAxis } from "recharts";
 
 import type { Series } from "./api";
-import { tickFormatter } from "./axis";
+import { dataDomain, tickFormatter } from "./axis";
 import { MarkerIcon, MarkerShapeElement } from "./Marker";
 import { markerShape } from "./markers";
 import { pointKey, type ChartPoint } from "./table";
@@ -32,7 +32,8 @@ interface Props {
 export function UnitChart({ unitLabel, series, points, selectedMs, rangeLabel }: Props) {
     const first = points[0]?.["t"] ?? 0;
     const last = points[points.length - 1]?.["t"] ?? 0;
-    const formatTick = tickFormatter(last - first);
+    const domain = dataDomain(first, last);
+    const formatTick = tickFormatter(domain[1] - domain[0]);
     const names = series.map((s) => s.name).join(", ");
     const description = `Line chart of ${names} in ${unitLabel}, ${rangeLabel}. The table below has the same values.`;
 
@@ -54,7 +55,7 @@ export function UnitChart({ unitLabel, series, points, selectedMs, rangeLabel }:
                                 dataKey="t"
                                 type="number"
                                 scale="time"
-                                domain={["dataMin", "dataMax"]}
+                                domain={domain}
                                 tickFormatter={formatTick}
                                 tick={tickStyle}
                                 stroke="var(--mantine-color-text)"

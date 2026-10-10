@@ -91,7 +91,7 @@ test("the page is filters, then charts, then the table; the filters collapse and
     const preset = page.getByRole("button", { name: "24 h", exact: true });
     await expect(hide).toHaveAttribute("aria-expanded", "true");
     await expect(preset).toBeVisible();
-    await expect(page.getByText(/^Last 7 days · \d+ of \d+ series$/)).toBeVisible();
+    await expect(page.getByText(/^Last 90 days · \d+ of \d+ series$/)).toBeVisible();
 
     const filters = await page.getByRole("region", { name: "Filters", exact: true }).boundingBox();
     const chart = await page.getByRole("img", { name: new RegExp(names.temperature) }).boundingBox();
@@ -359,8 +359,8 @@ test("the presets run from the shortest to the longest and 15 min shows a range 
     const names = await seed(request);
     await openDashboard(page, names);
     const group = page.getByRole("group", { name: "Presets", exact: true });
-    await expect(group.getByRole("button")).toHaveText(["15 min", "3 h", "24 h", "7 days", "30 days"]);
-    await expect(group.getByRole("button", { name: "7 days", exact: true })).toHaveAttribute("aria-pressed", "true");
+    await expect(group.getByRole("button")).toHaveText(["15 min", "3 h", "24 h", "7 days", "30 days", "90 days"]);
+    await expect(group.getByRole("button", { name: "90 days", exact: true })).toHaveAttribute("aria-pressed", "true");
 
     await group.getByRole("button", { name: "15 min", exact: true }).click();
     await expect(page.getByText(/^Last 15 min · /)).toBeVisible();
@@ -369,6 +369,21 @@ test("the presets run from the shortest to the longest and 15 min shows a range 
     expect(to - from).toBe(15 * 60_000);
     // A short dataset: neither the row cap line nor the limit notice.
     await expect(page.getByText(/^Showing the newest /)).toHaveCount(0);
+});
+
+test("the default range is 90 days and the chart's x-axis covers only the data", async ({ page, request }) => {
+    const names = await seed(request);
+    await openDashboard(page, names);
+    await showOnly(page, [names.temperature]);
+    await expect(page.getByLabel("From", { exact: true })).toHaveValue(/\d/);
+    const from = new Date(await page.getByLabel("From", { exact: true }).inputValue()).getTime();
+    const to = new Date(await page.getByLabel("To", { exact: true }).inputValue()).getTime();
+    expect(to - from).toBe(90 * 24 * 60 * 60_000);
+
+    // The data spans about 5 hours: the ticks are times of day, not the dates of a 90-day axis.
+    const ticks = page.locator(".chart-box .recharts-cartesian-axis-tick-value").filter({ hasText: /\d:\d/ });
+    await expect(ticks.first()).toHaveText(/^\d{2}:\d{2}$/);
+    await expect(ticks.last()).toHaveText(/^\d{2}:\d{2}$/);
 });
 
 test("a table longer than the cap shows the newest rows and says so", async ({ page, request }) => {
