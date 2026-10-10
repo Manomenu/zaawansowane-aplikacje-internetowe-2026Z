@@ -1,7 +1,10 @@
+from datetime import UTC, datetime, timedelta
+from functools import partial
 from typing import Any
 
 import pytest
 from pomiary_generator.cli import main
+from pomiary_generator.send import run_live
 
 
 def run(argv: list[str], monkeypatch: pytest.MonkeyPatch) -> tuple[int, list[str]]:
@@ -65,3 +68,44 @@ def test_seed_requires_credentials(monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.delenv(name, raising=False)
     code, _ = run(["seed", "--api", "http://x"], monkeypatch)
     assert code == 2
+
+
+def _dry_values(argv: list[str], monkeypatch: pytest.MonkeyPatch) -> list[float]:
+    code, lines = run(["send", "--dry-run", "--shape", "sine", "--min", "0", "--max", "100", *argv], monkeypatch)
+    assert code == 0
+    return [float(line.split()[-1]) for line in lines if line.startswith("DRY-RUN")]
+
+
+def _ticking_clock(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Replace the live clock by one that advances 1 s per call, starting at a fixed moment."""
+    ticks = iter(datetime(2026, 10, 1, tzinfo=UTC) + timedelta(seconds=s) for s in range(1000))
+    monkeypatch.setattr("pomiary_generator.send.now_utc", lambda: next(ticks))
+    no_sleep = partial(run_live, sleep=lambda _seconds: None)
+    monkeypatch.setattr("pomiary_generator.cli.run_live", no_sleep)
+
+
+def test_live_default_period_is_a_minute(monkeypatch: pytest.MonkeyPatch) -> None:
+    _ticking_clock(monkeypatch)
+    values = _dry_values(["--interval", "1s", "--count", "61"], monkeypatch)
+    assert values[0] == values[60]
+    assert values[30] == pytest.approx(100 - values[0], abs=0.01)  # half a period: mirrored around the middle
+    assert max(values) - min(values) > 99
+
+
+def test_explicit_period_wins_in_live(monkeypatch: pytest.MonkeyPatch) -> None:
+    _ticking_clock(monkeypatch)
+    values = _dry_values(["--interval", "1s", "--count", "121", "--period", "2m"], monkeypatch)
+    assert values[0] == values[120]
+    assert values[30] == pytest.approx(100, abs=0.01)  # a quarter of 2m, not of the 60 s default
+
+
+def test_backfill_default_period_is_a_day(monkeypatch: pytest.MonkeyPatch) -> None:
+    daily = _dry_values(["--count", "25", "--step", "1h", "--end", "2026-10-01T00:00:00Z"], monkeypatch)
+    assert daily[0] == daily[24]
+    assert max(daily) - min(daily) > 90
+
+
+def test_explicit_period_wins_in_backfill(monkeypatch: pytest.MonkeyPatch) -> None:
+    minute = _dry_values(["--count", "61", "--step", "1s", "--end", "2026-10-01T00:00:00Z", "--period", "1m"], monkeypatch)
+    assert minute[0] == minute[60]
+    assert max(minute) - min(minute) > 99

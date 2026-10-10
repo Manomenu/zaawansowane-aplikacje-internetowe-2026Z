@@ -19,7 +19,7 @@ from pomiary_generator.send import (
     run_live,
     synthetic_points,
 )
-from pomiary_generator.synthetic import SHAPES, Synthetic
+from pomiary_generator.synthetic import BACKFILL_PERIOD_SECONDS, LIVE_PERIOD_SECONDS, SHAPES, Synthetic
 from pomiary_generator.timeparse import backfill_times, parse_duration, parse_instant
 
 SEND_HELP = """\
@@ -52,7 +52,7 @@ def build_parser() -> argparse.ArgumentParser:
     send.add_argument("--shape", choices=SHAPES, default="random", help="synthetic: value shape (default random)")
     send.add_argument("--min", dest="low", type=float, default=0.0, help="synthetic: lowest value (default 0)")
     send.add_argument("--max", dest="high", type=float, default=100.0, help="synthetic: highest value (default 100)")
-    send.add_argument("--period", default="24h", help="synthetic sine: period (default 24h)")
+    send.add_argument("--period", help="synthetic sine: period (default 60s live, 24h backfill)")
     send.add_argument("--noise", type=float, default=0.0, help="synthetic: standard deviation of added noise (default 0)")
     send.add_argument("--seed", type=int, help="synthetic: random seed for reproducible values")
     send.add_argument("--place", choices=list(PLACES), help="open-meteo: place")
@@ -97,7 +97,9 @@ def run_send(args: argparse.Namespace, emit: Emit, now: datetime) -> int:  # noq
         interval = parse_duration(args.interval) if live else None
         step = parse_duration(args.step)
         end = parse_instant(args.end, now)
-        synthetic = Synthetic(args.shape, args.low, args.high, parse_duration(args.period).total_seconds(), args.noise, args.seed)
+        default_period = LIVE_PERIOD_SECONDS if live else BACKFILL_PERIOD_SECONDS
+        period = parse_duration(args.period).total_seconds() if args.period else default_period
+        synthetic = Synthetic(args.shape, args.low, args.high, period, args.noise, args.seed)
         value_at: Callable[[datetime], float] = synthetic.value
         if interval is not None:
             if args.source == "open-meteo":

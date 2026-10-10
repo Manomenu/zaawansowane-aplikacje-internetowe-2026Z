@@ -64,7 +64,7 @@ title.
 | 2:15 | 0:20 | **F2**, **F4** (form) | Series tab: create "Demo temperature", unit °C, range 0–100, colour and marker. First min 100 and max 0: the form refuses before sending (F4 in the form), then the valid values. The series appears. |
 | 2:35 | 0:25 | **F12** | Sensors tab, "Register a sensor": name "Demo sensor", series "Demo temperature". The dialog "Sensor registered" shows the key **once**: copy it. In the terminal: `export POMIARY_API_KEY=<paste>` (the sensor is deleted at 4:25). |
 | 3:00 | 0:30 | **F13**, **F1** | Terminal: the backfill command (below), 24 lines `201 ...`. Browser, Data tab, "Demo temperature" ticked, filter 24 h: the 24 points are on the chart and in the table. Say F1: a result is a number, a time and a series, and it came only from a sensor through the API. |
-| 3:30 | 0:25 | **X1** | Chart visible beside the terminal. The live command: a new point appears every 3 s **without reloading the page** (SSE live stream). |
+| 3:30 | 0:25 | **X1** | Chart visible beside the terminal. The live command: a new point appears every second **without reloading the page** (SSE live stream). |
 | 3:55 | 0:30 | **F4** | The out-of-range command: `REJECTED 422: value 120 is outside the series range [0, 100]`. Then the server log pane: the `measurement rejected` WARNING line. The chart is unchanged. |
 | 4:25 | 0:25 | **F12** | Sensors tab: "Unregister Demo sensor", confirm; the row disappears. Terminal, the same key, the last command below: **401**, the run stops, the unregistered sensor is refused. (Old measurements stay; delete "Demo temperature" afterwards, off camera or quickly.) |
 | 4:50 | 0:20 | **B2** (mobile) | Devtools device toolbar, width **360 px**: header and tabs, collapsed filters, chart and table without sideways scrolling, then the Sensors or Series tab (stacked lists). Close the toolbar. |
@@ -93,8 +93,8 @@ export POMIARY_API_KEY=<paste the key from the dialog>
 
 # 3:00 backfill, 24 hourly values
 python -m pomiary_generator send --count 24 --step 1h --shape sine --min 20 --max 80 --noise 2 --seed 1
-# 3:30 live, 8 values 3 s apart
-python -m pomiary_generator send --interval 3s --count 8 --shape sine --period 1m --min 10 --max 90
+# 3:30 live, one value per second; the sine has a 60 s period (max to min in 30 s)
+python -m pomiary_generator send --interval 1s --count 25 --shape sine --min 10 --max 90
 # 3:55 out of range (the series allows 0..100)
 python -m pomiary_generator send --count 1 --shape constant --min 120 --max 120
 # 4:25 after unregistering in the app: 401

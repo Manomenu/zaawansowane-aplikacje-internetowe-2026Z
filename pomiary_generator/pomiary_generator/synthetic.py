@@ -9,6 +9,11 @@ from typing import Literal
 Shape = Literal["constant", "random", "sine", "random-walk"]
 SHAPES: tuple[Shape, ...] = ("constant", "random", "sine", "random-walk")
 
+# Default sine period per mode. Live: half a period (maximum to minimum) is 30 s, visible in a demo.
+# Backfill: a daily cycle across hourly values.
+LIVE_PERIOD_SECONDS = 60.0
+BACKFILL_PERIOD_SECONDS = 24 * 3600.0
+
 
 @dataclass
 class Synthetic:
@@ -17,7 +22,7 @@ class Synthetic:
     shape: Shape
     low: float
     high: float
-    period_seconds: float = 86400.0
+    period_seconds: float = BACKFILL_PERIOD_SECONDS
     noise: float = 0.0
     seed: int | None = None
     _rng: random.Random = field(init=False)
@@ -34,7 +39,7 @@ class Synthetic:
         return round(min(self.high, max(self.low, value)), 3)
 
     def value(self, moment: datetime) -> float:
-        """The value for `moment` (only `sine` depends on it)."""
+        """The value for `moment`; only `sine` depends on it, and its phase is the wall-clock time."""
         mid = (self.low + self.high) / 2
         half = (self.high - self.low) / 2
         if self.shape == "constant":
