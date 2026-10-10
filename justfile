@@ -101,10 +101,10 @@ check:
 lighthouse url="http://localhost:8092":
     @./scripts/.internal/lighthouse.sh {{ url }}
 
-# The E2 submission package: documentation.pdf (at most 8 pages) and the source ZIP, in .artifacts/submission/
+# The submission packages in .artifacts/submissions/{e1,e2}/: the forms' fields, and for E2 also documentation.pdf (at most 8 pages), the source ZIP and the checklist. `--stage e1|e2` builds one
 [group('maintenance')]
-package:
-    @./scripts/.internal/package.sh
+package *args:
+    @./scripts/.internal/package.sh {{ args }}
 
 # Apply autofixes and formatting: ruff for Python, eslint and prettier for the web app
 [group('maintenance')]
