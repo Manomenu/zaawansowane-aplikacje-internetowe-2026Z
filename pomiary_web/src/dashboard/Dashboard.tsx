@@ -60,6 +60,15 @@ export function Dashboard() {
                     <Button
                         variant="default"
                         className="no-print"
+                        onClick={() => {
+                            window.print();
+                        }}
+                    >
+                        Print
+                    </Button>
+                    <Button
+                        variant="default"
+                        className="no-print"
                         aria-expanded={filtersOpen}
                         aria-controls={FILTERS_ID}
                         onClick={() => {

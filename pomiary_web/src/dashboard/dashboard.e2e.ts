@@ -420,3 +420,81 @@ test("a table longer than the cap shows the newest rows and says so", async ({ p
     await expect(table.getByRole("cell", { name: String(total - 1), exact: true })).toBeVisible();
     await expect(table.getByRole("cell", { name: "0", exact: true })).toHaveCount(0);
 });
+
+for (const paper of [
+    { name: "A4 landscape", width: 1047, height: 720 },
+    { name: "A4 portrait", width: 718, height: 1047 },
+]) {
+    test(`printing 12 series on ${paper.name}: every column fits the paper, no control is left`, async ({ page, request }) => {
+        const prefix = `Print${String(Date.now()).slice(-6)}`;
+        const { names, remove } = await seedMany(request, prefix, 12);
+        try {
+            await page.setViewportSize({ width: paper.width, height: paper.height });
+            await page.goto("/");
+            const table = page.getByRole("region", { name: "Measurements table", exact: true });
+            await expect(table.getByRole("columnheader", { name: new RegExp(`${names[names.length - 1] ?? ""} \\(`) })).toBeVisible();
+            // Few clicks, however many series other tests left: clear every unit, then tick ours.
+            for (const unit of ["°C", "mm", "%"]) {
+                const all = page.getByRole("checkbox", { name: `All ${unit}`, exact: true });
+                if ((await all.count()) > 0) await all.uncheck();
+            }
+            for (const name of names) await page.getByRole("checkbox", { name, exact: true }).check();
+            await expect(table.getByRole("columnheader")).toHaveCount(names.length + 1);
+            await page.emulateMedia({ media: "print" });
+
+            // (a) the table is not wider than its box and every series header lies inside it.
+            expect(await table.evaluate((el) => el.scrollWidth - el.clientWidth)).toBeLessThanOrEqual(0);
+            // One pass over the headers: a role query per header is slow next to a long table.
+            const heads = await table.locator("thead th").evaluateAll((ths) =>
+                ths.map((th) => {
+                    const rect = th.getBoundingClientRect();
+                    return { text: th.textContent, left: rect.left, right: rect.right };
+                }),
+            );
+            const box = await table.boundingBox();
+            expect(box).not.toBeNull();
+            for (const name of names) {
+                const head = heads.find((h) => h.text.includes(`${name} (`));
+                expect(head, name).toBeDefined();
+                expect(head?.left ?? -1).toBeGreaterThanOrEqual((box?.x ?? 0) - 1);
+                expect(head?.right ?? 1e6).toBeLessThanOrEqual((box?.x ?? 0) + (box?.width ?? 0) + 1);
+            }
+
+            // (b) no control is visible anywhere.
+            const visibleControls = await page.locator("button, a, input, select, textarea, form").evaluateAll((els) =>
+                els
+                    .filter((el) => {
+                        const style = getComputedStyle(el);
+                        const rect = el.getBoundingClientRect();
+                        return style.display !== "none" && style.visibility !== "hidden" && rect.width > 0 && rect.height > 0;
+                    })
+                    .map((el) => el.outerHTML.slice(0, 80)),
+            );
+            expect(visibleControls).toEqual([]);
+
+            // (c) the charts and the table stay.
+            await expect(page.locator("figure").first()).toBeVisible();
+            await expect(table).toBeVisible();
+            const page_ = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+            expect(page_).toBeLessThanOrEqual(0);
+        } finally {
+            await remove();
+        }
+    });
+}
+
+test("the Print button is on the screen, hidden on paper, and opens the print dialog", async ({ page }) => {
+    await page.addInitScript(() => {
+        (window as unknown as { printed: number }).printed = 0;
+        window.print = () => {
+            (window as unknown as { printed: number }).printed++;
+        };
+    });
+    await page.goto("/");
+    const button = page.getByRole("button", { name: "Print", exact: true });
+    await expect(button).toBeVisible();
+    await button.click();
+    expect(await page.evaluate(() => (window as unknown as { printed: number }).printed)).toBe(1);
+    await page.emulateMedia({ media: "print" });
+    await expect(button).toBeHidden();
+});
