@@ -176,7 +176,10 @@ out, the header has "Log in", which opens the login form in a modal.
   h:mm:ss up to 30 min, h:mm up to 6 h, date and h:mm beyond - all locale-aware.
 - **Print (F7, T7):** the same view; `@media print` hides everything with the class
   `no-print` (header, tabs, filters, buttons, forms) and lets the table run over pages; the
-  row-cap line prints with it.
+  row-cap line prints with it. On paper the table drops its minimum column width and shares the
+  page's width (7.5 pt font), so no series column is cut off; `@page` is A4 landscape with 10 mm
+  margins because landscape fits more columns. A "Print" button in the top bar calls
+  `window.print()` and is itself `no-print`.
 
 ## Layout and accessibility
 

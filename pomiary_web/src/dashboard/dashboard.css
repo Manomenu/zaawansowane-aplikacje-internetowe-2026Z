@@ -118,6 +118,12 @@
     box-shadow: inset 4px 0 0 var(--mantine-color-text);
 }
 
+/* Landscape gives many columns the most room (F7). */
+@page {
+    size: A4 landscape;
+    margin: 10mm;
+}
+
 @media print {
     .unit-chart {
         break-inside: avoid;
@@ -128,6 +134,22 @@
     .table-scroll {
         overflow: visible;
         max-height: none;
+    }
+
+    /* No minimum width on paper: every column shares the page's width, so none is cut off. */
+    .measurement-table {
+        min-width: 0;
+        width: 100%;
+        font-size: 7.5pt;
+    }
+
+    .measurement-table th,
+    .measurement-table td {
+        padding: 0.125rem 0.2rem;
+    }
+
+    .measurement-table th:first-child {
+        width: 4.5rem;
     }
 
     .table-scroll thead {
