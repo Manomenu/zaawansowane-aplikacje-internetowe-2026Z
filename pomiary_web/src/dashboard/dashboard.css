@@ -41,10 +41,10 @@
     max-height: 32rem;
 }
 
-/* Every column gets the same share of the box and the headers wrap: up to 13 series fit at
-   1024 px and wider without scrolling. From the 14th, --table-min-width (set by the table) keeps
-   each column readable and the table scrolls inside its box. On a phone the table always keeps
-   a readable width and scrolls inside its box. */
+/* The columns share the box and the headers wrap. No series column gets narrower than
+   SERIES_COLUMN_MIN_REM (table.ts sets --table-min-width): as many as fit at that width are
+   shown on any screen — many on a monitor, about three on a phone — and the rest scroll inside
+   the box. */
 .measurement-table {
     table-layout: fixed;
     min-width: var(--table-min-width, 0);
@@ -93,12 +93,6 @@
 .marker-icon {
     flex: none;
     overflow: visible;
-}
-
-@media (max-width: 767px) {
-    .measurement-table {
-        min-width: calc(5.5rem + var(--series-count) * 5rem);
-    }
 }
 
 .table-scroll thead {

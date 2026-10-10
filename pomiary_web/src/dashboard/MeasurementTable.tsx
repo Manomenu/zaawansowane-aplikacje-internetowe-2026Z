@@ -6,7 +6,7 @@ import { MarkerIcon } from "./Marker";
 import { markerShape } from "./markers";
 import { tableMinWidthRem, type TableRow } from "./table";
 
-// Date and time are two lines of one narrow column, so 13 columns fit side by side (more scroll in the box).
+// Date and time are two lines of one narrow column.
 const dateFormat = new Intl.DateTimeFormat(undefined, { dateStyle: "short" });
 const timeFormat = new Intl.DateTimeFormat(undefined, { timeStyle: "medium" });
 const valueFormat = new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 });
@@ -31,8 +31,7 @@ export function MeasurementTable({ rows, note, series, selectedMs, onSelect }: P
         toggle(ms);
     };
 
-    const minWidth = tableMinWidthRem(series.length);
-    const tableStyle = { "--series-count": series.length, ...(minWidth === null ? {} : { "--table-min-width": `${String(minWidth)}rem` }) };
+    const tableStyle = { "--table-min-width": `${String(tableMinWidthRem(series.length))}rem` };
 
     if (rows.length === 0) return <Text>No measurements in this range.</Text>;
     return (
