@@ -1,7 +1,8 @@
 # AGENTS.md
 
 Rules for anyone — human or AI agent — changing this repository. `CLAUDE.md` only points
-here; this file is the one to edit.
+here; this file is the one to edit. Commands, requirements and the everyday workflow are in
+[`docs/development.md`](docs/development.md); `README.md` is the non-technical introduction.
 
 ## Template upstream: good practices flow back to solid-app-tpl
 
@@ -93,6 +94,7 @@ every moving part is a part someone has to keep alive.
 | `justfile`, `.just/` | commands for humans: the main recipes and the `just <module>` families (section 10) |
 | `scripts/.internal/` | everything the gate, CI and `just` run (section 10) |
 | `docs/spec/` | the course's specification, API contract and test script — read-only, checksummed |
+| `docs/development.md`, `docs/img/` | how to run, check and change the repo (commands, requirements, links); the README's screenshots |
 | `docs/requirements.md`, `docs/progress/` | the requirements matrix and one progress file per finished stage (section "Course requirements") |
 | `.github/workflows/ci.yml` | CI: the gate, the browser tests, then the images |
 | `.artifacts/` | everything generated (e2e reports, renders); outside git and the images |
