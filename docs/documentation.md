@@ -273,17 +273,25 @@ No code was copied from other students' projects or from answers on the internet
 documentation patterns named above. Dependency versions are pinned in `uv.lock` and
 `pomiary_web/pnpm-lock.yaml`.
 
-## 8. Technologies and why (T1–T4)
+## 8. Technologies and why (T1–T4, T10, T11)
 
-- **T1 Python + FastAPI:** pydantic validation gives the 400/422 distinction and the OpenAPI
-  document, from which the web app generates its TypeScript types.
-- **T2 React 19 SPA + Mantine + Vite:** responsive layout with CSS Grid and media queries in
-  `pomiary_web/src/app.css`; one folder per feature under `src/`.
-- **T3 REST conforming to the contract:** the teacher's test script runs against a local server
-  in the quality gate.
-- **T4 PostgreSQL, plain SQL migrations:** typed columns, primary and foreign keys, `CHECK`
-  constraints, the time index; no ORM, so the queries are explicit. Chosen over SQLite for
-  concurrent writers and `LISTEN/NOTIFY` (the live stream), and it can take TimescaleDB later.
+**The main reason for the whole stack:** the author already had a prepared, tested template for
+starting applications, [solid-app-tpl](https://github.com/Manomenu/solid-app-tpl) (FastAPI +
+React + PostgreSQL, with the quality gate, CI, Dockerfiles, compose and a Helm chart), used
+before in the author's other projects (e.g. grzyby-mcp). Choosing the stack it is built on
+meant a working skeleton, tests and deployment on the first day. The time went into the course's
+requirements instead of setting up tooling. The author also already knows these tools well,
+which matters for answering questions about the code. Each choice also has to fit the
+requirements on its own:
+
+| Requirement | Choice | Why, against the alternatives |
+| --- | --- | --- |
+| T1 backend | **Python 3.14 + FastAPI** | Pydantic models validate every request; that gives the contract's 400 vs 422 split directly. FastAPI generates the OpenAPI document, from which the web app's TypeScript types are generated, so client and server cannot drift apart. Django would bring an ORM and admin we do not need. Express/NestJS or Spring would mean a second ecosystem next to the Python generator. |
+| T2 frontend | **React 19 SPA + Mantine + Vite**, charts with **Recharts** | React is the template's frontend, and Mantine gives accessible form components (labels, focus, dialogs) that the axe tests check. The layout itself is CSS Grid + media queries in `app.css`, as T2 requires. Recharts draws SVG, which prints sharply (F7) and allows a marker shape per series (T6). A canvas library (Chart.js) prints blurred and is harder to make accessible. |
+| T3 REST API | the contract as given, plus one added path | The teacher's test script runs against a local server in the gate on every change, so conformance is checked continuously, not once at the deadline. |
+| T4 database | **PostgreSQL 17, plain SQL migrations** | Typed columns, keys, `CHECK` constraints and the time index are written as SQL in `migrations/*.sql`, which also serve as the schema script for the archive (B4). It is chosen over SQLite for concurrent writers (many sensors) and `LISTEN/NOTIFY`, which drives the live stream (X1). No ORM: every query is visible and parameterised (T5.2). The same PostgreSQL also runs on the author's cluster. |
+| T10 deployment | the author's own **k3s cluster** behind a **Cloudflare Tunnel**, deployed by Argo CD | It is already running the author's other apps, it is free, it gives HTTPS without opening a port, and it stays up until grading. A free PaaS would sleep, which the teacher's tests would hit. |
+| T11 generator | **Python, standard library only** | Anyone runs it with a plain `python`, with nothing to install. It is a separate program, so it talks to the API exactly like a sensor would. |
 
 ## 9. Extensions done
 
