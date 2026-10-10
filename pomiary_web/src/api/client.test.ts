@@ -25,9 +25,22 @@ describe("toError", () => {
     });
 
     it("falls back to the status when the body says nothing", async () => {
-        const response = new Response("oops", { status: 502, statusText: "Bad Gateway" });
+        const response = new Response("oops", { status: 500, statusText: "Internal Server Error" });
 
-        expect((await toError(response)).message).toBe("502 Bad Gateway");
+        expect((await toError(response)).message).toBe("500 Internal Server Error");
+    });
+
+    it("says the server is not responding when a gateway answers for it", async () => {
+        for (const [status, statusText] of [
+            [502, "Bad Gateway"],
+            [503, "Service Unavailable"],
+            [504, "Gateway Timeout"],
+        ] as const) {
+            const error = await toError(new Response("<html>nginx</html>", { status, statusText }));
+
+            expect(error.message).toBe("The server is not responding right now. Try again in a moment.");
+            expect(error.status).toBe(status);
+        }
     });
 
     it("maps a Problem's errors onto fields, the first message per field", async () => {
