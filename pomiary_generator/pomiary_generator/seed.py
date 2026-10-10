@@ -34,6 +34,16 @@ def series_name(place: str, quantity: str) -> str:
     return f"{PLACE_TITLES[place]}: {QUANTITY_TITLES[quantity]}"
 
 
+def legacy_series_name(place: str, quantity: str) -> str:
+    """The name before the rename (`Precipitation — Warsaw`); old data is still cleaned up."""
+    return f"{QUANTITY_TITLES[quantity]} — {PLACE_TITLES[place]}"
+
+
+def owned_names() -> set[str]:
+    pairs = [(place, quantity) for place in PLACES for quantity in QUANTITIES]
+    return {series_name(*pair) for pair in pairs} | {legacy_series_name(*pair) for pair in pairs}
+
+
 def sensor_name(place: str, quantity: str, source: str) -> str:
     return f"{'open-meteo' if source == 'open-meteo' else 'synthetic'}/{place}/{quantity}"
 
@@ -56,33 +66,32 @@ def run_seed(  # noqa: PLR0913, PLR0917
     emit: Emit,
     fetch: Fetch = fetch_hourly,
 ) -> int:
-    """Create the 12 series and sensors (when absent) and backfill `days` of hourly values."""
+    """Replace the sample data: delete the 12 series seed owns, create them anew, backfill `days` of hourly values."""
     try:
         token = api.login(username, password)
-        existing = {str(s.get("name")): s for s in api.list_series(token)}
+        owned = owned_names()
+        doomed = [s for s in api.list_series(token) if str(s.get("name")) in owned]
+        for old in doomed:  # a failure stops here, before anything is created
+            api.delete_series(token, old["id"])
+        emit(f"deleted {len(doomed)} sample series (and their sensors and measurements)")
         keys: list[tuple[str, str]] = []
         stats = Stats()
         for place in PLACES:
             hourly: Hourly = {}
             for quantity, spec in QUANTITIES.items():
                 name = series_name(place, quantity)
-                series = existing.get(name)
-                if series is None:
-                    series = api.create_series(
-                        token,
-                        {
-                            "name": name,
-                            "minValue": spec.low,
-                            "maxValue": spec.high,
-                            "color": PLACE_COLORS[place],
-                            "icon": QUANTITY_ICONS[quantity],
-                            "unit": spec.unit,
-                        },
-                    )
-                    emit(f"created series: {name}")
-                elif api.has_measurements(token, series["id"]):
-                    emit(f"skipped (already has measurements): {name}")
-                    continue
+                series = api.create_series(
+                    token,
+                    {
+                        "name": name,
+                        "minValue": spec.low,
+                        "maxValue": spec.high,
+                        "color": PLACE_COLORS[place],
+                        "icon": QUANTITY_ICONS[quantity],
+                        "unit": spec.unit,
+                    },
+                )
+                emit(f"created series: {name}")
                 if not hourly and source == "open-meteo":
                     hourly = fetch(place, list(QUANTITIES), days + 1, now)
                 points = hourly[quantity] if source == "open-meteo" else _synthetic(quantity, now, days)

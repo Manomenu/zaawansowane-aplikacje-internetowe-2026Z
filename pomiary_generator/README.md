@@ -109,10 +109,9 @@ use, below 10 000 calls per day. The generator makes one call per `send` run wit
 
 ## `seed`: the sample data (F11)
 
-Prepares the application through the API: logs in as the administrator, creates the 12 series
-(3 places × 4 quantities, ranges as in `docs/design.md`; colour tells the place apart and the
-marker `circle`/`square`/`triangle`/`diamond` the quantity) when a series of that name does not
-exist, registers one sensor per series (`open-meteo/<place>/<quantity>`) and fills it with
+Prepares the application through the API: logs in as the administrator, **deletes the old sample series**
+and creates the 12 series (3 places × 4 quantities, ranges as in `docs/design.md`; colour tells the place apart and the
+marker `circle`/`square`/`triangle`/`diamond` the quantity, registers one sensor per series (`open-meteo/<place>/<quantity>`) and fills it with
 `--days` of hourly values sent with that sensor's key.
 
 ```sh
@@ -121,6 +120,19 @@ python -m pomiary_generator seed --api http://localhost:8092 --days 30
 python -m pomiary_generator seed --api http://localhost:8092 --days 30 --source synthetic   # Open-Meteo is down
 ```
 
+**`seed` is destructive, on purpose.** It first deletes every series whose name is exactly one of
+the 12 it creates (`Warsaw: Precipitation`, …) or one of the 12 names from before the rename
+(`Precipitation — Warsaw`, …), together with their sensors and measurements, and then creates
+everything anew, so the samples never multiply. Series with any other name (made by hand, by the
+teacher's tests, by e2e) are never touched. The sensors are new, so **their keys change: a
+running `send` with an old key gets 401** until you give it a new one. If a delete fails, `seed`
+says so and stops before creating anything.
+
+`just seed` runs it with the defaults of the local compose stack (`--api http://localhost:8092
+--user admin --password local-only-password --days 30 --source open-meteo`); arguments are
+appended and override: `just seed --source synthetic`, or for production
+`just seed --api https://pomiary-lasy.gugnowski.com --user … --password …`.
+
 | Parameter | Meaning |
 | --- | --- |
 | `--api`, `--user`, `--password` | API address and administrator (envs above) |
@@ -128,8 +140,7 @@ python -m pomiary_generator seed --api http://localhost:8092 --days 30 --source 
 | `--source open-meteo` (default) / `synthetic` | the fallback makes a daily sine wave (random for precipitation) |
 
 The sensors' keys are printed **once**, at the end; the generator stores them nowhere. Copy
-the ones you need for `send`. A series that already has measurements is skipped (and the run
-says so), so running `seed` again does not duplicate anything. A full run is about 8 600
+the ones you need for `send`. A full run is about 8 600
 requests (30 days × 24 h × 12 series).
 
 ## Tests

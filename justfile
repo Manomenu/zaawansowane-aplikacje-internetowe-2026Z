@@ -32,6 +32,11 @@ web *args:
 generator *args:
     cd pomiary_generator && env -u VIRTUAL_ENV uv run python -m pomiary_generator {{ args }}
 
+# DESTRUCTIVE: replace the 12 sample series (deletes and recreates them); defaults = local compose stack, args override
+[group('run')]
+seed *args:
+    cd pomiary_generator && env -u VIRTUAL_ENV uv run python -m pomiary_generator seed --api http://localhost:8092 --user admin --password local-only-password --days 30 --source open-meteo {{ args }}
+
 # ---------------------------------------------------------------------------------------
 # dev — code generation and other chores while developing
 # ---------------------------------------------------------------------------------------

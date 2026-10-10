@@ -33,15 +33,50 @@ def test_seed_creates_12_series_12_sensors_and_values(fake: Fake) -> None:
     assert sum("key-" in line for line in lines) == 12
 
 
-def test_seed_twice_does_not_duplicate(fake: Fake) -> None:
+def names(state: Any) -> list[str]:
+    return [str(s["name"]) for s in state.series]
+
+
+def test_seed_deletes_owned_names_new_and_legacy_and_nothing_else(fake: Fake) -> None:
+    state, url = fake
+    api = Api(url)
+    token = api.login("admin", "good")
+    for name in ("Warsaw: Precipitation", "Precipitation — Warsaw", "Soil moisture — Suwałki", "ZAI-TEST-1", "My own series"):
+        api.create_series(token, {"name": name, "minValue": 0, "maxValue": 1})
+    lines: list[str] = []
+    assert run_seed(api, "admin", "good", 1, "synthetic", NOW, lines.append) == 0
+    assert "deleted 3 sample series (and their sensors and measurements)" in lines
+    assert len(state.series) == 12 + 2
+    assert {"ZAI-TEST-1", "My own series"} <= set(names(state))
+    assert "Precipitation — Warsaw" not in names(state)
+    assert names(state).count("Warsaw: Precipitation") == 1
+    assert {m["seriesId"] for m in state.measurements}.isdisjoint({s["id"] for s in state.series if s["name"] == "My own series"})
+
+
+def test_seed_twice_replaces_without_duplicates(fake: Fake) -> None:
     state, url = fake
     run_seed(Api(url), "admin", "good", 1, "open-meteo", NOW, lambda _l: None, fake_fetch)
+    first_keys = set(state.sensors)
     lines: list[str] = []
     code = run_seed(Api(url), "admin", "good", 1, "open-meteo", NOW, lines.append, fake_fetch)
     assert code == 0
+    assert "deleted 12 sample series (and their sensors and measurements)" in lines
     assert len(state.series) == 12
     assert len(state.sensors) == 12
-    assert sum(line.startswith("skipped") for line in lines) == 12
+    assert len(state.measurements) == 12 * 24
+    assert first_keys.isdisjoint(state.sensors)
+
+
+def test_seed_delete_failure_stops_before_creating(fake: Fake) -> None:
+    state, url = fake
+    api = Api(url)
+    api.create_series(api.login("admin", "good"), {"name": "Warsaw: Precipitation", "minValue": 0, "maxValue": 1})
+    state.fail_delete = True
+    lines: list[str] = []
+    assert run_seed(api, "admin", "good", 1, "synthetic", NOW, lines.append) == 1
+    assert "seed failed" in lines[0]
+    assert "DELETE /api/series/1" in lines[0]
+    assert len(state.series) == 1
 
 
 def test_seed_synthetic_fallback_stays_in_range(fake: Fake) -> None:
