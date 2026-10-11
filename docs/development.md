@@ -63,5 +63,5 @@ What the gate contains and when each check applies: AGENTS.md, section 3.
 - [AGENTS.md](../AGENTS.md): the rules for changing the repository (layout, gate, import contracts, git).
 - [design.md](design.md): the API's design decisions; [erd.md](erd.md): the database diagram.
 - [requirements.md](requirements.md): the requirements matrix; [progress/](progress/): one file per finished stage.
-- [documentation.md](documentation.md): the source of the graded PDF; [recording.md](recording.md) and [checklist.md](checklist.md): the video plan and the submission checklist.
+- [documentation.md](documentation.md): the source of the graded PDF; [recording.md](recording.md) and [checklist.md](checklist.md): the video plan and the submission checklist. The PDF and the checklist are in Polish, for the teacher.
 - [spec/](spec/): the specification, the API contract and the teacher's test script (Polish, never edited).

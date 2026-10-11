@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
 # Builds the submission packages into .artifacts/submissions/<stage>/:
-#   e1/form.md              what the E1 form on Leia asks for: the API address, the admin account, the repository
-#   e2/form.md              the same for E2, plus the application address, the CI link and the recording's rules
-#   e2/checklist.md         docs/checklist.md, the draft of the checklist form (B1–B5, extensions)
-#   e2/documentation.pdf    docs/documentation.md rendered with the ERD embedded (at most 8 pages)
+#   e1/formularz.md         what the E1 form on Leia asks for: the API address, the admin account, the repository
+#   e2/formularz.md         the same for E2, plus the application address, the CI link and the recording's rules
+#   e2/lista-kontrolna.md   docs/checklist.md, the draft of the checklist form (B1–B5, extensions)
+#   e2/dokumentacja.pdf     docs/documentation.md rendered with the ERD embedded (at most 8 pages)
 #   e2/pomiary-zai-26z.zip  the repository files, tracked plus new-but-not-ignored (working-tree versions) plus the PDF
+# What the teacher reads is Polish (the course's language): the forms, the PDF and the checklist.
+# The script's own messages stay English, like the rest of the repository.
 # Usage: package.sh [--stage e1|e2]; without --stage both are built.
 # Needs nothing installed beyond what the repo already uses: npx (marked, like lighthouse.sh),
 # Playwright's Chromium, zip, pdfinfo (poppler), curl and git (read-only: `git ls-files`).
@@ -58,27 +60,27 @@ read_admin() {
 write_form() {
     local stage="$1" out="$2"
     {
-        echo "# Submission form, ${stage^^}"
+        echo "# Formularz zgłoszenia, ${stage^^}"
         echo
         if [ "$stage" = e2 ]; then
-            echo "- **Application address:** $APP_URL"
+            echo "- **Adres aplikacji:** $APP_URL"
         fi
-        echo "- **API address:** $APP_URL/api"
-        echo "- **Administrator test account:** login \`$ADMIN_USERNAME\`, password \`$ADMIN_PASSWORD\`"
-        echo "  (it must keep working until grading)"
-        echo "- **Repository:** $REPO_URL"
+        echo "- **Adres API:** $APP_URL/api"
+        echo "- **Testowe konto administratora:** login \`$ADMIN_USERNAME\`, hasło \`$ADMIN_PASSWORD\`"
+        echo "  (musi działać do czasu wystawienia oceny)"
+        echo "- **Repozytorium:** $REPO_URL"
         if [ "$stage" = e2 ]; then
-            echo "- **CI status:** $REPO_URL/actions/workflows/ci.yml"
+            echo "- **Status CI:** $REPO_URL/actions/workflows/ci.yml"
             echo
-            echo "Files to upload: \`$ZIP_NAME\` (code and documentation.pdf), the recording, the checklist."
+            echo "Pliki do przesłania: \`$ZIP_NAME\` (kod i dokumentacja.pdf), nagranie, lista kontrolna."
             echo
-            echo "- **Recording:** MP4, at most 100 MB, 5 to 7 minutes, the deployed app with the address bar"
-            echo "  visible, each requirement's code shown or said first (script: \`docs/recording.md\`)."
-            echo "- **Checklist:** \`checklist.md\` here; check every minute against the real recording."
+            echo "- **Nagranie:** MP4, do 100 MB, 5–7 minut, wdrożona aplikacja z widocznym paskiem adresu,"
+            echo "  przed każdym wymaganiem wyświetlony lub powiedziany jego kod (scenariusz: \`docs/recording.md\`)."
+            echo "- **Lista kontrolna:** \`lista-kontrolna.md\` obok; każdą minutę sprawdzić z prawdziwym nagraniem."
         fi
         echo
-        echo "Built from commit $(git rev-parse --short HEAD) on $(date +%F)."
-    } >"$out/form.md"
+        echo "Zbudowane z commita $(git rev-parse --short HEAD), $(date +%F)."
+    } >"$out/formularz.md"
 }
 
 # Not a failure: the package can be built before the deployment, but it should not be submitted then.
@@ -119,7 +121,7 @@ build_e2() {
     {
         cat <<'HTML'
     <!doctype html>
-    <html lang="en"><head><meta charset="utf-8"><title>Pomiary: documentation</title>
+    <html lang="pl"><head><meta charset="utf-8"><title>Pomiary: dokumentacja</title>
     <style>
       @page { size: A4; margin: 14mm 15mm; }
       body { font: 9.5pt/1.38 "DejaVu Sans", Arial, sans-serif; color: #111; }
@@ -143,12 +145,12 @@ HTML
     } >"$BUILD/documentation.html"
 
     "$CHROME" --headless=new --no-sandbox --disable-gpu --no-pdf-header-footer \
-        --print-to-pdf="$OUT/documentation.pdf" "file://$BUILD/documentation.html" 2>/dev/null
-    [ -s "$OUT/documentation.pdf" ] || { echo "FAIL: the PDF was not produced" >&2; exit 1; }
+        --print-to-pdf="$OUT/dokumentacja.pdf" "file://$BUILD/documentation.html" 2>/dev/null
+    [ -s "$OUT/dokumentacja.pdf" ] || { echo "FAIL: the PDF was not produced" >&2; exit 1; }
 
     local pages count size
-    pages="$(pdfinfo "$OUT/documentation.pdf" | awk '/^Pages:/ {print $2}')"
-    echo "documentation.pdf: $pages pages"
+    pages="$(pdfinfo "$OUT/dokumentacja.pdf" | awk '/^Pages:/ {print $2}')"
+    echo "dokumentacja.pdf: $pages pages"
     if [ "$pages" -gt "$MAX_PAGES" ]; then
         echo "FAIL: $pages pages, the specification allows at most $MAX_PAGES" >&2
         exit 1
@@ -175,7 +177,7 @@ HTML
     grep -q '^pomiary_generator/' "$list" || { echo "FAIL: no generator" >&2; exit 1; }
 
     zip -q "$OUT/$ZIP_NAME" -@ <"$list"
-    (cd "$OUT" && zip -q "$ZIP_NAME" documentation.pdf)
+    (cd "$OUT" && zip -q "$ZIP_NAME" dokumentacja.pdf)
 
     if unzip -Z1 "$OUT/$ZIP_NAME" | grep -q -E '(^|/)node_modules/'; then
         echo "FAIL: node_modules in the ZIP" >&2
@@ -186,7 +188,7 @@ HTML
     echo "$ZIP_NAME: $count files, $size"
     rm -rf "$BUILD"
     write_form e2 "$OUT"
-    cp docs/checklist.md "$OUT/checklist.md"
+    cp docs/checklist.md "$OUT/lista-kontrolna.md"
     echo "OK: $OUT"
 }
 

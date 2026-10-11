@@ -101,7 +101,7 @@ check:
 lighthouse url="http://localhost:8092":
     @./scripts/.internal/lighthouse.sh {{ url }}
 
-# The submission packages in .artifacts/submissions/{e1,e2}/: the forms' fields, and for E2 also documentation.pdf (at most 8 pages), the source ZIP and the checklist. `--stage e1|e2` builds one
+# The submission packages in .artifacts/submissions/{e1,e2}/: in Polish: the form's fields, and for E2 also dokumentacja.pdf (at most 8 pages), the source ZIP and the checklist. `--stage e1|e2` builds one
 [group('maintenance')]
 package *args:
     @./scripts/.internal/package.sh {{ args }}
