@@ -1,7 +1,8 @@
 # Database schema (ERD)
 
-PostgreSQL 17, created by `pomiary_server/pomiary_server/migrations/001_schema.sql` (the SQL
-script and the migration are the same file; later changes arrive as new numbered files). The
+PostgreSQL 17, created by `pomiary_server/pomiary_server/migrations/001_schema.sql` and
+`002_unique_names.sql` (the SQL scripts and the migrations are the same files; later changes arrive
+as new numbered files). The
 picture below is also rendered to [`erd.svg`](erd.svg) for the PDF documentation.
 
 ```mermaid
@@ -25,7 +26,7 @@ erDiagram
     }
     series {
         bigint id PK "identity"
-        text name "1..100 chars"
+        text name UK "1..100 chars, unique ignoring case"
         double_precision min_value "min_value < max_value"
         double_precision max_value
         text color "#RRGGBB"
@@ -35,7 +36,7 @@ erDiagram
     }
     sensors {
         bigint id PK "identity"
-        text name "1..100 chars"
+        text name UK "1..100 chars, unique ignoring case"
         bigint series_id FK "indexed"
         text api_key_hash UK "SHA-256 of the key"
         timestamptz created_at
@@ -64,10 +65,12 @@ a type name.)
   SHA-256 (hex) of the opaque Bearer token: the token itself is never stored. `expires_at` is
   checked on every request (index `sessions_expires_at_idx` serves the clean-up of expired rows
   done at login). Logout deletes the row, which revokes the token at once.
-- **`series`** — a measurement series: name (1–100 characters), the allowed range
+- **`series`** — a measurement series: name (1–100 characters, unique ignoring case and spaces
+  at the edges: index `series_name_unique` on `lower(btrim(name))`), the allowed range
   `[min_value, max_value]` (`CHECK min_value < max_value`), a colour `#RRGGBB` (`CHECK` with a
   regular expression), and the optional marker `icon` and `unit` (at most 20 characters).
-- **`sensors`** — a registered sensor, bound to exactly one series. `api_key_hash` is the
+- **`sensors`** — a registered sensor, bound to exactly one series. Its name is unique like a
+  series name (index `sensors_name_unique`). `api_key_hash` is the
   SHA-256 (hex) of its API key and is unique; the key is shown once, at registration.
   `last_measurement_at` is updated with every accepted measurement. Index
   `sensors_series_id_idx` serves "the sensors of a series".
