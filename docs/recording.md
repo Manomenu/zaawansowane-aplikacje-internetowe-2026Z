@@ -1,4 +1,4 @@
-# Recording script — the E2 video (target 6:45, limit 7:00)
+# Recording script — the E2 video (target 6:50, limit 7:00)
 
 The specification (`docs/spec/zai-projekt-26z.pdf`, "Zawartość zgłoszenia końcowego (E2)"):
 MP4 up to 100 MB, 5 to 7 minutes, the **deployed** application with the **address bar
@@ -47,6 +47,8 @@ title.
   font before the take, so the line is readable on video.
   Fallback if the cluster is not shown on camera: the generator's `REJECTED 422` line plus the
   response in Swagger, and one sentence that the rejection is logged (the documentation says so).
+- **B4/B5:** run `just package` before the take, the same build that is submitted, and open
+  `.artifacts/submissions/e2/dokumentacja.pdf` in a browser tab at section 4.
 - **Rehearse once** with a stopwatch. A backfill of 24 values takes a second or two; the live
   run `--count 8 --interval 3s` takes 24 s.
 - Export MP4 (H.264) and check the size (`ls -lh`, under 100 MB; 1080p at about 3 Mbit/s is
@@ -72,12 +74,13 @@ title.
 | 4:50 | 0:20 | **B2** (mobile) | Devtools device toolbar, width **360 px**: header and tabs, collapsed filters, chart and table without sideways scrolling, then the Sensors or Series tab (stacked lists). Close the toolbar. |
 | 5:10 | 0:10 | **B2** (print), **F7** | Ctrl+P: the print preview shows the chart and the table and **no controls** (filters, tabs, buttons hidden). Cancel. |
 | 5:20 | 0:40 | **B3** (T5) | Two elements. (a) **Sensor API keys** (T5.5): the key was shown only once in the dialog (2:35); `GET /api/sensors` returns no key (Swagger at `/api/docs`, or the Network tab); the code tab `sensors/store.py`: `create_sensor` generates `token_urlsafe(32)` and stores only `key_hash`, the SHA-256 (`api_key_hash UNIQUE`). Optional, only if rehearsed: `psql` on the production database, `SELECT name, left(api_key_hash, 16) FROM sensors;` shows hashes and no keys; otherwise show the code and `001_schema.sql` (the deployed database is in the cluster, nothing is run against it unrehearsed). (b) **Argon2id passwords and expiring opaque session tokens** (T5.1, T5.3): the code tab `auth/store.py`: `hasher`, `open_session` (`token_hash`, `expires_at`), `UNKNOWN_USER_HASH`; the login response has `expiresIn`. Say what each protects against: a stolen database copy; replay of a token. |
-| 6:00 | 0:20 | **X2** | Terminal: the Open-Meteo command (below), with the key of a sensor of a series (a seeded sensor's key, or a short-lived sensor registered before the take). Lines `201 ...` with real current values. Say: "real data from Open-Meteo, CC BY 4.0, attribution in the documentation". Code: `pomiary_generator/pomiary_generator/openmeteo.py`. |
-| 6:20 | 0:15 | **X3** | The GitHub Actions page: the green status of the last run on `master` (jobs `test`, `e2e`, `build`). |
-| 6:35 | 0:10 | n/a | One closing sentence: address, documentation PDF and archive are in the submission; X4 is not claimed. Stop. |
+| 6:00 | 0:15 | **X2** | Terminal: the Open-Meteo command (below), with the key of a sensor of a series (a seeded sensor's key, or a short-lived sensor registered before the take). Lines `201 ...` with real current values. Say: "real data from Open-Meteo, CC BY 4.0, attribution in the documentation". Code: `pomiary_generator/pomiary_generator/openmeteo.py`. |
+| 6:15 | 0:10 | **X3** | The GitHub Actions page: the green status of the last run on `master` (jobs `test`, `e2e`, `build`). |
+| 6:25 | 0:15 | **B4**, **B5** | Terminal: the archive listing (below) shows `docs/erd.svg`, both migrations `migrations/001_schema.sql` and `002_unique_names.sql`, and `dokumentacja.pdf` in the ZIP (B4). Then the PDF, already open: section 4 with the ERD diagram, and a quick scroll through the section headings 1–9 (B5: address, login, local run and generator, ERD, security, API extensions, AI, technologies, extensions). |
+| 6:40 | 0:10 | n/a | One closing sentence: the archive and the documentation are in the submission; X4 is not claimed. Stop. |
 
-Total 6:45, 15 s of reserve. If a take runs long, shorten F5 and X2 first, never the sensor
-cycle (2:35–4:50).
+Total 6:50, 10 s of reserve. If a take runs long, shorten F5 and X2 first, never the sensor
+cycle (2:35–4:50) or B4/B5 (their minute goes into the checklist).
 
 ## The full sensor cycle (all five steps are in the video)
 
@@ -103,6 +106,8 @@ python -m pomiary_generator send --count 1 --shape constant --min 120 --max 120
 python -m pomiary_generator send --count 1 --shape constant --min 50 --max 50
 # 6:00 X2, real data (POMIARY_API_KEY set to the key of a sensor of a series)
 python -m pomiary_generator send --source open-meteo --place warsaw --quantity air-temperature --count 6
+# 6:25 B4/B5, from the repository root: what the archive holds
+unzip -l .artifacts/submissions/e2/pomiary-zai-26z.zip | grep -E 'erd|migrations/|dokumentacja'
 ```
 
 ## After the take
