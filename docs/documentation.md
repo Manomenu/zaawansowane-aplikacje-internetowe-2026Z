@@ -152,7 +152,7 @@ z generatora). Szczegóły: `docs/erd.md`.
 
 Indeks `(series_id, measured_at)` na `measurements` obsługuje `GET /measurements?series=&from=&to=`
 (równość po serii, przeszukanie zakresu w czasie, wynik już posortowany). Hasła, tokeny sesji i
-klucze czujników są przechowywane wyłącznie w postaci skrótów.
+klucze czujników są przechowywane wyłącznie w postaci skrótów kryptograficznych.
 
 ## 5. Dwa elementy bezpieczeństwa (T5, B3)
 
@@ -165,20 +165,20 @@ klucze czujników są przechowywane wyłącznie w postaci skrótów.
   `POST /sensors` (pole `apiKey`), i jednorazowo pokazywany w aplikacji webowej (okno dialogowe z
   przyciskiem kopiowania); żadna trasa nie zwraca go ponownie.
 - **Gdzie.** `pomiary_server/pomiary_server/sensors/store.py`: `create_sensor` (generuje
-  klucz, zapisuje `key_hash(key)`), `key_hash`, `sensor_for_key` (wyszukuje czujnik po skrócie).
+  klucz, zapisuje `key_hash(key)`), `key_hash`, `sensor_for_key` (wyszukuje czujnik po skrócie kryptograficznym).
   `measurements/api.py`: `current_sensor`, zależność `POST /measurements`; seria jest
   brana z czujnika, nigdy z treści żądania, a sam token Bearer administratora daje 401.
   Web: `pomiary_web/src/sensors/KeyModal.tsx`.
-- **Chroni przed.** Skradzioną kopią bazy danych lub kopii zapasowej: skrótów nie da się
+- **Chroni przed.** Skradzioną kopią bazy danych lub kopii zapasowej: skrótów kryptograficznych nie da się
   zamienić z powrotem w klucze, więc nikt nie może wysyłać fałszywych pomiarów. 256-bitowego
-  losowego klucza nie da się odgadnąć ani wyliczyć, dlatego szybki skrót (SHA-256) tu wystarcza,
+  losowego klucza nie da się odgadnąć ani wyliczyć, dlatego szybki skrót kryptograficzny (SHA-256) tu wystarcza,
   inaczej niż w przypadku haseł. Wyrejestrowanie usuwa wiersz, więc klucz natychmiast przestaje
   działać (401); pomiary zostają z `sensor_id = NULL`.
 
 ### (b) Hasła z Argon2id i nieprzezroczyste tokeny sesji z wygasaniem (T5.1, T5.3)
 
 - **Co.** Hasła są haszowane Argon2id (`argon2-cffi`, domyślne parametry z RFC 9106,
-  losowa sól wewnątrz ciągu skrótu). Logowanie (`POST /auth/login`) zwraca nieprzezroczysty losowy
+  losowa sól zapisana razem ze skrótem kryptograficznym). Logowanie (`POST /auth/login`) zwraca nieprzezroczysty losowy
   token (`secrets.token_urlsafe(32)`) ważny przez `TOKEN_TTL_SECONDS` (domyślnie 3600 s, zwracane jako
   `expiresIn`); baza przechowuje tylko jego SHA-256 i czas wygaśnięcia. Każde chronione żądanie
   wyszukuje token z warunkiem `expires_at > now()`. Wylogowanie usuwa sesję; zmiana hasła
@@ -188,12 +188,13 @@ klucze czujników są przechowywane wyłącznie w postaci skrótów.
   `token_hash`, `admin_for_token`, `close_session`, `change_password`. `auth/api.py`:
   `current_admin` — zależność `CurrentAdmin`, którą deklaruje każda trasa modyfikująca.
 - **Chroni przed.**
-  - *Skradzioną kopią bazy:* hasła to solone, pamięciochłonne skróty Argon2id (kosztowne do
+  - *Skradzioną kopią bazy:* hasła to solone, pamięciochłonne skróty kryptograficzne Argon2id (kosztowne do
     złamania metodą siłową), a tokeny sesji są przechowywane tylko jako SHA-256, więc zrzut bazy nie
     daje żadnego użytecznego logowania.
-  - *Ponownym użyciem tokenu po wylogowaniu lub po długim czasie:* nieprzezroczysty token jest
-    unieważniany przez usunięcie jego wiersza, czego bezstanowy JWT nie potrafi bez listy
-    blokad; wygasa też sam.
+  - *Ponownym użyciem tokenu po wylogowaniu lub po upływie ważności:* wylogowanie usuwa wiersz
+    sesji, więc token przestaje działać od razu (bezstanowy JWT tego nie potrafi bez listy
+    blokad). Token, którego nikt nie wylogował, przestaje działać po `TOKEN_TTL_SECONDS`, bo każde
+    żądanie sprawdza `expires_at > now()`; wygasłe wiersze usuwa kolejne logowanie (`open_session`).
   - *Odgadywaniem, jakie nazwy użytkowników istnieją, na podstawie czasu odpowiedzi:* dla nieznanej
     nazwy serwer i tak weryfikuje hasło względem `UNKNOWN_USER_HASH`, więc „brak takiego użytkownika”
     kosztuje tyle samo co „złe hasło”, a odpowiedź jest ta sama, 401.
@@ -246,15 +247,20 @@ bramkę jakości); wszystko poniżej jest ponad nim.
 
 Wykorzystano asystentów AI, na co kurs zezwala:
 
-- **Claude Code** (Anthropic): model **Claude Opus 5.5** do planowania, decyzji projektowych,
-  przeglądu kodu i integracji oraz **Claude Sonnet 5.5** w podagentach, które realizowały
-  dobrze zdefiniowane kroki. Użyte do napisania serwera, aplikacji webowej, generatora danych, testów,
-  konfiguracji CI i wdrożenia oraz tej dokumentacji.
-- **suwgit** z lokalnym modelem językowym (Qwen) pisze komunikaty commitów.
+- **Claude Code** (Anthropic): model **Claude Opus 5.5** do planowania, przeglądu kodu i
+  integracji oraz **Claude Sonnet 5.5** w podagentach, które realizowały dobrze zdefiniowane
+  kroki. Użyte przy pisaniu serwera, aplikacji webowej, generatora danych, testów, konfiguracji
+  CI i wdrożenia oraz tej dokumentacji.
+- **suwgit** ([github.com/Manomenu/suwalski-git](https://github.com/Manomenu/suwalski-git)),
+  własne narzędzie autora: lokalny model językowy (Qwen) pisze w nim komunikaty commitów.
 
-Autor zlecał zadania, sprawdzał wyniki, uruchamiał kontrole i **odpowiada za cały
-oddany kod, w tym za jego poprawność i bezpieczeństwo**. Bramka jakości kodu (typy,
-lintery, testy jednostkowe, kontraktowe i w przeglądarce) jest uruchamiana przy każdej zmianie.
+Autor **podejmował decyzje projektowe** (architektura, wybór technologii, zasady pracy w
+repozytorium), **koordynował pracę** asystentów AI, zlecał im zadania i sprawdzał wyniki.
+**Przy każdej zmianie uruchamiał bramkę jakości kodu** (typy, lintery, testy jednostkowe,
+kontraktowe i w przeglądarce), sam lub zlecając to agentowi, a CI powtarza ją przy każdym pushu.
+**Weryfikował też pracę agentów:** sprawdzał, czy zmiany w kodzie są takie, jak deklarował agent,
+i ręcznie testował interfejs pod kątem zgodności z dokumentacją i z tymi deklaracjami. Autor **odpowiada za cały
+oddany kod, w tym za jego poprawność i bezpieczeństwo**.
 
 ### 7.1 Źródła kodu pochodzącego z zewnątrz
 
