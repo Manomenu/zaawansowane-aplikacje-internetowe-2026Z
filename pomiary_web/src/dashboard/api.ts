@@ -21,6 +21,8 @@ export interface MeasurementsQuery {
 }
 
 export function listMeasurements(query: MeasurementsQuery, signal: AbortSignal): Promise<Measurement[]> {
+    // No series, nothing to ask for: an empty `series=` is a malformed list, and the server answers 400.
+    if (query.seriesIds.length === 0) return Promise.resolve([]);
     const params = new URLSearchParams({
         series: query.seriesIds.join(","),
         from: query.from,
