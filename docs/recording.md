@@ -39,10 +39,12 @@ title.
   (`export POMIARY_API_KEY=<paste>`); it belongs to a throw-away sensor deleted in the same take.
 - **Where the rejection log shows (F4).** The server logs every rejected measurement as a
   `WARNING` (`measurements/store.py`: "measurement rejected: sensor ..., value ..."). On the
-  cluster that log is `kubectl logs`; prepare a second terminal pane (the Argo Application is
+  cluster that log is shown in **k9s**; prepare a second terminal pane (the Argo Application is
   `pomiary`, so the chart names the deployment `pomiary-server` in namespace `pomiary`):
-  `kubectl --kubeconfig ~/repos/suwalski-platform/kubeconfig -n pomiary logs deploy/pomiary-server --since=2m | grep "measurement rejected"`
-  (rehearse once after deployment: it must print a line after a rejection).
+  `k9s --kubeconfig ~/repos/suwalski-platform/kubeconfig -n pomiary -c deploy`, then select
+  `pomiary-server`, press `l` (logs) and type `/measurement rejected` + Enter to filter; `Esc` goes
+  back. Rehearse once after deployment: a line must appear after a rejection. Enlarge the terminal
+  font before the take, so the line is readable on video.
   Fallback if the cluster is not shown on camera: the generator's `REJECTED 422` line plus the
   response in Swagger, and one sentence that the rejection is logged (the documentation says so).
 - **Rehearse once** with a stopwatch. A backfill of 24 values takes a second or two; the live
