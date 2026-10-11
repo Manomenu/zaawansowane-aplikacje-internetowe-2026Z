@@ -129,16 +129,16 @@ python -m pomiary_generator seed --api http://localhost:8092 --days 30     # oko
 
 ![ERD](erd.svg)
 
-PostgreSQL, schemat w `pomiary_server/pomiary_server/migrations/001_schema.sql` (migracje to
+PostgreSQL, schemat w `pomiary_server/pomiary_server/migrations/001_schema.sql` i `002_unique_names.sql` (migracje to
 ponumerowane pliki SQL stosowane przy starcie i weryfikowane sumą kontrolną; dane przykładowe pochodzą
 z generatora). Szczegóły: `docs/erd.md`.
 
 - **`admins`** — konta; `username` unikalna, `password_hash` to Argon2id.
 - **`sessions`** — sesje logowania; kluczem jest `token_hash`, SHA-256 nieprzezroczystego tokenu;
   `expires_at` ogranicza jego czas życia.
-- **`series`** — nazwa, zakres `[min_value, max_value]` (`CHECK min_value < max_value`), kolor
+- **`series`** — nazwa (unikalna bez względu na wielkość liter), zakres `[min_value, max_value]` (`CHECK min_value < max_value`), kolor
   (`CHECK` `#RRGGBB`), opcjonalna `icon` (znacznik na wykresie) i `unit`.
-- **`sensors`** — zarejestrowany czujnik przypisany do jednej serii; `api_key_hash` to unikalny SHA-256
+- **`sensors`** — zarejestrowany czujnik przypisany do jednej serii, nazwa unikalna jak w serii; `api_key_hash` to unikalny SHA-256
   jego klucza; `last_measurement_at`.
 - **`measurements`** — `value`, `measured_at` (w API: `timestamp`), seria i, gdy znany,
   czujnik.
