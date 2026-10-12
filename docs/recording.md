@@ -4,7 +4,7 @@ Specyfikacja (`docs/spec/zai-projekt-26z.pdf`, "Zawartość zgłoszenia końcowe
 MP4 do 100 MB, od 5 do 7 minut, **wdrożona** aplikacja z **widocznym paskiem adresu**,
 wymagania po kolei (F1–F13, widok mobilny, podgląd wydruku, dwa elementy bezpieczeństwa,
 rozszerzenia), kod **powiedziany lub pokazany przed każdym wymaganiem** oraz pełny cykl
-czujnika. Ten plik to plan; minuty w `docs/checklist.md` pochodzą z niego i są poprawiane po
+czujnika. Ten plik to plan; minuty w `docs/submissions/lista-kontrolna-e2.md` pochodzą z niego i są poprawiane po
 nagraniu.
 
 Język: skrypt jest po polsku; język lektora wybiera właściciel. Kod mów na głos w języku
@@ -114,7 +114,7 @@ unzip -l .artifacts/submissions/e2/pomiary-zai-26z.zip | grep -E 'erd|migrations
 
 ## Po nagraniu
 
-Wpisz prawdziwe minuty do `docs/checklist.md`. Sprawdź, czy każdy kod został powiedziany lub
+Wpisz prawdziwe minuty do `docs/submissions/lista-kontrolna-e2.md`. Sprawdź, czy każdy kod został powiedziany lub
 pokazany **przed** swoim fragmentem, czy pasek adresu nigdy nie był ukryty, długość
 (5:00–7:00) i rozmiar pliku. Usuń serię "Demo temperature" i czujniki demonstracyjne z
 wdrożonej aplikacji, jeśli nadal tam są.
