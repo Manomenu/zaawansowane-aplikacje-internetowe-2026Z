@@ -63,7 +63,8 @@ server, never changed.
 - Everything in this repository — code, identifiers, docs, progress files — is English; only
   `docs/spec/` (the teacher's files) is Polish and is never edited. **One exception:** what the
   teacher reads at submission is Polish — `docs/documentation.md` (the PDF), `docs/checklist.md`
-  (the checklist) and the forms `package.sh` writes. Their file names and the script stay English.
+  (the checklist) and the forms `package.sh` writes — and so is `docs/recording.md`, the owner's
+  script for the Polish video. Their file names and the script stay English.
 
 ## 0. KISS & YAGNI — the first rule
 

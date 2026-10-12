@@ -1,33 +1,32 @@
-# Recording script — the E2 video (target 6:50, limit 7:00)
+# Skrypt nagrania — film E2 (cel 6:50, limit 7:00)
 
-The specification (`docs/spec/zai-projekt-26z.pdf`, "Zawartość zgłoszenia końcowego (E2)"):
-MP4 up to 100 MB, 5 to 7 minutes, the **deployed** application with the **address bar
-visible**, the requirements in order (F1–F13, mobile view, print preview, two security
-elements, extensions), the code **said or shown before each requirement**, and the full
-sensor cycle. This file is the plan; the minutes in `docs/checklist.md` come from it and are
-corrected after the take.
+Specyfikacja (`docs/spec/zai-projekt-26z.pdf`, "Zawartość zgłoszenia końcowego (E2)"):
+MP4 do 100 MB, od 5 do 7 minut, **wdrożona** aplikacja z **widocznym paskiem adresu**,
+wymagania po kolei (F1–F13, widok mobilny, podgląd wydruku, dwa elementy bezpieczeństwa,
+rozszerzenia), kod **powiedziany lub pokazany przed każdym wymaganiem** oraz pełny cykl
+czujnika. Ten plik to plan; minuty w `docs/checklist.md` pochodzą z niego i są poprawiane po
+nagraniu.
 
-Language: the script is English; the voice-over is the owner's choice. Say the code aloud in
-the voice-over language (for example Polish "F szóste" or "F6") **and** show it on screen: a
-large text file or sticky note with the next code in a corner of the capture, or the terminal
-title.
+Język: skrypt jest po polsku; język lektora wybiera właściciel. Kod mów na głos w języku
+lektora (na przykład po polsku "F szóste" albo "F6") **i** pokaż go na ekranie: duży plik
+tekstowy lub karteczka z następnym kodem w rogu nagrania albo tytuł terminala.
 
-## Before recording
+## Przed nagraniem
 
-- **Deployed and seeded.** `https://pomiary-lasy.gugnowski.com` answers over HTTPS, the 12
-  series have 30 days of values every 6 h (`pomiary_generator seed`), the administrator login
-  works. Run `just lighthouse https://pomiary-lasy.gugnowski.com` once beforehand (A5); it is
-  not part of the video.
-- **Screen:** one 1920×1080 capture. Browser on the left two thirds (address bar visible the
-  whole time, zoom 100 %), terminal on the right third (font 16–18 pt). Do not use browser
-  full-screen mode: it hides the address bar.
-- **Browser profile:** clean (no extensions, no bookmarks bar), light theme, **logged out**
-  (empty `sessionStorage`). Extra tabs, ready: the CI page
+- **Wdrożone i zasilone danymi.** `https://pomiary-lasy.gugnowski.com` odpowiada przez HTTPS,
+  12 serii ma po 30 dni wyników co 6 h (`pomiary_generator seed`), logowanie administratora
+  działa. Raz wcześniej uruchom `just lighthouse https://pomiary-lasy.gugnowski.com` (A5);
+  nie wchodzi to do filmu.
+- **Ekran:** jedno nagranie 1920×1080. Przeglądarka po lewej, dwie trzecie szerokości (pasek
+  adresu widoczny cały czas, zoom 100 %), terminal po prawej, jedna trzecia (czcionka
+  16–18 pt). Nie używaj trybu pełnoekranowego przeglądarki: ukrywa pasek adresu.
+- **Profil przeglądarki:** czysty (bez rozszerzeń, bez paska zakładek), jasny motyw,
+  **wylogowany** (pusty `sessionStorage`). Dodatkowe karty, gotowe: strona CI
   (`https://github.com/Manomenu/zaawansowane-aplikacje-internetowe-2026Z/actions/workflows/ci.yml`),
-  the GitHub file `pomiary_server/pomiary_server/sensors/store.py`, and `auth/store.py`.
-  Devtools closed.
-- **Terminal:** in `pomiary_generator/` (or the repository root with `uv run`), with the API
-  address set, so nothing secret is typed on screen:
+  plik na GitHubie `pomiary_server/pomiary_server/sensors/store.py` oraz `auth/store.py`.
+  Devtools zamknięte.
+- **Terminal:** w `pomiary_generator/` (albo w katalogu głównym repozytorium z `uv run`),
+  z ustawionym adresem API, żeby na ekranie nie wpisywać nic tajnego:
 
   ```sh
   export POMIARY_API=https://pomiary-lasy.gugnowski.com
@@ -35,84 +34,87 @@ title.
   clear
   ```
 
-  The key is pasted into the terminal from the web app's dialog during the take
-  (`export POMIARY_API_KEY=<paste>`); it belongs to a throw-away sensor deleted in the same take.
-- **Where the rejection log shows (F4).** The server logs every rejected measurement as a
-  `WARNING` (`measurements/store.py`: "measurement rejected: sensor ..., value ..."). On the
-  cluster that log is shown in **k9s**; prepare a second terminal pane (the Argo Application is
-  `pomiary`, so the chart names the deployment `pomiary-server` in namespace `pomiary`):
-  `k9s --kubeconfig ~/repos/suwalski-platform/kubeconfig -n pomiary -c deploy`, then select
-  `pomiary-server`, press `l` (logs) and type `/measurement rejected` + Enter to filter; `Esc` goes
-  back. Rehearse once after deployment: a line must appear after a rejection. Enlarge the terminal
-  font before the take, so the line is readable on video.
-  Fallback if the cluster is not shown on camera: the generator's `REJECTED 422` line plus the
-  response in Swagger, and one sentence that the rejection is logged (the documentation says so).
-- **B4/B5:** run `just package` before the take, the same build that is submitted, and open
-  `.artifacts/submissions/e2/dokumentacja.pdf` in a browser tab at section 4.
-- **Rehearse once** with a stopwatch. A backfill of 24 values takes a second or two; the live
-  run `--count 8 --interval 3s` takes 24 s.
-- Export MP4 (H.264) and check the size (`ls -lh`, under 100 MB; 1080p at about 3 Mbit/s is
-  about 150 MB per hour, so 7 minutes is about 20 MB).
+  Klucz wklejasz do terminala z okna dialogowego aplikacji webowej w trakcie nagrania
+  (`export POMIARY_API_KEY=<paste>`); należy do tymczasowego czujnika usuwanego w tym samym
+  nagraniu.
+- **Gdzie widać log odrzucenia (F4).** Serwer loguje każdy odrzucony wynik jako `WARNING`
+  (`measurements/store.py`: "measurement rejected: sensor ..., value ..."). Na klastrze ten
+  log pokazuje **k9s**; przygotuj drugi panel terminala (aplikacja Argo to `pomiary`, więc
+  chart nazywa deployment `pomiary-server` w przestrzeni nazw `pomiary`):
+  `k9s --kubeconfig ~/repos/suwalski-platform/kubeconfig -n pomiary -c deploy`, potem wybierz
+  `pomiary-server`, naciśnij `l` (logi) i wpisz `/measurement rejected` + Enter, żeby
+  filtrować; `Esc` wraca. Przećwicz raz po wdrożeniu: po odrzuceniu musi pojawić się linia.
+  Przed nagraniem powiększ czcionkę terminala, żeby linia była czytelna na filmie.
+  Plan awaryjny, jeśli klaster nie jest pokazywany na nagraniu: linia `REJECTED 422` z
+  generatora danych plus odpowiedź w Swaggerze i jedno zdanie, że odrzucenie jest logowane
+  (mówi o tym dokumentacja).
+- **B4/B5:** uruchom `just package` przed nagraniem, tym samym buildem, który jest
+  zgłaszany, i otwórz `.artifacts/submissions/e2/dokumentacja.pdf` w karcie przeglądarki na
+  sekcji 4.
+- **Przećwicz raz** ze stoperem. Uzupełnienie 24 wyników zajmuje sekundę lub dwie; uruchomienie
+  na żywo `--count 8 --interval 3s` trwa 24 s.
+- Wyeksportuj MP4 (H.264) i sprawdź rozmiar (`ls -lh`, poniżej 100 MB; 1080p przy około
+  3 Mbit/s to około 150 MB na godzinę, więc 7 minut to około 20 MB).
 
-## Timeline
+## Plan czasowy
 
-| Start | Len | Code(s) | What is shown and said |
+| Start | Czas | Kod(y) | Co pokazać i powiedzieć |
 | --- | --- | --- | --- |
-| 0:00 | 0:20 | n/a | Address bar and the app, logged out. "Pomiary, ZAI 26Z, the deployed app at pomiary-lasy.gugnowski.com, the code on GitHub." Say what comes next. |
-| 0:20 | 0:15 | **F11** | Data tab: the sample data loaded by the generator. Show at least three series with well over 15 points each (all 12: 3 places × 4 quantities, 30 days, a value every 6 h: 120 each). |
-| 0:35 | 0:15 | **F2** | One column per series in the table, one curve per series on the chart, colour **and** marker shape (a series is not told apart by colour alone, T6). |
-| 0:50 | 0:15 | **F3** | Still logged out: the reader role. No admin tabs, no way to edit a result. Say: "nobody edits results in the interface". |
-| 1:05 | 0:25 | **F5** | Filters: a preset (24 h), a custom From/To range, untick one series (its curve and column disappear), tick it back. |
-| 1:30 | 0:15 | **F6** | Click a table row: the point is highlighted on the chart (Enter works from the keyboard too). |
-| 1:45 | 0:30 | **F8**, **F9** | Log in: first a wrong password (the server's error under the form), then the right one with **Enter**, with the loading state on the button. Account tab: change the password (a validation error first, then a valid change to the same password, so the graded login stays unchanged), log out and in again. |
-| 2:15 | 0:20 | **F2**, **F4** (form) | Series tab: create "Demo temperature", unit °C, range 0–100, colour and marker. First min 100 and max 0: the form refuses before sending (F4 in the form), then the valid values. The series appears. |
-| 2:35 | 0:25 | **F12** | Sensors tab, "Register a sensor": name "Demo sensor", series "Demo temperature". The dialog "Sensor registered" shows the key **once**: copy it. In the terminal: `export POMIARY_API_KEY=<paste>` (the sensor is deleted at 4:25). |
-| 3:00 | 0:30 | **F13**, **F1** | Terminal: the backfill command (below), 24 lines `201 ...`. Browser, Data tab, "Demo temperature" ticked, filter 24 h: the 24 points are on the chart and in the table. Say F1: a result is a number, a time and a series, and it came only from a sensor through the API. |
-| 3:30 | 0:25 | **X1** | Chart visible beside the terminal, preset **15 min** (the axis then fits the last minutes, so the new points are wide enough to see). The live command: a new point appears every second **without reloading the page** (SSE live stream), a full up-and-down wave every 20 s. |
-| 3:55 | 0:30 | **F4** | The out-of-range command: `REJECTED 422: value 120 is outside the series range [0, 100]`. Then the server log pane: the `measurement rejected` WARNING line. The chart is unchanged. |
-| 4:25 | 0:25 | **F12** | Sensors tab: "Unregister Demo sensor", confirm; the row disappears. Terminal, the same key, the last command below: **401**, the run stops, the unregistered sensor is refused. (Old measurements stay; delete "Demo temperature" afterwards, off camera or quickly.) |
-| 4:50 | 0:20 | **B2** (mobile) | Devtools device toolbar, width **360 px**: header and tabs, collapsed filters, chart and table without sideways scrolling, then the Sensors or Series tab (stacked lists). Close the toolbar. |
-| 5:10 | 0:10 | **B2** (print), **F7** | Ctrl+P: the print preview shows the chart and the table and **no controls** (filters, tabs, buttons hidden). Cancel. |
-| 5:20 | 0:40 | **B3** (T5) | Two elements. (a) **Sensor API keys** (T5.5): the key was shown only once in the dialog (2:35); `GET /api/sensors` returns no key (Swagger at `/api/docs`, or the Network tab); the code tab `sensors/store.py`: `create_sensor` generates `token_urlsafe(32)` and stores only `key_hash`, the SHA-256 (`api_key_hash UNIQUE`). Optional, only if rehearsed: `psql` on the production database, `SELECT name, left(api_key_hash, 16) FROM sensors;` shows hashes and no keys; otherwise show the code and `001_schema.sql` (the deployed database is in the cluster, nothing is run against it unrehearsed). (b) **Argon2id passwords and expiring opaque session tokens** (T5.1, T5.3): the code tab `auth/store.py`: `hasher`, `open_session` (`token_hash`, `expires_at`), `UNKNOWN_USER_HASH`; the login response has `expiresIn`. Say what each protects against: a stolen database copy; replay of a token. |
-| 6:00 | 0:15 | **X2** | Terminal: the Open-Meteo command (below), with the key of a sensor of a series (a seeded sensor's key, or a short-lived sensor registered before the take). Lines `201 ...` with real current values. Say: "real data from Open-Meteo, CC BY 4.0, attribution in the documentation". Code: `pomiary_generator/pomiary_generator/openmeteo.py`. |
-| 6:15 | 0:10 | **X3** | The GitHub Actions page: the green status of the last run on `master` (jobs `test`, `e2e`, `build`). |
-| 6:25 | 0:15 | **B4**, **B5** | Terminal: the archive listing (below) shows `docs/erd.svg`, both migrations `migrations/001_schema.sql` and `002_unique_names.sql`, and `dokumentacja.pdf` in the ZIP (B4). Then the PDF, already open: section 4 with the ERD diagram, and a quick scroll through the section headings 1–9 (B5: address, login, local run and generator, ERD, security, API extensions, AI, technologies, extensions). |
-| 6:40 | 0:10 | n/a | One closing sentence: the archive and the documentation are in the submission; X4 is not claimed. Stop. |
+| 0:00 | 0:20 | n/a | Pasek adresu i aplikacja, wylogowany. "Pomiary, ZAI 26Z, wdrożona aplikacja pod pomiary-lasy.gugnowski.com, kod na GitHubie." Powiedz, co będzie dalej. |
+| 0:20 | 0:15 | **F11** | Zakładka Data: przykładowe dane wczytane przez generator danych. Pokaż co najmniej trzy serie z wyraźnie ponad 15 punktami każda (wszystkie 12: 3 miejsca × 4 wielkości, 30 dni, wynik co 6 h: po 120 na serię). |
+| 0:35 | 0:15 | **F2** | Jedna kolumna na serię w tabeli, jedna krzywa na serię na wykresie, kolor **i** kształt znacznika (serii nie rozróżnia się samym kolorem, T6). |
+| 0:50 | 0:15 | **F3** | Nadal wylogowany: rola czytelnika. Brak zakładek administratora, brak możliwości edycji wyniku. Powiedz: "nikt nie edytuje wyników w interfejsie". |
+| 1:05 | 0:25 | **F5** | Filtry: preset (24 h), własny zakres From/To, odznacz jedną serię (jej krzywa i kolumna znikają), zaznacz ją z powrotem. |
+| 1:30 | 0:15 | **F6** | Kliknij wiersz tabeli: punkt jest podświetlony na wykresie (Enter działa też z klawiatury). |
+| 1:45 | 0:30 | **F8**, **F9** | Zaloguj się: najpierw złe hasło (błąd serwera pod formularzem), potem właściwe z **Enter**, ze stanem ładowania na przycisku. Zakładka Account: zmień hasło (najpierw błąd walidacji, potem poprawna zmiana na to samo hasło, żeby hasło sprawdzane przez prowadzącego pozostało bez zmian), wyloguj się i zaloguj ponownie. |
+| 2:15 | 0:20 | **F2**, **F4** (form) | Zakładka Series: utwórz "Demo temperature", jednostka °C, zakres 0–100, kolor i znacznik. Najpierw min 100 i max 0: formularz odmawia przed wysłaniem (F4 w formularzu), potem poprawne wartości. Seria się pojawia. |
+| 2:35 | 0:25 | **F12** | Zakładka Sensors, "Register a sensor": nazwa "Demo sensor", seria "Demo temperature". Okno "Sensor registered" pokazuje klucz **tylko raz**: skopiuj go. W terminalu: `export POMIARY_API_KEY=<paste>` (czujnik jest usuwany o 4:25). |
+| 3:00 | 0:30 | **F13**, **F1** | Terminal: polecenie uzupełnienia danych (poniżej), 24 linie `201 ...`. Przeglądarka, zakładka Data, zaznaczone "Demo temperature", filtr 24 h: 24 punkty są na wykresie i w tabeli. Powiedz o F1: wynik to liczba, czas i seria, i pochodzi wyłącznie z czujnika przez API. |
+| 3:30 | 0:25 | **X1** | Wykres widoczny obok terminala, preset **15 min** (oś obejmuje wtedy ostatnie minuty, więc nowe punkty są dość szeroko rozstawione, by je zobaczyć). Polecenie na żywo: nowy punkt pojawia się co sekundę **bez przeładowania strony** (strumień SSE na żywo), pełna fala w górę i w dół co 20 s. |
+| 3:55 | 0:30 | **F4** | Polecenie z wartością spoza zakresu: `REJECTED 422: value 120 is outside the series range [0, 100]`. Potem panel z logiem serwera: linia WARNING `measurement rejected`. Wykres bez zmian. |
+| 4:25 | 0:25 | **F12** | Zakładka Sensors: "Unregister Demo sensor", potwierdź; wiersz znika. Terminal, ten sam klucz, ostatnie polecenie poniżej: **401**, uruchomienie się zatrzymuje, wyrejestrowany czujnik zostaje odrzucony. (Stare wyniki zostają; usuń "Demo temperature" potem, poza kadrem lub szybko.) |
+| 4:50 | 0:20 | **B2** (mobile) | Pasek urządzeń w devtools, szerokość **360 px**: nagłówek i zakładki, zwinięte filtry, wykres i tabela bez przewijania w poziomie, potem zakładka Sensors lub Series (listy ułożone w stos). Zamknij pasek. |
+| 5:10 | 0:10 | **B2** (print), **F7** | Ctrl+P: podgląd wydruku pokazuje wykres i tabelę oraz **brak elementów sterujących** (filtry, zakładki, przyciski ukryte). Anuluj. |
+| 5:20 | 0:40 | **B3** (T5) | Dwa elementy. (a) **Klucze API czujników** (T5.5): klucz był pokazany tylko raz w oknie (2:35); `GET /api/sensors` nie zwraca klucza (Swagger pod `/api/docs` albo karta Network); karta z kodem `sensors/store.py`: `create_sensor` generuje `token_urlsafe(32)` i zapisuje tylko `key_hash`, czyli SHA-256 (`api_key_hash UNIQUE`). Opcjonalnie, tylko jeśli przećwiczone: `psql` na produkcyjnej bazie, `SELECT name, left(api_key_hash, 16) FROM sensors;` pokazuje hashe, a nie klucze; w przeciwnym razie pokaż kod i `001_schema.sql` (wdrożona baza jest w klastrze, nic nieprzećwiczonego się na niej nie uruchamia). (b) **Hasła Argon2id i wygasające nieprzejrzyste tokeny sesji** (T5.1, T5.3): karta z kodem `auth/store.py`: `hasher`, `open_session` (`token_hash`, `expires_at`), `UNKNOWN_USER_HASH`; odpowiedź logowania zawiera `expiresIn`. Powiedz, przed czym każdy element chroni: przed kopią skradzionej bazy; przed odtworzeniem tokenu. |
+| 6:00 | 0:15 | **X2** | Terminal: polecenie Open-Meteo (poniżej), z kluczem czujnika serii (klucz czujnika z danych początkowych albo krótkotrwałego czujnika zarejestrowanego przed nagraniem). Linie `201 ...` z prawdziwymi aktualnymi wartościami. Powiedz: "prawdziwe dane z Open-Meteo, CC BY 4.0, atrybucja w dokumentacji". Kod: `pomiary_generator/pomiary_generator/openmeteo.py`. |
+| 6:15 | 0:10 | **X3** | Strona GitHub Actions: zielony status ostatniego przebiegu na `master` (zadania `test`, `e2e`, `build`). |
+| 6:25 | 0:15 | **B4**, **B5** | Terminal: lista zawartości archiwum (poniżej) pokazuje `docs/erd.svg`, obie migracje `migrations/001_schema.sql` i `002_unique_names.sql` oraz `dokumentacja.pdf` w ZIP-ie (B4). Potem PDF, już otwarty: sekcja 4 z diagramem ERD i szybkie przewinięcie nagłówków sekcji 1–9 (B5: adres, logowanie, uruchomienie lokalne i generator danych, ERD, bezpieczeństwo, rozszerzenia API, AI, technologie, rozszerzenia). |
+| 6:40 | 0:10 | n/a | Jedno zdanie na zakończenie: archiwum i dokumentacja są w zgłoszeniu; X4 nie jest zgłaszane. Stop. |
 
-Total 6:50, 10 s of reserve. If a take runs long, shorten F5 and X2 first, never the sensor
-cycle (2:35–4:50) or B4/B5 (their minute goes into the checklist).
+Razem 6:50, 10 s zapasu. Jeśli nagranie się wydłuża, skracaj najpierw F5 i X2, nigdy pełnego
+cyklu czujnika (2:35–4:50) ani B4/B5 (ich minuta trafia do listy kontrolnej).
 
-## The full sensor cycle (all five steps are in the video)
+## Pełny cykl czujnika (wszystkie pięć kroków jest w nagraniu)
 
-1. register a sensor in the app: 2:35 (F12);
-2. put its key into the generator: 2:35–3:00 (`POMIARY_API_KEY`);
-3. send values and see them on the chart: 3:00 and 3:30 (F13, F1, X1);
-4. an out-of-range value is rejected: 3:55 (F4: the generator's message and the server log);
-5. unregister, and the generator's next send is refused with 401: 4:25 (F12).
+1. zarejestruj czujnik w aplikacji: 2:35 (F12);
+2. wstaw jego klucz do generatora danych: 2:35–3:00 (`POMIARY_API_KEY`);
+3. wyślij wyniki i zobacz je na wykresie: 3:00 i 3:30 (F13, F1, X1);
+4. wynik spoza zakresu zostaje odrzucony: 3:55 (F4: komunikat generatora i log serwera);
+5. wyrejestruj czujnik, a następna wysyłka z generatora zostaje odrzucona z 401: 4:25 (F12).
 
-## Commands to paste (in order)
+## Polecenia do wklejenia (po kolei)
 
 ```sh
 export POMIARY_API=https://pomiary-lasy.gugnowski.com
 export POMIARY_API_KEY=<paste the key from the dialog>
 
-# 3:00 backfill, 24 hourly values
+# 3:00 uzupełnienie danych, 24 wyniki co godzinę
 python -m pomiary_generator send --count 24 --step 1h --shape sine --min 20 --max 80 --noise 2 --seed 1
-# 3:30 live, one value per second; a 20 s sine period (max to min in 10 s), so 25 s show more than a full wave
+# 3:30 na żywo, jeden wynik na sekundę; okres sinusa 20 s (od maksimum do minimum w 10 s), więc 25 s pokazuje więcej niż pełną falę
 python -m pomiary_generator send --interval 1s --count 25 --shape sine --min 10 --max 90 --period 20s
-# 3:55 out of range (the series allows 0..100)
+# 3:55 poza zakresem (seria dopuszcza 0..100)
 python -m pomiary_generator send --count 1 --shape constant --min 120 --max 120
-# 4:25 after unregistering in the app: 401
+# 4:25 po wyrejestrowaniu w aplikacji: 401
 python -m pomiary_generator send --count 1 --shape constant --min 50 --max 50
-# 6:00 X2, real data (POMIARY_API_KEY set to the key of a sensor of a series)
+# 6:00 X2, prawdziwe dane (POMIARY_API_KEY ustawiony na klucz czujnika serii)
 python -m pomiary_generator send --source open-meteo --place warsaw --quantity air-temperature --count 6
-# 6:25 B4/B5, from the repository root: what the archive holds
+# 6:25 B4/B5, z katalogu głównego repozytorium: co zawiera archiwum
 unzip -l .artifacts/submissions/e2/pomiary-zai-26z.zip | grep -E 'erd|migrations/|dokumentacja'
 ```
 
-## After the take
+## Po nagraniu
 
-Fill the real minutes into `docs/checklist.md`. Check that every code was said or shown
-**before** its segment, that the address bar was never hidden, the length (5:00–7:00) and the
-file size. Remove the "Demo temperature" series and the demo sensors from the deployed
-application if they are still there.
+Wpisz prawdziwe minuty do `docs/checklist.md`. Sprawdź, czy każdy kod został powiedziany lub
+pokazany **przed** swoim fragmentem, czy pasek adresu nigdy nie był ukryty, długość
+(5:00–7:00) i rozmiar pliku. Usuń serię "Demo temperature" i czujniki demonstracyjne z
+wdrożonej aplikacji, jeśli nadal tam są.
