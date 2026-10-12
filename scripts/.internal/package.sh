@@ -137,9 +137,15 @@ open(sys.argv[2], "w", encoding="utf-8").write(text)
     {
         cat <<'HTML'
     <!doctype html>
-    <html lang="pl"><head><meta charset="utf-8"><title>Pomiary: dokumentacja</title>
+    <html lang="pl"><head><meta charset="utf-8"><title>Pomiary — dokumentacja projektu (Piotr Gugnowski)</title>
     <style>
-      @page { size: A4; margin: 14mm 15mm; }
+      @page { size: A4; margin: 14mm 15mm 16mm;
+        @bottom-left { content: "Pomiary — dokumentacja projektu, ZAI 2026Z"; font: 8pt "DejaVu Sans", Arial, sans-serif; color: #555; }
+        @bottom-right { content: "strona " counter(page) " z " counter(pages); font: 8pt "DejaVu Sans", Arial, sans-serif; color: #555; } }
+      .doc-meta { margin: 4pt 0 10pt; }
+      .doc-meta table { width: auto; }
+      thead:not(:has(th:not(:empty))) { display: none; }  /* a Markdown key-value table: no header */
+      .doc-meta td:first-child { font-weight: 600; padding-right: 12pt; }
       body { font: 9.5pt/1.38 "DejaVu Sans", Arial, sans-serif; color: #111; }
       h1 { font-size: 16pt; margin: 0 0 6pt; }
       h2 { font-size: 12.5pt; margin: 12pt 0 4pt; border-bottom: 1px solid #999; }

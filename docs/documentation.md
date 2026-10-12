@@ -1,13 +1,27 @@
-# Pomiary — warunki w lasach: dokumentacja (ZAI 26Z, oddanie końcowe E2)
+<!-- The source of dokumentacja.pdf (at most 8 pages), built by `just package`. The ERD picture is
+docs/erd.svg, its longer description docs/erd.md. The admin login in section 2 is filled in from the
+platform's secrets file when the PDF is built; the repository keeps only the placeholders. -->
+
+# Pomiary — warunki w lasach
+
+<div class="doc-meta">
+
+**Dokumentacja projektu, etap E2**
+
+| | |
+| --- | --- |
+| Autor | Piotr Gugnowski |
+| Nr indeksu | 320690 |
+| Przedmiot | Zaawansowane aplikacje internetowe (2026Z) |
+| Data | 13 października 2026 |
+
+</div>
 
 Aplikacja zbierająca i prezentująca serie pomiarowe z czujników: opady, temperaturę powietrza
 i gleby oraz wilgotność gleby w trzech miejscach w pobliżu lasów (Warszawa, Suwałki, Chełm) —
 12 serii, wartości co 6 godzin. Czujniki są emulowane przez generator danych, który czyta
 [Open-Meteo](https://open-meteo.com/) (Weather data by Open-Meteo.com, CC BY 4.0) albo tworzy
 syntetyczną krzywą, i wysyła wyniki przez API tak jak każdy czujnik.
-
-> Źródło pliku PDF (maksymalnie 8 stron). Obraz ERD to `docs/erd.svg`; dłuższy opis ERD to
-> `docs/erd.md`. Dane logowania w sekcji 2 są wstawiane podczas budowania PDF.
 
 ## 1. Adres aplikacji i repozytorium
 
@@ -29,8 +43,7 @@ syntetyczną krzywą, i wysyła wyniki przez API tak jak każdy czujnik.
 | Nazwa użytkownika | `{{ADMIN_USERNAME}}` |
 | Hasło | `{{ADMIN_PASSWORD}}` |
 
-Wartości są wstawiane podczas budowania PDF (`just package`, z pliku sekretów platformy); w repozytorium
-nie ma hasła. Konto działa do czasu wystawienia oceny.
+Konto działa do czasu wystawienia oceny.
 
 ## 3. Uruchomienie lokalne
 
