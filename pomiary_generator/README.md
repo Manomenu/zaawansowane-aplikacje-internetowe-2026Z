@@ -112,7 +112,7 @@ use, below 10 000 calls per day. The generator makes one call per `send` run wit
 Prepares the application through the API: logs in as the administrator, **deletes the old sample series**
 and creates the 12 series (3 places × 4 quantities, ranges as in `docs/design.md`; colour tells the place apart and the
 marker `circle`/`square`/`triangle`/`diamond` the quantity, registers one sensor per series (`open-meteo/<place>/<quantity>`) and fills it with
-`--days` of hourly values sent with that sensor's key.
+`--days` of values, one every `--step` (default 6 h), sent with that sensor's key.
 
 ```sh
 export POMIARY_ADMIN_USER=admin POMIARY_ADMIN_PASSWORD=...
@@ -136,12 +136,14 @@ appended and override: `just seed --source synthetic`, or for production
 | Parameter | Meaning |
 | --- | --- |
 | `--api`, `--user`, `--password` | API address and administrator (envs above) |
-| `--days 30` | days of hourly values per series |
+| `--days 30` | days of values per series |
+| `--step 6h` | time between values, whole hours (the source is hourly; every 6th hour, counted back from the newest). `1h` sends every value |
 | `--source open-meteo` (default) / `synthetic` | the fallback makes a daily sine wave (random for precipitation) |
 
 The sensors' keys are printed **once**, at the end; the generator stores them nowhere. Copy
-the ones you need for `send`. A full run is about 8 600
-requests (30 days × 24 h × 12 series).
+the ones you need for `send`. A full run is 1 440 requests (30 days × 4 a day × 12 series),
+about 5 minutes against the deployed app. The newest value decides how long the samples stay in
+the Data tab's default 90-day view: about 90 days after the run.
 
 ## Tests
 
