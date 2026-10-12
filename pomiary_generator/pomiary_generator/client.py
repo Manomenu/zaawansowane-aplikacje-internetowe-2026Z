@@ -11,6 +11,9 @@ from pomiary_generator.jsonutil import as_dict, as_list
 from pomiary_generator.timeparse import format_instant
 
 TIMEOUT_SECONDS = 15
+# Sent with every request. Cloudflare in front of the deployed app refuses urllib's default
+# "Python-urllib/3.x" (403, "browser's signature"); a client that names itself passes.
+USER_AGENT = "pomiary-generator/0.1 (+https://github.com/Manomenu/zaawansowane-aplikacje-internetowe-2026Z)"
 
 Kind = Literal["ok", "rejected", "unauthorized", "network", "failed"]
 
@@ -36,7 +39,7 @@ class Outcome:
 
 def _request(method: str, url: str, headers: dict[str, str], payload: object | None = None) -> Reply:
     data = None if payload is None else json.dumps(payload).encode()
-    all_headers = {"Accept": "application/json", **headers}
+    all_headers = {"Accept": "application/json", "User-Agent": USER_AGENT, **headers}
     if data is not None:
         all_headers["Content-Type"] = "application/json"
     request = urllib.request.Request(url, data=data, headers=all_headers, method=method)  # noqa: S310  (http/https from the CLI)

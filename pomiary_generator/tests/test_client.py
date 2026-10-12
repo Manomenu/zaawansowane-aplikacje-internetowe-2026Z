@@ -2,7 +2,7 @@ import socket
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
-from pomiary_generator.client import Api, problem_message
+from pomiary_generator.client import USER_AGENT, Api, problem_message
 from pomiary_generator.send import Stats, deliver, run_backfill, run_live
 
 Fake = tuple[Any, str]
@@ -21,6 +21,15 @@ def test_created_value_is_sent_with_key_and_timestamp(fake: Fake) -> None:
     method, path, headers, body = state.requests[-1]
     assert (method, path, headers["X-Api-Key"]) == ("POST", "/api/measurements", "good-key")
     assert body == {"value": 12.3, "timestamp": "2026-10-09T10:00:00Z"}
+
+
+def test_every_request_names_the_generator(fake: Fake) -> None:
+    # Cloudflare in front of the deployed app answers 403 to urllib's default user agent.
+    state, url = fake
+    make_series(state)
+    Api(url).send_measurement("good-key", 1.0, None)
+    assert state.requests[-1][2]["User-Agent"] == USER_AGENT
+    assert USER_AGENT.startswith("pomiary-generator/")
 
 
 def test_live_value_has_no_timestamp(fake: Fake) -> None:
