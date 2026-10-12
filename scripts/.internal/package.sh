@@ -118,6 +118,22 @@ build_e2() {
 
     # --- the PDF: Markdown -> HTML -> headless Chromium -------------------------------------
     cp docs/erd.svg "$BUILD/erd.svg"
+    # The repository's file carries placeholders; the PDF gets the real account (the ZIP keeps the placeholders).
+    if grep -q 'TODO' docs/documentation.md; then
+        echo "FAIL: docs/documentation.md still contains TODO" >&2
+        exit 1
+    fi
+    ADMIN_USERNAME="$ADMIN_USERNAME" ADMIN_PASSWORD="$ADMIN_PASSWORD" python3 -c '
+import os, sys
+text = open(sys.argv[1], encoding="utf-8").read()
+for key in ("ADMIN_USERNAME", "ADMIN_PASSWORD"):
+    text = text.replace("{{" + key + "}}", os.environ[key])
+open(sys.argv[2], "w", encoding="utf-8").write(text)
+' docs/documentation.md "$BUILD/documentation.md"
+    if grep -q '{{' "$BUILD/documentation.md"; then
+        echo "FAIL: an unfilled {{placeholder}} remains in docs/documentation.md" >&2
+        exit 1
+    fi
     {
         cat <<'HTML'
     <!doctype html>
@@ -140,7 +156,7 @@ build_e2() {
       tr, pre, img { break-inside: avoid; }
     </style></head><body>
 HTML
-        npx --yes marked@15.0.12 -i docs/documentation.md --gfm
+        npx --yes marked@15.0.12 -i "$BUILD/documentation.md" --gfm
         echo '</body></html>'
     } >"$BUILD/documentation.html"
 

@@ -7,12 +7,12 @@ i gleby oraz wilgotność gleby w trzech miejscach w pobliżu lasów (Warszawa, 
 syntetyczną krzywą, i wysyła wyniki przez API tak jak każdy czujnik.
 
 > Źródło pliku PDF (maksymalnie 8 stron). Obraz ERD to `docs/erd.svg`; dłuższy opis ERD to
-> `docs/erd.md`. Pozycje oznaczone TODO zostaną uzupełnione w chwili oddania.
+> `docs/erd.md`. Dane logowania w sekcji 2 są wstawiane podczas budowania PDF.
 
 ## 1. Adres aplikacji i repozytorium
 
 - Aplikacja i API (jeden host, API pod `/api`): https://pomiary-lasy.gugnowski.com
-  — **TODO przed oddaniem: potwierdzić, że jest wdrożona i dostępna** (podać tu z datą).
+  — aplikacja jest wdrożona i dostępna (stan na 2026-10-12).
   Aplikacja działa na własnym klastrze Kubernetes autora za tunelem Cloudflare (HTTPS), nie na
   darmowym planie, więc nie jest usypiana po okresie bezczynności i nie ma zimnego startu, o którym
   trzeba by wspominać.
@@ -26,8 +26,11 @@ syntetyczną krzywą, i wysyła wyniki przez API tak jak każdy czujnik.
 
 | | |
 | --- | --- |
-| Nazwa użytkownika | **TODO przed oddaniem** |
-| Hasło | **TODO przed oddaniem** (podawane tylko w formularzu oddania; nigdy nie przechowywane w repozytorium) |
+| Nazwa użytkownika | `{{ADMIN_USERNAME}}` |
+| Hasło | `{{ADMIN_PASSWORD}}` |
+
+Wartości są wstawiane podczas budowania PDF (`just package`, z pliku sekretów platformy); w repozytorium
+nie ma hasła. Konto działa do czasu wystawienia oceny.
 
 ## 3. Uruchomienie lokalne
 
@@ -310,4 +313,4 @@ wymagań:
 - **X2 generator z prawdziwymi danymi:** `--source open-meteo` (sekcja 3.3), kod w
   `pomiary_generator/`; atrybucja w stopce strony i w README.
 - **X3 testy w CI:** `.github/workflows/ci.yml` uruchamia bramkę jakości, testy w przeglądarce, a
-  następnie buduje obrazy (status: **TODO link**).
+  następnie buduje obrazy (status: https://github.com/Manomenu/zaawansowane-aplikacje-internetowe-2026Z/actions/workflows/ci.yml).
