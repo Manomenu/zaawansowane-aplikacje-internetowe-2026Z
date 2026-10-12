@@ -11,8 +11,7 @@ soil, and stop after a frost. The history here is the weather record behind
 
 ![The Data tab: three charts, one per unit, and the table of measurements below](docs/img/dashboard.png)
 
-**Address:** https://pomiary-lasy.gugnowski.com — the app is being deployed there; if the page
-does not answer yet, it is not up yet.
+**Address:** https://pomiary-lasy.gugnowski.com — the app runs there.
 
 ## What you can do
 

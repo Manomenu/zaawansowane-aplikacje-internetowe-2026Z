@@ -23,7 +23,7 @@ a dopiero potem przepisać do formularza. „Deklaracja” to zamiar, do weryfik
 | B2 widok mobilny (ok. 360 px) i podgląd wydruku bez kontrolek | tak | 4:50 (mobilny), 5:10 (wydruk) | `pomiary_web/src/app.css`, e2e `shell/Shell.e2e.ts` |
 | B3 dwa elementy T5 w nagraniu i w dokumentacji | tak | 5:20 | `docs/documentation.md` sekcja 5: (a) `sensors/store.py`, (b) `auth/store.py` |
 | B4 diagram ERD i migracje w archiwum | tak | 6:25 (zawartość archiwum, ERD w PDF) | `docs/erd.svg`, `docs/erd.md`, `pomiary_server/pomiary_server/migrations/001_schema.sql`, `002_unique_names.sql` |
-| B5 kompletna dokumentacja (PDF, do 8 stron) | tak, po uzupełnieniu TODO w sekcjach 1 i 2 | 6:25 (PDF, sekcje 1–9) | `docs/documentation.md`, budowana do `dokumentacja.pdf` przez `just package` |
+| B5 kompletna dokumentacja (PDF, do 8 stron) | tak | 6:25 (PDF, sekcje 1–9) | `docs/documentation.md`, budowana do `dokumentacja.pdf` przez `just package` |
 | X1 wykres na żywo (SSE) | tak | 3:30 | `pomiary_server/pomiary_server/measurements/api.py` (stream), `pomiary_web/src/dashboard/live.ts` |
 | X2 generator z rzeczywistymi danymi (Open-Meteo) | tak | 6:00 | `pomiary_generator/pomiary_generator/openmeteo.py` |
 | X3 własne testy w CI, zielone | tak (link w formularzu) | 6:15 | `.github/workflows/ci.yml` |
