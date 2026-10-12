@@ -25,7 +25,7 @@ requirement; "manually" means the proof is the recording or the checklist.
 | F8 | Administrator account: log in, log out, change password | done | docs/progress/F6-web-foundation.md | pytest `tests/auth/` (API); browser: `src/session/session.e2e.ts` (log in, log out, password change, expired token) |
 | F9 | UX: Enter key, validation before sending, loading states, server errors | done | docs/progress/F10-sensors-admin.md | every form is a real `<form>` validated before sending with a loading button: session (vitest `session/validation.test.ts`, e2e `session.e2e.ts`), series (`series/validation.test.ts`, `series.e2e.ts`), sensors (`sensors/validation.test.ts`, `sensors.e2e.ts`); loading/errors with Retry from `shell/`; network failure → `ApiError` status 0 (`api/client.test.ts`) |
 | F10 | Responsive from 360 px | done | docs/progress/F11-accessibility.md | e2e at 360 px, no sideways scroll: `shell/Shell.e2e.ts` (frame), `dashboard/dashboard.e2e.ts` (Data), `sensors/sensors.e2e.ts` and `shell/accessibility.e2e.ts` (Series, Sensors); axe also runs on the Data tab at 360 px |
-| F11 | Sample data: at least 3 series with at least 15 points each, loaded by the generator | in progress | docs/progress/F5-teachers-tests-in-the-gate.md | the gate seeds a fresh database with `seed` and the teacher's F11 test passes on it; the deployed app is seeded at deployment |
+| F11 | Sample data: at least 3 series with at least 15 points each, loaded by the generator | done | docs/progress/F41-production-verification.md | the gate seeds a fresh database and the teacher's F11 test passes on it; production seeded through the API (12 × 120 values) and the teacher's F11 test passes there |
 | F12 | Sensors: registration, one-time key, list, unregistration | done | docs/progress/F10-sensors-admin.md | server: pytest `tests/sensors/`; UI: e2e `sensors/sensors.e2e.ts` |
 | F13 | Generator: address, key, count/interval, generation mode, past and current data | done | docs/progress/F14-requirements-review.md | pytest pomiary_generator in the gate |
 
@@ -40,20 +40,20 @@ requirement; "manually" means the proof is the recording or the checklist.
 | T5 | Security: bcrypt/Argon2id, parameterized queries, session/token, server-side authorization, sensor keys stored as SHA-256 | done | docs/progress/F14-requirements-review.md | UI (key shown once): e2e `sensors/sensors.e2e.ts`; pytest `tests/auth/`, `tests/series/`, `tests/sensors/`, `tests/measurements/`; B3 write-up: todo |
 | T6 | Accessibility WCAG 2.2 AA; a series is not distinguished by color alone | done | docs/progress/F11-accessibility.md | axe (WCAG 2.0 to 2.2 A and AA) with zero violations on every screen and dialog in both colour schemes (`shell/accessibility.e2e.ts`); marker shapes, legend and table headers tell series apart; landmarks (`shell/Shell.e2e.ts`); keyboard and focus: Enter in forms, focus into and back from dialogs, `:focus-visible` outline |
 | T7 | Printing through `@media print` of the same view | done | docs/progress/F24-print.md | (first made in F8) e2e `shell/Shell.e2e.ts` (header, tabs, footer) and `dashboard/dashboard.e2e.ts` (controls hidden, charts and table kept) |
-| T8 | The teacher's tests (`zai-tests.mjs`) pass | in progress | docs/progress/F5-teachers-tests-in-the-gate.md | gate step "teacher's tests": all pass on localhost except the 3 HTTPS/page cases; on the deployed app after T10 |
+| T8 | The teacher's tests (`zai-tests.mjs`) pass | done | docs/progress/F41-production-verification.md | against https://pomiary-lasy.gugnowski.com: E1 10/10, E2 16/16 with no failing test; the gate runs them locally on every change |
 | T9 | Repository with a readable history throughout the project | in progress | docs/progress/F0-initialization.md | gitleaks in the gate |
-| T10 | Public deployment (HTTPS) | todo | | |
+| T10 | Public deployment (HTTPS) | done | docs/progress/F41-production-verification.md | Argo CD from suwalski-platform, image `sha-069dbf8`, smoke test green; HTTPS, HTTP→HTTPS 301 |
 | T11 | Generator in the repo, through the API, key not in the code, documented | done | docs/progress/F2-data-generator.md | pytest pomiary_generator in the gate; key only from `--api-key` / `POMIARY_API_KEY` |
 
 ## Automatic scoring (the teacher's tests)
 
 | Code | What the tests check | Status | Proof | Checked automatically |
 | --- | --- | --- | --- | --- |
-| A1 | E1: contract conformance, sensors, filtering, F11 | in progress | docs/progress/F5-teachers-tests-in-the-gate.md | gate step "teacher's tests": 23/23 contract tests pass locally (6/6 points) |
-| A2 | E2: contract conformance again | in progress | docs/progress/F5-teachers-tests-in-the-gate.md | the same gate step, on every change |
-| A3 | Validation and authorization (422, 400/422, 401, no editing of results) | in progress | docs/progress/F4-sensors-and-measurements.md | gate step "teacher's tests": 14/14 pass locally; graded after deployment |
-| A4 | HTTPS, headers with CSP, cookie flags, no secrets in responses | in progress | docs/progress/F6-web-foundation.md | curl of the container (see the progress file): CSP, nosniff, Referrer-Policy; HTTPS and cookie flags after deployment |
-| A5 | Lighthouse Accessibility ≥ 90 | in progress | docs/progress/F11-accessibility.md | `just lighthouse`: 100 light / 100 dark on the local stack; the graded run is against the deployed app, so this stays in progress until deployed |
+| A1 | E1: contract conformance, sensors, filtering, F11 | done | docs/progress/F41-production-verification.md | teacher's tests on production, stage E1: 10/10 |
+| A2 | E2: contract conformance again | done | docs/progress/F41-production-verification.md | teacher's tests on production, stage E2: contract 6/6; the gate keeps it on every change |
+| A3 | Validation and authorization (422, 400/422, 401, no editing of results) | done | docs/progress/F41-production-verification.md | teacher's tests on production: validation 4/4 |
+| A4 | HTTPS, headers with CSP, cookie flags, no secrets in responses | done | docs/progress/F41-production-verification.md | teacher's tests on production: security 3/3, including HTTPS, the redirect and CSP |
+| A5 | Lighthouse Accessibility ≥ 90 | done | docs/progress/F41-production-verification.md | teacher's script with `--lighthouse` on production: 100 (3/3) |
 
 ## Recording, checklist, archive
 
@@ -63,7 +63,7 @@ requirement; "manually" means the proof is the recording or the checklist.
 | B2 | Mobile view at ~360 px and the print preview | in progress | docs/progress/F15-submission-package.md | manually: scripted in `docs/recording.md` (4:50 mobile, 5:10 print); e2e at 360 px and print media in the gate; the recording is still to do |
 | B3 | Two T5 items in the recording and in the documentation | in progress | docs/progress/F12-documentation.md | manually: described in `docs/documentation.md` section 5; the recording is still to do |
 | B4 | ERD diagram and migrations in the archive | done | docs/progress/F15-submission-package.md | `just package` fails unless the ZIP holds `docs/erd.svg` and the migrations (`scripts/.internal/package.sh`) |
-| B5 | Complete PDF documentation | in progress | docs/progress/F15-submission-package.md | `just package` builds `documentation.pdf` (5 pages, fails above 8); the deployment facts and the administrator login (TODO in `docs/documentation.md`) come at submission |
+| B5 | Complete PDF documentation | done | docs/progress/F41-production-verification.md | `just package` builds `dokumentacja.pdf` (7 pages, fails above 8, fails on a TODO), with the deployment and the admin login filled in |
 
 ## Extensions (bonus points)
 
