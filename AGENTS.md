@@ -62,8 +62,8 @@ server, never changed.
   against a local server. A new requirement-level check goes there, not into a note.
 - Everything in this repository — code, identifiers, docs, progress files — is English; only
   `docs/spec/` (the teacher's files) is Polish and is never edited. **One exception:** what the
-  teacher reads at submission is Polish — `docs/documentation.md` (the PDF), `docs/checklist.md`
-  (the checklist) and the forms `package.sh` writes — and so is `docs/recording.md`, the owner's
+  teacher reads at submission is Polish — `docs/documentation.md` (the PDF), `docs/submissions/`
+  (the E2 form and checklist, also PDFs) and the E1 form `package.sh` writes — and so is `docs/recording.md`, the owner's
   script for the Polish video. Their file names and the script stay English.
 
 ## 0. KISS & YAGNI — the first rule
@@ -460,7 +460,7 @@ Two vocabularies, chosen word by word:
   | `scripts/.internal/db.sh up\|down\|status\|psql` | the local PostgreSQL on `localhost:5453` (podman container `pomiary-postgres`). `check.sh` runs `up` itself; tests create their own `pomiary_test` database |
   | `scripts/.internal/api-types.sh [--check]` | regenerate `pomiary_web/src/api/openapi.d.ts` after changing a model the API exposes. Never edit that file by hand |
   | `scripts/.internal/lighthouse.sh [url]` | Lighthouse accessibility score of a running app (default `http://localhost:8092`), light and dark, with every failed audit; reports in `.artifacts/lighthouse/`; exits non-zero below 90 (A5). Not in the gate: needs `just up` or the deployed URL |
-  | `scripts/.internal/package.sh` | build the submissions into `.artifacts/submissions/e1/` and `e2/` (`--stage e1\|e2` for one): each a `formularz.md` with the Leia form's fields, the admin account read from the platform's secrets file (a clear FAIL when it is missing); E2 also `dokumentacja.pdf` from `docs/documentation.md` (fails above 8 pages), `pomiary-zai-26z.zip` of the repository files plus the PDF (fails on a secret file or `node_modules`) and `lista-kontrolna.md`. All three in Polish. Warns when the public API does not answer. `just package` |
+  | `scripts/.internal/package.sh` | build the submissions into `.artifacts/submissions/e1/` and `e2/` (`--stage e1\|e2` for one): E1 a `formularz.md` with the Leia form's fields; E2 (files only on Leia) three signed PDFs — `dokumentacja.pdf` from `docs/documentation.md` (fails above 8 pages), `formularz-e2.pdf` and `lista-kontrolna-e2.pdf` from `docs/submissions/` — and `pomiary-zai-26z.zip` of the repository files plus the documentation PDF (fails on a secret file or `node_modules`). The admin account is read from the platform's secrets file (a clear FAIL when it is missing); a TODO or an unfilled placeholder stops the build. All in Polish. Warns when the public API does not answer. `just package` |
   | `scripts/.internal/secrets.sh backup\|restore` | **not for agents** — the owner's copy of the `.env` files in Bitwarden (`just secrets`, section 7); it asks for the master password |
   | `scripts/.internal/infra-status.sh` | what of the compose stack is up and on which ports (needs `jq`) |
 

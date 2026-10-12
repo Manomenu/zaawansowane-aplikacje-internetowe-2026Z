@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # Builds the submission packages into .artifacts/submissions/<stage>/:
-#   e1/formularz.md         what the E1 form on Leia asks for: the API address, the admin account, the repository
-#   e2/formularz.md         the same for E2, plus the application address, the CI link and the recording's rules
-#   e2/lista-kontrolna.md   docs/checklist.md, the draft of the checklist form (B1–B5, extensions)
-#   e2/dokumentacja.pdf     docs/documentation.md rendered with the ERD embedded (at most 8 pages)
+#   e1/formularz.md          the E1 form on Leia, field by field: student number, addresses, admin account, repo, CI
+#   e2/dokumentacja.pdf      docs/documentation.md rendered with the ERD embedded (at most 8 pages)
+#   e2/formularz-e2.pdf      docs/submissions/formularz-e2.md: addresses, admin account, repo, CI, the uploaded files
+#   e2/lista-kontrolna-e2.pdf  docs/submissions/lista-kontrolna-e2.md: B1–B5 and the extensions with their minutes
 #   e2/pomiary-zai-26z.zip  the repository files, tracked plus new-but-not-ignored (working-tree versions) plus the PDF
 # What the teacher reads is Polish (the course's language): the forms, the PDF and the checklist.
 # The script's own messages stay English, like the rest of the repository.
@@ -59,10 +59,11 @@ read_admin() {
     fi
 }
 
-write_form() {
-    local stage="$1" out="$2"
+# E2 has no form fields on Leia, only uploaded files: its form is the PDF from docs/submissions/.
+write_form_e1() {
+    local out="$1"
     {
-        echo "# Formularz zgłoszenia, ${stage^^}"
+        echo "# Formularz zgłoszenia, E1"
         echo
         echo "Pola w kolejności formularza na Leia; wartość z kolumny po prawej wklej bez zmian."
         echo
@@ -78,14 +79,6 @@ write_form() {
         echo "| ci_url — Adres skonfigurowanego narzędzia CI | \`$REPO_URL/actions/workflows/ci.yml\` |"
         echo
         echo "Konto musi działać do czasu wystawienia oceny: nie zmieniaj hasła po zgłoszeniu."
-        if [ "$stage" = e2 ]; then
-            echo
-            echo "Pliki do przesłania: \`$ZIP_NAME\` (kod i dokumentacja.pdf), nagranie, lista kontrolna."
-            echo
-            echo "- **Nagranie:** MP4, do 100 MB, 5–7 minut, wdrożona aplikacja z widocznym paskiem adresu,"
-            echo "  przed każdym wymaganiem wyświetlony lub powiedziany jego kod (scenariusz: \`docs/recording.md\`)."
-            echo "- **Lista kontrolna:** \`lista-kontrolna.md\` obok; każdą minutę sprawdzić z prawdziwym nagraniem."
-        fi
         echo
         echo "Zbudowane z commita $(git rev-parse --short HEAD), $(date +%F)."
     } >"$out/formularz.md"
@@ -104,51 +97,53 @@ build_e1() {
     local out="$SUBMISSIONS/e1"
     rm -rf "$out"
     mkdir -p "$out"
-    write_form e1 "$out"
+    write_form_e1 "$out"
     echo "OK: $out"
 }
 
-build_e2() {
-    for tool in npx zip unzip pdfinfo git; do
-        command -v "$tool" >/dev/null || { echo "Missing tool: $tool" >&2; exit 1; }
-    done
-    local CHROME
-    CHROME="$(find "$HOME/.cache/ms-playwright" -path '*/chromium-*/chrome-linux*/chrome' -type f 2>/dev/null | sort -V | tail -n 1)"
-    if [ -z "$CHROME" ]; then
-        echo "No Playwright Chromium found: run 'cd pomiary_web && pnpm exec playwright install chromium'." >&2
-        exit 1
-    fi
-
-    local OUT="$SUBMISSIONS/e2"
-    local BUILD="$OUT/build"
-    rm -rf "$OUT"
-    mkdir -p "$BUILD"
-
-    # --- the PDF: Markdown -> HTML -> headless Chromium -------------------------------------
-    cp docs/erd.svg "$BUILD/erd.svg"
-    # The repository's file carries placeholders; the PDF gets the real account (the ZIP keeps the placeholders).
-    if grep -q 'TODO' docs/documentation.md; then
-        echo "FAIL: docs/documentation.md still contains TODO" >&2
+# One Markdown source -> one signed PDF in "$OUT" (uses $BUILD, $CHROME of build_e2). The repository's files carry
+# placeholders, filled here: {{ADMIN_USERNAME}}, {{ADMIN_PASSWORD}} (the platform's secrets file) and {{DATA}}
+# (today, in Polish). The ZIP keeps the placeholders. A TODO or an unfilled placeholder stops the build.
+render_pdf() {
+    local src="$1" pdf="$2" footer="$3" name
+    name="$(basename "$src" .md)"
+    if grep -q 'TODO' "$src"; then
+        echo "FAIL: $src still contains TODO" >&2
         exit 1
     fi
     ADMIN_USERNAME="$ADMIN_USERNAME" ADMIN_PASSWORD="$ADMIN_PASSWORD" python3 -c '
-import os, sys
+import datetime, os, sys
+months = ["stycznia", "lutego", "marca", "kwietnia", "maja", "czerwca", "lipca", "sierpnia", "września",
+          "października", "listopada", "grudnia"]
+today = datetime.date.today()
+values = {"ADMIN_USERNAME": os.environ["ADMIN_USERNAME"], "ADMIN_PASSWORD": os.environ["ADMIN_PASSWORD"],
+          "DATA": f"{today.day} {months[today.month - 1]} {today.year}"}
 text = open(sys.argv[1], encoding="utf-8").read()
-for key in ("ADMIN_USERNAME", "ADMIN_PASSWORD"):
-    text = text.replace("{{" + key + "}}", os.environ[key])
+for key, value in values.items():
+    text = text.replace("{{" + key + "}}", value)
 open(sys.argv[2], "w", encoding="utf-8").write(text)
-' docs/documentation.md "$BUILD/documentation.md"
-    if grep -q '{{' "$BUILD/documentation.md"; then
-        echo "FAIL: an unfilled {{placeholder}} remains in docs/documentation.md" >&2
+' "$src" "$BUILD/$name.md"
+    if grep -q '{{' "$BUILD/$name.md"; then
+        echo "FAIL: an unfilled {{placeholder}} remains in $src" >&2
         exit 1
     fi
     {
-        cat <<'HTML'
-    <!doctype html>
-    <html lang="pl"><head><meta charset="utf-8"><title>Pomiary — dokumentacja projektu (Piotr Gugnowski)</title>
-    <style>
+        printf '<!doctype html>\n<html lang="pl"><head><meta charset="utf-8"><title>%s (Piotr Gugnowski)</title>\n<style>\n' "$footer"
+        printf '%s' "${PDF_CSS//__FOOTER__/$footer}"
+        echo '</style></head><body>'
+        npx --yes marked@15.0.12 -i "$BUILD/$name.md" --gfm
+        echo '</body></html>'
+    } >"$BUILD/$name.html"
+    "$CHROME" --headless=new --no-sandbox --disable-gpu --no-pdf-header-footer \
+        --print-to-pdf="$OUT/$pdf" "file://$BUILD/$name.html" 2>/dev/null
+    [ -s "$OUT/$pdf" ] || { echo "FAIL: $pdf was not produced" >&2; exit 1; }
+    echo "$pdf: $(pdfinfo "$OUT/$pdf" | awk '/^Pages:/ {print $2}') pages"
+}
+
+# The print style of every PDF; __FOOTER__ becomes the document's name in the running footer.
+PDF_CSS="$(cat <<'CSS'
       @page { size: A4; margin: 14mm 15mm 16mm;
-        @bottom-left { content: "Pomiary — dokumentacja projektu, ZAI 2026Z"; font: 8pt "DejaVu Sans", Arial, sans-serif; color: #555; }
+        @bottom-left { content: "__FOOTER__"; font: 8pt "DejaVu Sans", Arial, sans-serif; color: #555; }
         @bottom-right { content: "strona " counter(page) " z " counter(pages); font: 8pt "DejaVu Sans", Arial, sans-serif; color: #555; } }
       .doc-meta { margin: 4pt 0 10pt; }
       .doc-meta table { width: auto; }
@@ -168,21 +163,36 @@ open(sys.argv[2], "w", encoding="utf-8").write(text)
       blockquote { margin: 4pt 0; padding-left: 8pt; border-left: 3px solid #bbb; color: #333; }
       img { max-width: 100%; max-height: 120mm; display: block; margin: 4pt auto; }
       tr, pre, img { break-inside: avoid; }
-    </style></head><body>
-HTML
-        npx --yes marked@15.0.12 -i "$BUILD/documentation.md" --gfm
-        echo '</body></html>'
-    } >"$BUILD/documentation.html"
+      .checklist td:nth-child(1) { width: 40%; } .checklist td:nth-child(2) { width: 9%; }
+      .checklist td:nth-child(3) { width: 13%; }
+CSS
+)"
 
-    "$CHROME" --headless=new --no-sandbox --disable-gpu --no-pdf-header-footer \
-        --print-to-pdf="$OUT/dokumentacja.pdf" "file://$BUILD/documentation.html" 2>/dev/null
-    [ -s "$OUT/dokumentacja.pdf" ] || { echo "FAIL: the PDF was not produced" >&2; exit 1; }
+build_e2() {
+    for tool in npx zip unzip pdfinfo git; do
+        command -v "$tool" >/dev/null || { echo "Missing tool: $tool" >&2; exit 1; }
+    done
+    CHROME="$(find "$HOME/.cache/ms-playwright" -path '*/chromium-*/chrome-linux*/chrome' -type f 2>/dev/null | sort -V | tail -n 1)"
+    if [ -z "$CHROME" ]; then
+        echo "No Playwright Chromium found: run 'cd pomiary_web && pnpm exec playwright install chromium'." >&2
+        exit 1
+    fi
+
+    OUT="$SUBMISSIONS/e2"
+    BUILD="$OUT/build"
+    rm -rf "$OUT"
+    mkdir -p "$BUILD"
+
+    # --- the PDFs: Markdown -> HTML -> headless Chromium ------------------------------------
+    cp docs/erd.svg "$BUILD/erd.svg"
+    render_pdf docs/documentation.md dokumentacja.pdf "Pomiary — dokumentacja projektu, ZAI 2026Z"
+    render_pdf docs/submissions/formularz-e2.md formularz-e2.pdf "Pomiary — formularz zgłoszenia E2, ZAI 2026Z"
+    render_pdf docs/submissions/lista-kontrolna-e2.md lista-kontrolna-e2.pdf "Pomiary — lista kontrolna E2, ZAI 2026Z"
 
     local pages count size
     pages="$(pdfinfo "$OUT/dokumentacja.pdf" | awk '/^Pages:/ {print $2}')"
-    echo "dokumentacja.pdf: $pages pages"
     if [ "$pages" -gt "$MAX_PAGES" ]; then
-        echo "FAIL: $pages pages, the specification allows at most $MAX_PAGES" >&2
+        echo "FAIL: dokumentacja.pdf has $pages pages, the specification allows at most $MAX_PAGES" >&2
         exit 1
     fi
 
@@ -217,8 +227,6 @@ HTML
     size="$(du -h "$OUT/$ZIP_NAME" | cut -f1)"
     echo "$ZIP_NAME: $count files, $size"
     rm -rf "$BUILD"
-    write_form e2 "$OUT"
-    cp docs/checklist.md "$OUT/lista-kontrolna.md"
     echo "OK: $OUT"
 }
 

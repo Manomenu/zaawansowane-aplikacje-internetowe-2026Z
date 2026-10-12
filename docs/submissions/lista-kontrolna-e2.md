@@ -1,11 +1,27 @@
-# Lista kontrolna — SZKIC
+<!-- The source of lista-kontrolna-e2.pdf, built by `just package --stage e2`. The minutes are the start of
+each scene in the recording: plan them from docs/recording.md, then set the real ones after the take. -->
 
-Formularz listy kontrolnej na platformie Leia pyta, dla każdego elementu B1–B5 i każdego
-rozszerzenia, czy jest zrealizowany i w której minucie nagrania go widać. Ten szkic ma
-**planowane** minuty z `docs/recording.md`; każdy wiersz trzeba sprawdzić z prawdziwym nagraniem,
-a dopiero potem przepisać do formularza. „Deklaracja” to zamiar, do weryfikacji po nagraniu.
+# Pomiary — warunki w lasach
 
-| Element | Deklaracja | Minuta (planowana) | Gdzie w repozytorium |
+<div class="doc-meta">
+
+**Lista kontrolna, etap E2**
+
+| | |
+| --- | --- |
+| Autor | Piotr Gugnowski |
+| Nr indeksu | 320690 |
+| Przedmiot | Zaawansowane aplikacje internetowe (2026Z) |
+| Data | {{DATA}} |
+
+</div>
+
+Deklaracja realizacji elementów części B i rozszerzeń, z minutą nagrania demonstracyjnego, od której dany
+element jest widoczny. Kody wymagań są powiedziane i pokazane w nagraniu przed każdą sceną.
+
+<div class="checklist">
+
+| Element | Realizacja | Minuta nagrania | Gdzie w repozytorium |
 | --- | --- | --- | --- |
 | B1 / F1 wynik = liczba + czas + seria, tylko od czujników | tak | 3:00 | `pomiary_server/pomiary_server/measurements/` (żadna ścieżka nie edytuje wyniku) |
 | B1 / F2 serie: przedział, kolor/ikona, kolumna i krzywa | tak | 0:35, 2:15 | `pomiary_web/src/series/`, `pomiary_web/src/dashboard/` |
@@ -23,11 +39,10 @@ a dopiero potem przepisać do formularza. „Deklaracja” to zamiar, do weryfik
 | B2 widok mobilny (ok. 360 px) i podgląd wydruku bez kontrolek | tak | 4:50 (mobilny), 5:10 (wydruk) | `pomiary_web/src/app.css`, e2e `shell/Shell.e2e.ts` |
 | B3 dwa elementy T5 w nagraniu i w dokumentacji | tak | 5:20 | `docs/documentation.md` sekcja 5: (a) `sensors/store.py`, (b) `auth/store.py` |
 | B4 diagram ERD i migracje w archiwum | tak | 6:25 (zawartość archiwum, ERD w PDF) | `docs/erd.svg`, `docs/erd.md`, `pomiary_server/pomiary_server/migrations/001_schema.sql`, `002_unique_names.sql` |
-| B5 kompletna dokumentacja (PDF, do 8 stron) | tak | 6:25 (PDF, sekcje 1–9) | `docs/documentation.md`, budowana do `dokumentacja.pdf` przez `just package` |
+| B5 kompletna dokumentacja (PDF, do 8 stron) | tak | 6:25 (PDF, sekcje 1–9) | `docs/documentation.md`, w archiwum jako `dokumentacja.pdf` |
 | X1 wykres na żywo (SSE) | tak | 3:30 | `pomiary_server/pomiary_server/measurements/api.py` (stream), `pomiary_web/src/dashboard/live.ts` |
 | X2 generator z rzeczywistymi danymi (Open-Meteo) | tak | 6:00 | `pomiary_generator/pomiary_generator/openmeteo.py` |
-| X3 własne testy w CI, zielone | tak (link w formularzu) | 6:15 | `.github/workflows/ci.yml` |
+| X3 własne testy w CI, zielone | tak (link w formularzu zgłoszenia) | 6:15 | `.github/workflows/ci.yml` |
 | X4 baza szeregów czasowych | nie | n/d | niezrealizowane (klasyczny PostgreSQL) |
 
-Pola formularza poza listą kontrolną: adres aplikacji (i adres API, ten sam host), testowe konto
-administratora (podawane tylko w formularzu), link do repozytorium, link do CI.
+</div>
