@@ -85,6 +85,16 @@ def test_seed_synthetic_fallback_stays_in_range(fake: Fake) -> None:
     assert len(state.measurements) == 12 * 48
 
 
+def test_seed_step_keeps_every_nth_hour_ending_with_the_newest(fake: Fake) -> None:
+    state, url = fake
+    assert run_seed(Api(url), "admin", "good", 2, "synthetic", NOW, lambda _l: None, step_hours=6) == 0
+    assert len(state.measurements) == 12 * 8
+    times = sorted({str(m["timestamp"]) for m in state.measurements})
+    newest = NOW.replace(minute=0, second=0, microsecond=0)
+    assert times[-1] == newest.strftime("%Y-%m-%dT%H:%M:%SZ")
+    assert len(times) == 8
+
+
 def test_seed_bad_login_fails_with_a_message(fake: Fake) -> None:
     _, url = fake
     lines: list[str] = []

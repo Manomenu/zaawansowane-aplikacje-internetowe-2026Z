@@ -15,7 +15,7 @@ title.
 ## Before recording
 
 - **Deployed and seeded.** `https://pomiary-lasy.gugnowski.com` answers over HTTPS, the 12
-  series have 30 days of hourly values (`pomiary_generator seed`), the administrator login
+  series have 30 days of values every 6 h (`pomiary_generator seed`), the administrator login
   works. Run `just lighthouse https://pomiary-lasy.gugnowski.com` once beforehand (A5); it is
   not part of the video.
 - **Screen:** one 1920×1080 capture. Browser on the left two thirds (address bar visible the
@@ -59,7 +59,7 @@ title.
 | Start | Len | Code(s) | What is shown and said |
 | --- | --- | --- | --- |
 | 0:00 | 0:20 | n/a | Address bar and the app, logged out. "Pomiary, ZAI 26Z, the deployed app at pomiary-lasy.gugnowski.com, the code on GitHub." Say what comes next. |
-| 0:20 | 0:15 | **F11** | Data tab: the sample data loaded by the generator. Show at least three series with well over 15 points each (all 12: 3 places × 4 quantities, 30 days hourly). |
+| 0:20 | 0:15 | **F11** | Data tab: the sample data loaded by the generator. Show at least three series with well over 15 points each (all 12: 3 places × 4 quantities, 30 days, a value every 6 h: 120 each). |
 | 0:35 | 0:15 | **F2** | One column per series in the table, one curve per series on the chart, colour **and** marker shape (a series is not told apart by colour alone, T6). |
 | 0:50 | 0:15 | **F3** | Still logged out: the reader role. No admin tabs, no way to edit a result. Say: "nobody edits results in the interface". |
 | 1:05 | 0:25 | **F5** | Filters: a preset (24 h), a custom From/To range, untick one series (its curve and column disappear), tick it back. |

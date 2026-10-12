@@ -63,7 +63,12 @@ def build_parser() -> argparse.ArgumentParser:
     seed.add_argument("--api", default=os.environ.get("POMIARY_API"), help="API base URL (env POMIARY_API)")
     seed.add_argument("--user", default=os.environ.get("POMIARY_ADMIN_USER"), help="administrator (env POMIARY_ADMIN_USER)")
     seed.add_argument("--password", default=os.environ.get("POMIARY_ADMIN_PASSWORD"), help="password (env POMIARY_ADMIN_PASSWORD)")
-    seed.add_argument("--days", type=int, default=30, help="days of hourly values per series (default 30)")
+    seed.add_argument("--days", type=int, default=30, help="days of values per series (default 30)")
+    seed.add_argument(
+        "--step",
+        default="6h",
+        help="time between values, whole hours (default 6h: 120 values per series for 30 days, ~1 440 requests in all)",
+    )
     seed.add_argument(
         "--source", choices=["open-meteo", "synthetic"], default="open-meteo", help="synthetic = fallback when Open-Meteo is down"
     )
@@ -121,7 +126,14 @@ def run_seed_command(args: argparse.Namespace, emit: Emit, now: datetime) -> int
         return _fail("seed needs --api, --user and --password (or POMIARY_API, POMIARY_ADMIN_USER, POMIARY_ADMIN_PASSWORD)")
     if args.days < 1:
         return _fail("--days must be at least 1")
-    return run_seed(Api(args.api), args.user, args.password, args.days, args.source, now, emit)
+    try:
+        step = parse_duration(args.step)
+    except ValueError as error:
+        return _fail(str(error))
+    hours, rest = divmod(step.total_seconds(), 3600)
+    if hours < 1 or rest:
+        return _fail("--step must be a whole number of hours (the source values are hourly)")
+    return run_seed(Api(args.api), args.user, args.password, args.days, args.source, now, emit, step_hours=int(hours))
 
 
 def main(argv: Sequence[str] | None = None, emit: Emit = emit_stdout) -> int:

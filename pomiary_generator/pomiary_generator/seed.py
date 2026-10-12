@@ -65,8 +65,12 @@ def run_seed(  # noqa: PLR0913, PLR0917
     now: datetime,
     emit: Emit,
     fetch: Fetch = fetch_hourly,
+    step_hours: int = 1,
 ) -> int:
-    """Replace the sample data: delete the 12 series seed owns, create them anew, backfill `days` of hourly values."""
+    """Replace the sample data: delete the 12 series seed owns, create them anew, backfill `days` of values.
+
+    Every `step_hours`-th hourly value is sent, counted back from the newest, so the newest is always among them.
+    """
     try:
         token = api.login(username, password)
         owned = owned_names()
@@ -95,7 +99,7 @@ def run_seed(  # noqa: PLR0913, PLR0917
                 if not hourly and source == "open-meteo":
                     hourly = fetch(place, list(QUANTITIES), days + 1, now)
                 points = hourly[quantity] if source == "open-meteo" else _synthetic(quantity, now, days)
-                points = points[-days * 24 :]
+                points = points[-days * 24 :][::-1][::step_hours][::-1]
                 key = api.create_sensor(token, sensor_name(place, quantity, source), series["id"])
                 keys.append((sensor_name(place, quantity, source), key))
                 emit(f"{name}: sending {len(points)} values")

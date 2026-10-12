@@ -2,7 +2,7 @@
 
 Aplikacja zbierająca i prezentująca serie pomiarowe z czujników: opady, temperaturę powietrza
 i gleby oraz wilgotność gleby w trzech miejscach w pobliżu lasów (Warszawa, Suwałki, Chełm) —
-12 serii, wartości godzinowe. Czujniki są emulowane przez generator danych, który czyta
+12 serii, wartości co 6 godzin. Czujniki są emulowane przez generator danych, który czyta
 [Open-Meteo](https://open-meteo.com/) (Weather data by Open-Meteo.com, CC BY 4.0) albo tworzy
 syntetyczną krzywą, i wysyła wyniki przez API tak jak każdy czujnik.
 
@@ -112,20 +112,22 @@ Odrzucona wartość (400/422) jest wypisywana wraz z wyjaśnieniem serwera, a dz
 cokolwiek się nie powiodło. Przykład — wartość spoza zakresu do zademonstrowania F4:
 `python -m pomiary_generator send --count 1 --shape constant --min 120 --max 120`.
 
-**`seed`: dane przykładowe (F11).** Loguje się jako administrator, tworzy 12 serii (3 miejsca
-× 4 wielkości), jeśli ich brakuje, rejestruje po jednym czujniku na serię i wysyła `--days` dni
-wartości godzinowych kluczem tego czujnika. Seria, która ma już pomiary, jest pomijana, więc drugie
-uruchomienie niczego nie dubluje. Klucze czujników są wypisywane jednorazowo, na końcu.
+**`seed`: dane przykładowe (F11).** Loguje się jako administrator, usuwa swoje 12 serii przykładowych
+(3 miejsca × 4 wielkości, rozpoznawane po nazwie) razem z ich czujnikami i pomiarami, zakłada je od
+nowa, rejestruje po jednym czujniku na serię i wysyła `--days` dni wartości, co `--step` (domyślnie 6 h), kluczem tego
+czujnika. Każde uruchomienie daje więc świeże dane bez dubli; innych serii nie rusza. Klucze
+czujników są wypisywane jednorazowo, na końcu.
 
 ```sh
 export POMIARY_ADMIN_USER=admin POMIARY_ADMIN_PASSWORD=...
-python -m pomiary_generator seed --api http://localhost:8092 --days 30     # około 8 600 żądań
+python -m pomiary_generator seed --api http://localhost:8092 --days 30     # 1 440 żądań (30 dni × 4 na dobę × 12 serii)
 ```
 
 | Parametr | Znaczenie |
 | --- | --- |
 | `--api`, `--user`, `--password` | adres API i administrator (zmienne środowiskowe powyżej) |
-| `--days 30` | liczba dni wartości godzinowych na serię |
+| `--days 30` | liczba dni wartości na serię |
+| `--step 6h` | odstęp między wartościami w pełnych godzinach (źródło jest godzinowe; co szósta godzina, licząc od najnowszej); `1h` wysyła wszystkie |
 | `--source open-meteo\|synthetic` | domyślnie `open-meteo`; `synthetic`, gdy usługa nie działa |
 
 ## 4. Baza danych: ERD

@@ -81,10 +81,10 @@ curl -fs "$URL/api/health" >/dev/null || {
 }
 
 # The sample data (F11) the way the real app gets it: the generator through the API. Synthetic,
-# so the gate never depends on Open-Meteo; one day of hourly values is 24 per series (≥ 15).
+# so the gate never depends on Open-Meteo; one day of hourly values (--step 1h) is 24 per series (≥ 15).
 (cd "$ROOT/pomiary_generator" && unset VIRTUAL_ENV &&
     uv run python -m pomiary_generator seed --api "$URL" --user "$ADMIN_USER" --password "$ADMIN_PASSWORD" \
-        --days 1 --source synthetic) >"$ROOT/.artifacts/contract-seed.log" 2>&1 || {
+        --days 1 --step 1h --source synthetic) >"$ROOT/.artifacts/contract-seed.log" 2>&1 || {
     echo "seeding failed — .artifacts/contract-seed.log:" >&2
     tail -20 "$ROOT/.artifacts/contract-seed.log" >&2
     exit 1
