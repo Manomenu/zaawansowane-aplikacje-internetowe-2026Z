@@ -18,6 +18,8 @@ MAX_PAGES=8
 ZIP_NAME="pomiary-zai-26z.zip"
 APP_URL="https://pomiary-lasy.gugnowski.com"
 REPO_URL="https://github.com/Manomenu/zaawansowane-aplikacje-internetowe-2026Z"
+# The author's student number, the form's `student` field (also in the author block of docs/documentation.md).
+STUDENT_ID="320690"
 # The administrator's test account, created on the cluster by the platform repo's setup.sh.
 ADMIN_SECRETS="${ADMIN_SECRETS:-$HOME/repos/suwalski-platform/.secrets/pomiary.env}"
 
@@ -62,15 +64,21 @@ write_form() {
     {
         echo "# Formularz zgłoszenia, ${stage^^}"
         echo
+        echo "Pola w kolejności formularza na Leia; wartość z kolumny po prawej wklej bez zmian."
+        echo
+        echo "| Pole na Leia | Wartość |"
+        echo "| --- | --- |"
+        echo "| student — Numer albumu | \`$STUDENT_ID\` |"
+        echo "| app_url — Adres UI aplikacji | \`$APP_URL\` |"
+        # The host alone: the teacher's script appends /api/... itself, so ".../api" would test /api/api/... (404).
+        echo "| api_url — Adres API | \`$APP_URL\` (sam host, bez \`/api\`: skrypt prowadzącego sam dokleja \`/api/...\`) |"
+        echo "| username — Nazwa użytkownika aplikacji | \`$ADMIN_USERNAME\` |"
+        echo "| password — Hasło | \`$ADMIN_PASSWORD\` |"
+        echo "| repo_url — Adres repozytorium z kodem źródłowym | \`$REPO_URL\` |"
+        echo "| ci_url — Adres skonfigurowanego narzędzia CI | \`$REPO_URL/actions/workflows/ci.yml\` |"
+        echo
+        echo "Konto musi działać do czasu wystawienia oceny: nie zmieniaj hasła po zgłoszeniu."
         if [ "$stage" = e2 ]; then
-            echo "- **Adres aplikacji:** $APP_URL"
-        fi
-        echo "- **Adres API:** $APP_URL/api"
-        echo "- **Testowe konto administratora:** login \`$ADMIN_USERNAME\`, hasło \`$ADMIN_PASSWORD\`"
-        echo "  (musi działać do czasu wystawienia oceny)"
-        echo "- **Repozytorium:** $REPO_URL"
-        if [ "$stage" = e2 ]; then
-            echo "- **Status CI:** $REPO_URL/actions/workflows/ci.yml"
             echo
             echo "Pliki do przesłania: \`$ZIP_NAME\` (kod i dokumentacja.pdf), nagranie, lista kontrolna."
             echo
