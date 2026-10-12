@@ -11,6 +11,7 @@ import urllib.request
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 
+from pomiary_generator.client import USER_AGENT
 from pomiary_generator.jsonutil import as_dict, as_list
 
 BASE_URL = "https://api.open-meteo.com/v1/forecast"
@@ -94,9 +95,9 @@ def parse_hourly(document: object, quantities: list[str], now: datetime) -> Hour
 
 def fetch_hourly(place: str, quantities: list[str], past_days: int, now: datetime) -> Hourly:
     """One HTTP call for all `quantities` of `place`."""
-    url = build_url(place, quantities, past_days)
+    request = urllib.request.Request(build_url(place, quantities, past_days), headers={"User-Agent": USER_AGENT})  # noqa: S310  (fixed https URL)
     try:
-        with urllib.request.urlopen(url, timeout=TIMEOUT_SECONDS) as response:  # noqa: S310  (fixed https URL)
+        with urllib.request.urlopen(request, timeout=TIMEOUT_SECONDS) as response:  # noqa: S310  (fixed https URL)
             document: object = json.load(response)
     except (urllib.error.URLError, OSError, ValueError) as error:
         msg = f"cannot fetch Open-Meteo data: {error}"
