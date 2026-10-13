@@ -60,7 +60,7 @@ requirement; "manually" means the proof is the recording or the checklist.
 | Code | What must be visible | Status | Proof | Checked automatically |
 | --- | --- | --- | --- | --- |
 | B1 | F1–F13 in the recording | in progress | docs/progress/F15-submission-package.md | manually: scripted in the owner's recording script (outside the repo) and `docs/submissions/lista-kontrolna-e2.md`; the recording is still to do |
-| B2 | Mobile view at ~360 px and the print preview | in progress | docs/progress/F15-submission-package.md | manually: scripted in the owner's recording script (4:50 mobile, 5:10 print); e2e at 360 px and print media in the gate; the recording is still to do |
+| B2 | Mobile view at ~360 px and the print preview | in progress | docs/progress/F15-submission-package.md | manually: scripted in the owner's recording script (4:05 mobile, 4:25 print); e2e at 360 px and print media in the gate; the recording is still to do |
 | B3 | Two T5 items in the recording and in the documentation | in progress | docs/progress/F12-documentation.md | manually: described in `docs/documentation.md` section 5; the recording is still to do |
 | B4 | ERD diagram and migrations in the archive | done | docs/progress/F15-submission-package.md | `just package` fails unless the ZIP holds `docs/erd.svg` and the migrations (`scripts/.internal/package.sh`) |
 | B5 | Complete PDF documentation | done | docs/progress/F41-production-verification.md | `just package` builds `dokumentacja.pdf` (7 pages, fails above 8, fails on a TODO), with the deployment and the admin login filled in |
