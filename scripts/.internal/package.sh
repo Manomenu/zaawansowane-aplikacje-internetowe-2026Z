@@ -69,14 +69,14 @@ write_form_e1() {
         echo
         echo "| Pole na Leia | Wartość |"
         echo "| --- | --- |"
-        echo "| student — Numer albumu | \`$STUDENT_ID\` |"
-        echo "| app_url — Adres UI aplikacji | \`$APP_URL\` |"
+        echo "| student - Numer albumu | \`$STUDENT_ID\` |"
+        echo "| app_url - Adres UI aplikacji | \`$APP_URL\` |"
         # The host alone: the teacher's script appends /api/... itself, so ".../api" would test /api/api/... (404).
-        echo "| api_url — Adres API | \`$APP_URL\` (sam host, bez \`/api\`: skrypt prowadzącego sam dokleja \`/api/...\`) |"
-        echo "| username — Nazwa użytkownika aplikacji | \`$ADMIN_USERNAME\` |"
-        echo "| password — Hasło | \`$ADMIN_PASSWORD\` |"
-        echo "| repo_url — Adres repozytorium z kodem źródłowym | \`$REPO_URL\` |"
-        echo "| ci_url — Adres skonfigurowanego narzędzia CI | \`$REPO_URL/actions/workflows/ci.yml\` |"
+        echo "| api_url - Adres API | \`$APP_URL\` (sam host, bez \`/api\`: skrypt prowadzącego sam dokleja \`/api/...\`) |"
+        echo "| username - Nazwa użytkownika aplikacji | \`$ADMIN_USERNAME\` |"
+        echo "| password - Hasło | \`$ADMIN_PASSWORD\` |"
+        echo "| repo_url - Adres repozytorium z kodem źródłowym | \`$REPO_URL\` |"
+        echo "| ci_url - Adres skonfigurowanego narzędzia CI | \`$REPO_URL/actions/workflows/ci.yml\` |"
         echo
         echo "Konto musi działać do czasu wystawienia oceny: nie zmieniaj hasła po zgłoszeniu."
         echo
@@ -185,9 +185,9 @@ build_e2() {
 
     # --- the PDFs: Markdown -> HTML -> headless Chromium ------------------------------------
     cp docs/erd.svg "$BUILD/erd.svg"
-    render_pdf docs/documentation.md dokumentacja.pdf "Pomiary — dokumentacja projektu, ZAI 2026Z"
-    render_pdf docs/submissions/formularz-e2.md formularz-e2.pdf "Pomiary — formularz zgłoszenia E2, ZAI 2026Z"
-    render_pdf docs/submissions/lista-kontrolna-e2.md lista-kontrolna-e2.pdf "Pomiary — lista kontrolna E2, ZAI 2026Z"
+    render_pdf docs/documentation.md dokumentacja.pdf "Pomiary - dokumentacja projektu, ZAI 2026Z"
+    render_pdf docs/submissions/formularz-e2.md formularz-e2.pdf "Pomiary - formularz zgłoszenia E2, ZAI 2026Z"
+    render_pdf docs/submissions/lista-kontrolna-e2.md lista-kontrolna-e2.pdf "Pomiary - lista kontrolna E2, ZAI 2026Z"
 
     local pages count size
     pages="$(pdfinfo "$OUT/dokumentacja.pdf" | awk '/^Pages:/ {print $2}')"
