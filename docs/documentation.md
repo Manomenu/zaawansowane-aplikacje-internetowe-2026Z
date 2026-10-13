@@ -272,7 +272,8 @@ Wykorzystano asystentów AI, na co kurs zezwala:
 - **suwgit** ([github.com/Manomenu/suwalski-git](https://github.com/Manomenu/suwalski-git)),
   własne narzędzie autora: lokalny model językowy (Qwen) pisze w nim komunikaty commitów.
 
-Autor **podejmował decyzje projektowe** (architektura, wybór technologii, zasady pracy w
+Udział autora to **planowanie** projektu i kolejnych etapów, **redagowanie dokumentacji** oraz
+**pisanie wspomagane** z użyciem Claude Opus 5.5. Autor **podejmował decyzje projektowe** (architektura, wybór technologii, zasady pracy w
 repozytorium), **koordynował pracę** asystentów AI, zlecał im zadania i sprawdzał wyniki.
 **Przy każdej zmianie uruchamiał bramkę jakości kodu** (typy, lintery, testy jednostkowe,
 kontraktowe i w przeglądarce), sam lub zlecając to agentowi, a CI powtarza ją przy każdym pushu.
