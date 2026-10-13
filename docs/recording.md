@@ -1,8 +1,8 @@
-# Skrypt nagrania — film E2 (cel 6:50, limit 7:00)
+# Skrypt nagrania - film E2 (cel 6:50, limit 7:00)
 
 Specyfikacja (`docs/spec/zai-projekt-26z.pdf`, "Zawartość zgłoszenia końcowego (E2)"):
 MP4 do 100 MB, od 5 do 7 minut, **wdrożona** aplikacja z **widocznym paskiem adresu**,
-wymagania po kolei (F1–F13, widok mobilny, podgląd wydruku, dwa elementy bezpieczeństwa,
+wymagania po kolei (F1-F13, widok mobilny, podgląd wydruku, dwa elementy bezpieczeństwa,
 rozszerzenia), kod **powiedziany lub pokazany przed każdym wymaganiem** oraz pełny cykl
 czujnika. Ten plik to plan; minuty w `docs/submissions/lista-kontrolna-e2.md` pochodzą z niego i są poprawiane po
 nagraniu.
@@ -19,7 +19,7 @@ tekstowy lub karteczka z następnym kodem w rogu nagrania albo tytuł terminala.
   nie wchodzi to do filmu.
 - **Ekran:** jedno nagranie 1920×1080. Przeglądarka po lewej, dwie trzecie szerokości (pasek
   adresu widoczny cały czas, zoom 100 %), terminal po prawej, jedna trzecia (czcionka
-  16–18 pt). Nie używaj trybu pełnoekranowego przeglądarki: ukrywa pasek adresu.
+  16-18 pt). Nie używaj trybu pełnoekranowego przeglądarki: ukrywa pasek adresu.
 - **Profil przeglądarki:** czysty (bez rozszerzeń, bez paska zakładek), jasny motyw,
   **wylogowany** (pusty `sessionStorage`). Dodatkowe karty, gotowe: strona CI
   (`https://github.com/Manomenu/zaawansowane-aplikacje-internetowe-2026Z/actions/workflows/ci.yml`),
@@ -67,7 +67,7 @@ tekstowy lub karteczka z następnym kodem w rogu nagrania albo tytuł terminala.
 | 1:05 | 0:25 | **F5** | Filtry: preset (24 h), własny zakres From/To, odznacz jedną serię (jej krzywa i kolumna znikają), zaznacz ją z powrotem. |
 | 1:30 | 0:15 | **F6** | Kliknij wiersz tabeli: punkt jest podświetlony na wykresie (Enter działa też z klawiatury). |
 | 1:45 | 0:30 | **F8**, **F9** | Zaloguj się: najpierw złe hasło (błąd serwera pod formularzem), potem właściwe z **Enter**, ze stanem ładowania na przycisku. Zakładka Account: zmień hasło (najpierw błąd walidacji, potem poprawna zmiana na to samo hasło, żeby hasło sprawdzane przez prowadzącego pozostało bez zmian), wyloguj się i zaloguj ponownie. |
-| 2:15 | 0:20 | **F2**, **F4** (form) | Zakładka Series: utwórz "Demo temperature", jednostka °C, zakres 0–100, kolor i znacznik. Najpierw min 100 i max 0: formularz odmawia przed wysłaniem (F4 w formularzu), potem poprawne wartości. Seria się pojawia. |
+| 2:15 | 0:20 | **F2**, **F4** (form) | Zakładka Series: utwórz "Demo temperature", jednostka °C, zakres 0-100, kolor i znacznik. Najpierw min 100 i max 0: formularz odmawia przed wysłaniem (F4 w formularzu), potem poprawne wartości. Seria się pojawia. |
 | 2:35 | 0:25 | **F12** | Zakładka Sensors, "Register a sensor": nazwa "Demo sensor", seria "Demo temperature". Okno "Sensor registered" pokazuje klucz **tylko raz**: skopiuj go. W terminalu: `export POMIARY_API_KEY=<paste>` (czujnik jest usuwany o 4:25). |
 | 3:00 | 0:30 | **F13**, **F1** | Terminal: polecenie uzupełnienia danych (poniżej), 24 linie `201 ...`. Przeglądarka, zakładka Data, zaznaczone "Demo temperature", filtr 24 h: 24 punkty są na wykresie i w tabeli. Powiedz o F1: wynik to liczba, czas i seria, i pochodzi wyłącznie z czujnika przez API. |
 | 3:30 | 0:25 | **X1** | Wykres widoczny obok terminala, preset **15 min** (oś obejmuje wtedy ostatnie minuty, więc nowe punkty są dość szeroko rozstawione, by je zobaczyć). Polecenie na żywo: nowy punkt pojawia się co sekundę **bez przeładowania strony** (strumień SSE na żywo), pełna fala w górę i w dół co 20 s. |
@@ -78,16 +78,16 @@ tekstowy lub karteczka z następnym kodem w rogu nagrania albo tytuł terminala.
 | 5:20 | 0:40 | **B3** (T5) | Dwa elementy. (a) **Klucze API czujników** (T5.5): klucz był pokazany tylko raz w oknie (2:35); `GET /api/sensors` nie zwraca klucza (Swagger pod `/api/docs` albo karta Network); karta z kodem `sensors/store.py`: `create_sensor` generuje `token_urlsafe(32)` i zapisuje tylko `key_hash`, czyli SHA-256 (`api_key_hash UNIQUE`). Opcjonalnie, tylko jeśli przećwiczone: `psql` na produkcyjnej bazie, `SELECT name, left(api_key_hash, 16) FROM sensors;` pokazuje hashe, a nie klucze; w przeciwnym razie pokaż kod i `001_schema.sql` (wdrożona baza jest w klastrze, nic nieprzećwiczonego się na niej nie uruchamia). (b) **Hasła Argon2id i wygasające nieprzejrzyste tokeny sesji** (T5.1, T5.3): karta z kodem `auth/store.py`: `hasher`, `open_session` (`token_hash`, `expires_at`), `UNKNOWN_USER_HASH`; odpowiedź logowania zawiera `expiresIn`. Powiedz, przed czym każdy element chroni: przed kopią skradzionej bazy; przed odtworzeniem tokenu. |
 | 6:00 | 0:15 | **X2** | Terminal: polecenie Open-Meteo (poniżej), z kluczem czujnika serii (klucz czujnika z danych początkowych albo krótkotrwałego czujnika zarejestrowanego przed nagraniem). Linie `201 ...` z prawdziwymi aktualnymi wartościami. Powiedz: "prawdziwe dane z Open-Meteo, CC BY 4.0, atrybucja w dokumentacji". Kod: `pomiary_generator/pomiary_generator/openmeteo.py`. |
 | 6:15 | 0:10 | **X3** | Strona GitHub Actions: zielony status ostatniego przebiegu na `master` (zadania `test`, `e2e`, `build`). |
-| 6:25 | 0:15 | **B4**, **B5** | Terminal: lista zawartości archiwum (poniżej) pokazuje `docs/erd.svg`, obie migracje `migrations/001_schema.sql` i `002_unique_names.sql` oraz `dokumentacja.pdf` w ZIP-ie (B4). Potem PDF, już otwarty: sekcja 4 z diagramem ERD i szybkie przewinięcie nagłówków sekcji 1–9 (B5: adres, logowanie, uruchomienie lokalne i generator danych, ERD, bezpieczeństwo, rozszerzenia API, AI, technologie, rozszerzenia). |
+| 6:25 | 0:15 | **B4**, **B5** | Terminal: lista zawartości archiwum (poniżej) pokazuje `docs/erd.svg`, obie migracje `migrations/001_schema.sql` i `002_unique_names.sql` oraz `dokumentacja.pdf` w ZIP-ie (B4). Potem PDF, już otwarty: sekcja 4 z diagramem ERD i szybkie przewinięcie nagłówków sekcji 1-9 (B5: adres, logowanie, uruchomienie lokalne i generator danych, ERD, bezpieczeństwo, rozszerzenia API, AI, technologie, rozszerzenia). |
 | 6:40 | 0:10 | n/a | Jedno zdanie na zakończenie: archiwum i dokumentacja są w zgłoszeniu; X4 nie jest zgłaszane. Stop. |
 
 Razem 6:50, 10 s zapasu. Jeśli nagranie się wydłuża, skracaj najpierw F5 i X2, nigdy pełnego
-cyklu czujnika (2:35–4:50) ani B4/B5 (ich minuta trafia do listy kontrolnej).
+cyklu czujnika (2:35-4:50) ani B4/B5 (ich minuta trafia do listy kontrolnej).
 
 ## Pełny cykl czujnika (wszystkie pięć kroków jest w nagraniu)
 
 1. zarejestruj czujnik w aplikacji: 2:35 (F12);
-2. wstaw jego klucz do generatora danych: 2:35–3:00 (`POMIARY_API_KEY`);
+2. wstaw jego klucz do generatora danych: 2:35-3:00 (`POMIARY_API_KEY`);
 3. wyślij wyniki i zobacz je na wykresie: 3:00 i 3:30 (F13, F1, X1);
 4. wynik spoza zakresu zostaje odrzucony: 3:55 (F4: komunikat generatora i log serwera);
 5. wyrejestruj czujnik, a następna wysyłka z generatora zostaje odrzucona z 401: 4:25 (F12).
@@ -116,5 +116,5 @@ unzip -l .artifacts/submissions/e2/pomiary-zai-26z.zip | grep -E 'erd|migrations
 
 Wpisz prawdziwe minuty do `docs/submissions/lista-kontrolna-e2.md`. Sprawdź, czy każdy kod został powiedziany lub
 pokazany **przed** swoim fragmentem, czy pasek adresu nigdy nie był ukryty, długość
-(5:00–7:00) i rozmiar pliku. Usuń serię "Demo temperature" i czujniki demonstracyjne z
+(5:00-7:00) i rozmiar pliku. Usuń serię "Demo temperature" i czujniki demonstracyjne z
 wdrożonej aplikacji, jeśli nadal tam są.

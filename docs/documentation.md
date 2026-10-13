@@ -2,7 +2,7 @@
 docs/erd.svg, its longer description docs/erd.md. The admin login in section 2 is filled in from the
 platform's secrets file when the PDF is built; the repository keeps only the placeholders. -->
 
-# Pomiary — warunki w lasach
+# Pomiary - warunki w lasach
 
 <div class="doc-meta">
 
@@ -18,15 +18,15 @@ platform's secrets file when the PDF is built; the repository keeps only the pla
 </div>
 
 Aplikacja zbierająca i prezentująca serie pomiarowe z czujników: opady, temperaturę powietrza
-i gleby oraz wilgotność gleby w trzech miejscach w pobliżu lasów (Warszawa, Suwałki, Chełm) —
+i gleby oraz wilgotność gleby w trzech miejscach w pobliżu lasów (Warszawa, Suwałki, Chełm) -
 12 serii, wartości co 6 godzin. Czujniki są emulowane przez generator danych, który czyta
 [Open-Meteo](https://open-meteo.com/) (Weather data by Open-Meteo.com, CC BY 4.0) albo tworzy
 syntetyczną krzywą, i wysyła wyniki przez API tak jak każdy czujnik.
 
 ## 1. Adres aplikacji i repozytorium
 
-- Aplikacja i API (jeden host, API pod `/api`): https://pomiary-lasy.gugnowski.com
-  — aplikacja jest wdrożona i dostępna (stan na 2026-10-12).
+- Aplikacja i API (jeden host, API pod `/api`): https://pomiary-lasy.gugnowski.com -
+  aplikacja jest wdrożona i dostępna (stan na 2026-10-12).
   Aplikacja działa na własnym klastrze Kubernetes autora za tunelem Cloudflare (HTTPS), nie na
   darmowym planie, więc nie jest usypiana po okresie bezczynności i nie ma zimnego startu, o którym
   trzeba by wspominać.
@@ -108,7 +108,7 @@ na żywo (`--interval 5s`, czas nadaje serwer).
 | Parametr | Znaczenie |
 | --- | --- |
 | `--api URL`, `--api-key KEY` | adres API i klucz czujnika (zmienne środowiskowe powyżej); brak klucza to błąd |
-| `--count N` | liczba wartości do wysłania (uzupełnianie wstecz) lub liczba wysyłek (na żywo; bez tego — bez końca) |
+| `--count N` | liczba wartości do wysłania (uzupełnianie wstecz) lub liczba wysyłek (na żywo; bez tego - bez końca) |
 | `--step 1h` | uzupełnianie wstecz: odstęp między wartościami (`s`, `m`, `h`, `d`; domyślnie `1h`) |
 | `--end now` | uzupełnianie wstecz: czas najnowszej wartości (ISO 8601 lub `now`) |
 | `--interval 5s` | tryb na żywo: odstęp między wysyłkami |
@@ -122,7 +122,7 @@ na żywo (`--interval 5s`, czas nadaje serwer).
 
 Odrzucona wartość (400/422) jest wypisywana wraz z wyjaśnieniem serwera, a działanie trwa dalej;
 401 (zły klucz lub czujnik został wyrejestrowany) je zatrzymuje; kod wyjścia jest niezerowy, gdy
-cokolwiek się nie powiodło. Przykład — wartość spoza zakresu do zademonstrowania F4:
+cokolwiek się nie powiodło. Przykład - wartość spoza zakresu do zademonstrowania F4:
 `python -m pomiary_generator send --count 1 --shape constant --min 120 --max 120`.
 
 **`seed`: dane przykładowe (F11).** Loguje się jako administrator, usuwa swoje 12 serii przykładowych
@@ -151,22 +151,22 @@ PostgreSQL, schemat w `pomiary_server/pomiary_server/migrations/001_schema.sql` 
 ponumerowane pliki SQL stosowane przy starcie i weryfikowane sumą kontrolną; dane przykładowe pochodzą
 z generatora). Szczegóły: `docs/erd.md`.
 
-- **`admins`** — konta; `username` unikalna, `password_hash` to Argon2id.
-- **`sessions`** — sesje logowania; kluczem jest `token_hash`, SHA-256 nieprzezroczystego tokenu;
+- **`admins`** - konta; `username` unikalna, `password_hash` to Argon2id.
+- **`sessions`** - sesje logowania; kluczem jest `token_hash`, SHA-256 nieprzezroczystego tokenu;
   `expires_at` ogranicza jego czas życia.
-- **`series`** — nazwa (unikalna bez względu na wielkość liter), zakres `[min_value, max_value]` (`CHECK min_value < max_value`), kolor
+- **`series`** - nazwa (unikalna bez względu na wielkość liter), zakres `[min_value, max_value]` (`CHECK min_value < max_value`), kolor
   (`CHECK` `#RRGGBB`), opcjonalna `icon` (znacznik na wykresie) i `unit`.
-- **`sensors`** — zarejestrowany czujnik przypisany do jednej serii, nazwa unikalna jak w serii; `api_key_hash` to unikalny SHA-256
+- **`sensors`** - zarejestrowany czujnik przypisany do jednej serii, nazwa unikalna jak w serii; `api_key_hash` to unikalny SHA-256
   jego klucza; `last_measurement_at`.
-- **`measurements`** — `value`, `measured_at` (w API: `timestamp`), seria i, gdy znany,
+- **`measurements`** - `value`, `measured_at` (w API: `timestamp`), seria i, gdy znany,
   czujnik.
 
 | Relacja | Liczebność | ON DELETE |
 | --- | --- | --- |
-| `admins` → `sessions` | 1–N | CASCADE: żadnej sesji bez jej administratora |
-| `series` → `sensors` | 1–N | CASCADE: usunięcie serii wyrejestrowuje jej czujniki |
-| `series` → `measurements` | 1–N | CASCADE: wyniki znikają tylko razem z serią (kontrakt) |
-| `sensors` → `measurements` | 0..1–N, nullable | SET NULL: wyrejestrowanie natychmiast unieważnia klucz, historia zostaje |
+| `admins` → `sessions` | 1-N | CASCADE: żadnej sesji bez jej administratora |
+| `series` → `sensors` | 1-N | CASCADE: usunięcie serii wyrejestrowuje jej czujniki |
+| `series` → `measurements` | 1-N | CASCADE: wyniki znikają tylko razem z serią (kontrakt) |
+| `sensors` → `measurements` | 0..1-N, nullable | SET NULL: wyrejestrowanie natychmiast unieważnia klucz, historia zostaje |
 
 Indeks `(series_id, measured_at)` na `measurements` obsługuje `GET /measurements?series=&from=&to=`
 (równość po serii, przeszukanie zakresu w czasie, wynik już posortowany). Hasła, tokeny sesji i
@@ -177,7 +177,7 @@ klucze czujników są przechowywane wyłącznie w postaci skrótów kryptografic
 ### (a) Klucze API czujników: losowe, przechowywane jako SHA-256, pokazywane raz (T5.5)
 
 - **Co.** Czujnik uwierzytelnia się nagłówkiem `X-API-Key`. Klucz to
-  `secrets.token_urlsafe(32)` — 43 znaki z kryptograficznego generatora liczb losowych (256 bitów;
+  `secrets.token_urlsafe(32)` - 43 znaki z kryptograficznego generatora liczb losowych (256 bitów;
   kontrakt wymaga co najmniej 32 znaków). Baza przechowuje tylko `sha256(key)` w
   `sensors.api_key_hash` (`UNIQUE`). Surowy klucz jest zwracany jednorazowo, w odpowiedzi na
   `POST /sensors` (pole `apiKey`), i jednorazowo pokazywany w aplikacji webowej (okno dialogowe z
@@ -204,7 +204,7 @@ klucze czujników są przechowywane wyłącznie w postaci skrótów kryptografic
 - **Gdzie.** `pomiary_server/pomiary_server/auth/store.py`: `hasher` (`PasswordHasher`),
   `verify_password`, `UNKNOWN_USER_HASH`, `open_session` (usuwa też wygasłe sesje),
   `token_hash`, `admin_for_token`, `close_session`, `change_password`. `auth/api.py`:
-  `current_admin` — zależność `CurrentAdmin`, którą deklaruje każda trasa modyfikująca.
+  `current_admin` - zależność `CurrentAdmin`, którą deklaruje każda trasa modyfikująca.
 - **Chroni przed.**
   - *Skradzioną kopią bazy:* hasła to solone, pamięciochłonne skróty kryptograficzne Argon2id (kosztowne do
     złamania metodą siłową), a tokeny sesji są przechowywane tylko jako SHA-256, więc zrzut bazy nie
@@ -238,7 +238,7 @@ Kontrakt (`docs/spec/zai-api-26z.yaml`) pozostaje niezmieniony (jego suma kontro
 bramkę jakości); wszystko poniżej jest ponad nim.
 
 - **Dodana ścieżka `GET /api/measurements/stream`** (publiczna, `text/event-stream`, Server-Sent
-  Events) — pomiary na żywo dla pulpitu (rozszerzenie X1). Opcjonalne `?series=1,3` (to samo
+  Events) - pomiary na żywo dla pulpitu (rozszerzenie X1). Opcjonalne `?series=1,3` (to samo
   parsowanie co w `GET /measurements`). Każdy nowy pomiar to zdarzenie `measurement`, którego `data`
   to ten sam JSON co w `GET /measurements/{id}`; komentarz `: ping` co 15 s podtrzymuje
   połączenie. Pomiar jest ogłaszany dopiero po zatwierdzeniu transakcji (PostgreSQL
@@ -301,7 +301,7 @@ kodu. Czego ten projekt nie napisał samodzielnie:
 wymienionymi wyżej wzorcami z dokumentacji. Wersje zależności są przypięte w `uv.lock` i
 `pomiary_web/pnpm-lock.yaml`.
 
-## 8. Technologie i uzasadnienie (T1–T4, T10, T11)
+## 8. Technologie i uzasadnienie (T1-T4, T10, T11)
 
 **Główny powód wyboru całego stosu:** autor miał już gotowy, przetestowany szablon do
 rozpoczynania aplikacji, [solid-app-tpl](https://github.com/Manomenu/solid-app-tpl) (FastAPI +
@@ -324,7 +324,7 @@ wymagań:
 ## 9. Wykonane rozszerzenia
 
 - **X1 wykres na żywo (SSE):** `GET /api/measurements/stream` (sekcja 6) i pulpit w
-  `pomiary_web/src/dashboard/` — wartość wysłana przez generator pojawia się bez przeładowania strony.
+  `pomiary_web/src/dashboard/` - wartość wysłana przez generator pojawia się bez przeładowania strony.
 - **X2 generator z prawdziwymi danymi:** `--source open-meteo` (sekcja 3.3), kod w
   `pomiary_generator/`; atrybucja w stopce strony i w README.
 - **X3 testy w CI:** `.github/workflows/ci.yml` uruchamia bramkę jakości, testy w przeglądarce, a
