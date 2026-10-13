@@ -1,5 +1,5 @@
 <!-- The source of lista-kontrolna-e2.pdf, built by `just package --stage e2`. The minutes are the start of
-each scene in the recording: plan them from docs/recording.md, then set the real ones after the take. -->
+each scene in the recording: plan them from the owner's recording script (outside the repo), then set the real ones after the take. -->
 
 # Pomiary - warunki w lasach
 
